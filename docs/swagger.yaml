@@ -1,0 +1,71 @@
+definitions:
+  services.ProjectInfo:
+    properties:
+      admin:
+        description: 管理员
+        type: string
+      c_time:
+        type: string
+      create_time:
+        type: string
+      department:
+        description: 项目所属部门
+        type: string
+      description:
+        description: 项目描述
+        type: string
+      id:
+        type: integer
+      name:
+        description: 项目名称
+        type: string
+      u_time:
+        type: string
+      update_time:
+        type: string
+    type: object
+  services.ProjectList:
+    properties:
+      list:
+        items:
+          $ref: '#/definitions/services.ProjectInfo'
+        type: array
+      total:
+        type: integer
+    type: object
+  services.WebResponse:
+    properties:
+      errcode:
+        description: 错误码
+        type: integer
+      errmsg:
+        description: 错误信息
+        type: string
+    type: object
+info:
+  contact:
+    email: 2572597150@qq.com
+    name: 李明
+  description: 配置平台 HTTP接口文档
+  title: 配置平台
+  version: "1.0"
+paths:
+  /config/list:
+    get:
+      consumes:
+      - application/json
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/services.ProjectList'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/services.WebResponse'
+      summary: 获取项目列表
+      tags:
+      - 配置
+swagger: "2.0"

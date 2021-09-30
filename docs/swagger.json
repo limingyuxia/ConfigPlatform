@@ -1,0 +1,107 @@
+{
+    "swagger": "2.0",
+    "info": {
+        "description": "配置平台 HTTP接口文档",
+        "title": "配置平台",
+        "contact": {
+            "name": "李明",
+            "email": "2572597150@qq.com"
+        },
+        "version": "1.0"
+    },
+    "paths": {
+        "/config/list": {
+            "get": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "配置"
+                ],
+                "summary": "获取项目列表",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/services.ProjectList"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/services.WebResponse"
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "definitions": {
+        "services.ProjectInfo": {
+            "type": "object",
+            "properties": {
+                "admin": {
+                    "description": "管理员",
+                    "type": "string"
+                },
+                "c_time": {
+                    "type": "string"
+                },
+                "create_time": {
+                    "type": "string"
+                },
+                "department": {
+                    "description": "项目所属部门",
+                    "type": "string"
+                },
+                "description": {
+                    "description": "项目描述",
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "name": {
+                    "description": "项目名称",
+                    "type": "string"
+                },
+                "u_time": {
+                    "type": "string"
+                },
+                "update_time": {
+                    "type": "string"
+                }
+            }
+        },
+        "services.ProjectList": {
+            "type": "object",
+            "properties": {
+                "list": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/services.ProjectInfo"
+                    }
+                },
+                "total": {
+                    "type": "integer"
+                }
+            }
+        },
+        "services.WebResponse": {
+            "type": "object",
+            "properties": {
+                "errcode": {
+                    "description": "错误码",
+                    "type": "integer"
+                },
+                "errmsg": {
+                    "description": "错误信息",
+                    "type": "string"
+                }
+            }
+        }
+    }
+}
