@@ -1,7 +1,7 @@
 package services
 
 import (
-	"ConfigServer/conf/mysql"
+	"ConfigPlatform/conf/mysql"
 	"log"
 	"time"
 

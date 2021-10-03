@@ -1,4 +1,4 @@
-module ConfigServer
+module ConfigPlatform
 
 go 1.17
 

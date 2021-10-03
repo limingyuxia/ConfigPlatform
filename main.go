@@ -1,11 +1,11 @@
 package main
 
 import (
-	"ConfigServer/routes"
+	"ConfigPlatform/routes"
 
-	"ConfigServer/conf"
-	"ConfigServer/conf/mysql"
-	_ "ConfigServer/docs"
+	"ConfigPlatform/conf"
+	"ConfigPlatform/conf/mysql"
+	_ "ConfigPlatform/docs"
 )
 
 // @title 配置平台

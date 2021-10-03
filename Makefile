@@ -1,4 +1,4 @@
-SERVER_NAME = ConfigServer
+SERVER_NAME = ConfigPlatform
 GOCMD=go
 GOBUILD=$(GOCMD) build -x
 

@@ -1,7 +1,8 @@
 package routes
 
 import (
-	"ConfigServer/services"
+	"ConfigPlatform/routes/middleware"
+	"ConfigPlatform/services"
 
 	"github.com/gin-gonic/gin"
 	swaggerFiles "github.com/swaggo/files"
@@ -13,6 +14,7 @@ func InitRouter() {
 	r := gin.New()
 	r.Use(gin.Logger())
 	r.Use(gin.Recovery())
+	r.Use(middleware.Cors)
 
 	r.StaticFile("/", "web/index.html")
 	r.StaticFile("project.js", "web/project.js")
