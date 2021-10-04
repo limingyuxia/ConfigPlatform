@@ -1,11 +1,12 @@
 package main
 
 import (
-	"ConfigPlatform/routes"
+	"log"
 
 	"ConfigPlatform/conf"
 	"ConfigPlatform/conf/mysql"
 	_ "ConfigPlatform/docs"
+	"ConfigPlatform/routes"
 )
 
 // @title 配置平台
@@ -14,6 +15,12 @@ import (
 // @version 1.0
 // @description  配置平台 HTTP接口文档
 func main() {
+	defer func() {
+		if err := recover(); err != nil {
+			log.Print(nil, "got_a_panic: ", err)
+		}
+	}()
+
 	// 加载配置文件
 	conf.LoadConf()
 

@@ -1,7 +1,8 @@
 package routes
 
 import (
-	"ConfigPlatform/routes/middleware"
+	"ConfigPlatform/routes/middleware/cors"
+	"ConfigPlatform/routes/middleware/jwt"
 	"ConfigPlatform/services"
 
 	"github.com/gin-gonic/gin"
@@ -14,12 +15,21 @@ func InitRouter() {
 	r := gin.New()
 	r.Use(gin.Logger())
 	r.Use(gin.Recovery())
-	r.Use(middleware.Cors)
 
+	// 处理跨域
+	r.Use(cors.HandleCors)
+
+	// 加载静态文件
 	r.StaticFile("/", "web/index.html")
 	r.StaticFile("project.js", "web/project.js")
 	r.StaticFile("project.css", "web/project.css")
+
+	// swagger文档
 	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
+
+	r.POST("/login", services.Login)
+
+	// api 接口
 	api := r.Group("/config")
 
 	addConfigRoute(api)
@@ -28,5 +38,8 @@ func InitRouter() {
 }
 
 func addConfigRoute(g *gin.RouterGroup) {
-	g.GET("list", services.GetProjectList)
+	g.Use(jwt.JWT())
+	{
+		g.GET("list", services.GetProjectList)
+	}
 }

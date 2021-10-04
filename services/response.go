@@ -12,9 +12,14 @@ type WebResponse struct {
 }
 
 // 错误返回数据
-func ResponseError(errcode int, errmsg string, c *gin.Context) {
+func ResponseError(errcode RETCODE, errmsg string, c *gin.Context) {
 	c.JSON(http.StatusBadRequest, gin.H{
 		"errcode": errcode,
 		"errmsg":  errmsg,
 	})
+}
+
+// 正常返回数据
+func ResponseData(data interface{}, c *gin.Context) {
+	c.JSON(http.StatusOK, data)
 }

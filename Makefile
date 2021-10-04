@@ -1,6 +1,6 @@
 SERVER_NAME = ConfigPlatform
-GOCMD=go
-GOBUILD=$(GOCMD) build -x
+GOCMD = go
+GOBUILD = $(GOCMD) build -x
 
 all: build
 build:

@@ -1,5 +1,8 @@
+CREATE DATABASE ConfigPlaform;
+USE ConfigPlaform;
+
 -- ----------------------------
--- Table structure for drug_source
+-- Table structure for project
 -- ----------------------------
 DROP TABLE IF EXISTS `project`;
 CREATE TABLE `project` (
@@ -13,3 +16,12 @@ CREATE TABLE `project` (
   PRIMARY KEY (`id`),
   UNIQUE KEY(`name`)
 ) ENGINE = InnoDB AUTO_INCREMENT=1000 DEFAULT CHARSET = utf8mb4 COMMENT = '项目信息';
+
+
+DROP TABLE IF EXISTS `user`;
+CREATE TABLE `user` (
+  `id` int(11) NOT NULL AUTO_INCREMENT COMMENT '用户id',
+  `username` varchar(50) NOT NULL COMMENT '用户名',
+  `password` varchar(50) NOT NULL COMMENT '密码',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8;
