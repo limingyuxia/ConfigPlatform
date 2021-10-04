@@ -8,12 +8,10 @@ export function getList(params) {
   })
 }
 
-export function getOpticalList(params) {
+export function getConfingList(params) {
   console.log('获取数据表格:', params)
   console.log('数据:', params.dataAll)
   console.log('头:', params.header)
-
-  params.header['Content-Type'] = 'application/x-www-form-urlencoded'
 
   return request({
     url: '/table/getOpticalList.php',

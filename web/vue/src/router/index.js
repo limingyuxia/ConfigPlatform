@@ -59,14 +59,14 @@ export const constantRoutes = [
     component: Layout,
     redirect: '/example/table',
     name: 'Example',
-    meta: { title: 'Example', icon: 'el-icon-s-help' },
+
     children: [
       {
         path: 'table',
         name: '配置文件',
         component: () => import('@/views/table/index'),
         meta: { title: '配置文件', icon: 'table' }
-      },
+      }
     ]
   },
 

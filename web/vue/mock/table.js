@@ -12,18 +12,27 @@ const data = Mock.mock({
 })
 
 module.exports = [
-  {
-    url: '/vue-admin-template/table/list',
+  /*{
+    url: '/config/list',
     type: 'get',
     response: config => {
       const items = data.items
       return {
-        code: 20000,
-        data: {
-          total: items.length,
-          items: items
-        }
+        "list": [
+          {
+            "admin": "1",
+            "c_time": "2",
+            "create_time": "3",
+            "department": "4",
+            "description": "5",
+            "id": 0,
+            "name": "6",
+            "u_time": "7",
+            "update_time": "8"
+          }
+        ],
+        "total": 1
       }
     }
-  }
+  }*/
 ]
