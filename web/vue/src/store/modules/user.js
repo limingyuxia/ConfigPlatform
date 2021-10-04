@@ -36,9 +36,7 @@ const actions = {
 
     return new Promise((resolve, reject) => {
       login(userInfo).then(response => {
-        console.log('网页返回:', response)
         const { data } = response
-        console.log('token保存', data)
         commit('SET_TOKEN', data.token)
         setToken(data.token)
         resolve()
@@ -51,6 +49,9 @@ const actions = {
 
   // get user info
   getInfo({ commit, state }) {
+      console.log("获取：",commit,state)
+    return 0
+
     return new Promise((resolve, reject) => {
       getInfo(state.token).then(response => {
         const { data } = response
@@ -72,6 +73,14 @@ const actions = {
 
   // user logout
   logout({ commit, state }) {
+ 
+    removeToken() // must remove  token  first
+    resetRouter()
+    commit('RESET_STATE')
+   
+
+    
+    return 
     return new Promise((resolve, reject) => {
       logout(state.token).then(() => {
         removeToken() // must remove  token  first

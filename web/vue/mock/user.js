@@ -25,6 +25,7 @@ const users = {
 
 module.exports = [
   // user login
+/*
   {
     url: '/user/login',
     type: 'post',
@@ -46,7 +47,7 @@ module.exports = [
         
       }
     }
-  },
+  },*/
 
   // get user info
   {
