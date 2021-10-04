@@ -8,7 +8,7 @@ export function login(params) {
   */
 
   return request({
-    url: '/user/login',
+    url: '/login',
     method: 'post',
     data: params
     // headers: params.header
