@@ -78,12 +78,22 @@ service.interceptors.response.use(
     }
   },
   error => {
-    console.log("errorData",error.response)
+    //console.log("errorData",error)
+ 
+    if (typeof(error.response) == "undefined") {
+      Message({
+        message: error,
+        type: 'error',
+        duration: 5 * 1000
+      })
+      return Promise.reject(error)
+
+    }
+
     const statusCode = error.response.status
     const res = error.response.data
 
     if (statusCode === 400) {
-      console.log("失败",res)
       Message({
         message: '[' + res.errcode + ']' + res.errmsg || 'Error',
         type: 'error',
@@ -91,15 +101,14 @@ service.interceptors.response.use(
       })
       return Promise.reject(error)
     }
-
-    //其他错误
-    Message({
-      message: error.message,
-      type: 'error',
-      duration: 5 * 1000
-    })
-
-    return Promise.reject(error)
+    else{ //其他错误
+      Message({
+        message: error,
+        type: 'error',
+        duration: 5 * 1000
+      })
+      return Promise.reject(error)
+    }
   }
 )
 
