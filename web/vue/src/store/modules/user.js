@@ -36,12 +36,13 @@ const actions = {
 
     return new Promise((resolve, reject) => {
       login(userInfo).then(response => {
-        const { data } = response
-        commit('SET_TOKEN', data.token)
-        setToken(data.token)
+        //const { data } = response
+        console.log("WebData:",response)
+        commit('SET_TOKEN', response.token)
+        setToken(response.token)
         resolve()
       }).catch(error => {
-        console.log('token保存失败', error)
+        //console.log('token保存失败', error)
         reject(error)
       })
     })

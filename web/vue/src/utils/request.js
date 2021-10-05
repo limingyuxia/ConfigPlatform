@@ -43,12 +43,14 @@ service.interceptors.response.use(
    * You can also judge the status by HTTP Status Code
    */
   response => {
+    console.log('webDataAll:', response)
+
     const res = response.data
     const statusCode = response.status
 
-    console.log('网页返回all:', response)
 
-    console.log('网页返回:', res)
+
+
     // if the custom code is not 20000, it is judged as an error.
     if (statusCode !== 200) {
       Message({
@@ -76,12 +78,27 @@ service.interceptors.response.use(
     }
   },
   error => {
-    console.log('err' + error) // for debug
+    console.log("errorData",error.response)
+    const statusCode = error.response.status
+    const res = error.response.data
+
+    if (statusCode === 400) {
+      console.log("失败",res)
+      Message({
+        message: '[' + res.errcode + ']' + res.errmsg || 'Error',
+        type: 'error',
+        duration: 5 * 1000
+      })
+      return Promise.reject(error)
+    }
+
+    //其他错误
     Message({
       message: error.message,
       type: 'error',
       duration: 5 * 1000
     })
+
     return Promise.reject(error)
   }
 )
