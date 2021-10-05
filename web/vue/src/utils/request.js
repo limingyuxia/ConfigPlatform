@@ -15,6 +15,20 @@ service.interceptors.request.use(
   config => {
     // do something before request is sent
 
+    // 配置http
+    var protocolStr = document.location.protocol
+
+    if (protocolStr === 'http:') {
+      config.baseURL = 'http://' + process.env.VUE_APP_BASE_API
+      console.log('protocol = ' + protocolStr)
+    } else if (protocolStr === 'https:') {
+      config.baseURL = 'https://' + process.env.VUE_APP_BASE_API
+      console.log('protocol = ' + protocolStr)
+    } else {
+      config.baseURL = 'http://' + process.env.VUE_APP_BASE_API
+      console.log('other protocol')
+    }
+
     if (store.getters.token) {
       // let each request carry token
       // ['X-Token'] is a custom headers key
@@ -48,9 +62,6 @@ service.interceptors.response.use(
     const res = response.data
     const statusCode = response.status
 
-
-
-
     // if the custom code is not 20000, it is judged as an error.
     if (statusCode !== 200) {
       Message({
@@ -78,16 +89,15 @@ service.interceptors.response.use(
     }
   },
   error => {
-    //console.log("errorData",error)
- 
-    if (typeof(error.response) == "undefined") {
+    // console.log("errorData",error)
+
+    if (typeof (error.response) === 'undefined') {
       Message({
         message: error,
         type: 'error',
         duration: 5 * 1000
       })
       return Promise.reject(error)
-
     }
 
     const statusCode = error.response.status
@@ -100,8 +110,7 @@ service.interceptors.response.use(
         duration: 5 * 1000
       })
       return Promise.reject(error)
-    }
-    else{ //其他错误
+    } else { // 其他错误
       Message({
         message: error,
         type: 'error',
