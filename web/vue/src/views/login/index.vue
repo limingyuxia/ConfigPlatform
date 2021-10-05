@@ -117,7 +117,7 @@ export default {
         if (valid) {
           this.loading = true
           const data = this.loginForm
-          data['type'] = 'phone'
+          // data['type'] = 'phone'
 
           this.$store.dispatch('user/login', data).then(() => {
             console.log('data,', this.redirect)

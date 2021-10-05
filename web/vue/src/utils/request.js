@@ -15,11 +15,25 @@ service.interceptors.request.use(
   config => {
     // do something before request is sent
 
+    // 配置http
+    var protocolStr = document.location.protocol
+
+    if (protocolStr === 'http:') {
+      config.baseURL = 'http://' + process.env.VUE_APP_BASE_API
+      console.log('protocol = ' + protocolStr)
+    } else if (protocolStr === 'https:') {
+      config.baseURL = 'https://' + process.env.VUE_APP_BASE_API
+      console.log('protocol = ' + protocolStr)
+    } else {
+      config.baseURL = 'http://' + process.env.VUE_APP_BASE_API
+      console.log('other protocol')
+    }
+
     if (store.getters.token) {
       // let each request carry token
       // ['X-Token'] is a custom headers key
       // please modify it according to the actual situation
-      config.headers['Access-Token'] = getToken()
+      config.headers['authorization'] = getToken()
     }
     return config
   },
@@ -43,12 +57,11 @@ service.interceptors.response.use(
    * You can also judge the status by HTTP Status Code
    */
   response => {
+    console.log('webDataAll:', response)
+
     const res = response.data
     const statusCode = response.status
 
-    console.log('网页返回all:', response)
-
-    console.log('网页返回:', res)
     // if the custom code is not 20000, it is judged as an error.
     if (statusCode !== 200) {
       Message({
@@ -76,13 +89,35 @@ service.interceptors.response.use(
     }
   },
   error => {
-    console.log('err' + error) // for debug
-    Message({
-      message: error.message,
-      type: 'error',
-      duration: 5 * 1000
-    })
-    return Promise.reject(error)
+    // console.log("errorData",error)
+
+    if (typeof (error.response) === 'undefined') {
+      Message({
+        message: error,
+        type: 'error',
+        duration: 5 * 1000
+      })
+      return Promise.reject(error)
+    }
+
+    const statusCode = error.response.status
+    const res = error.response.data
+
+    if (statusCode === 400) {
+      Message({
+        message: '[' + res.errcode + ']' + res.errmsg || 'Error',
+        type: 'error',
+        duration: 5 * 1000
+      })
+      return Promise.reject(error)
+    } else { // 其他错误
+      Message({
+        message: error,
+        type: 'error',
+        duration: 5 * 1000
+      })
+      return Promise.reject(error)
+    }
   }
 )
 
