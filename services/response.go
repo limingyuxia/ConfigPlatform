@@ -13,6 +13,7 @@ type WebResponse struct {
 
 // 错误返回数据
 func ResponseError(errcode RETCODE, errmsg string, c *gin.Context) {
+	// http 返回的状态码，成功200，错误400
 	c.JSON(http.StatusBadRequest, gin.H{
 		"errcode": errcode,
 		"errmsg":  errmsg,

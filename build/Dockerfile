@@ -9,4 +9,5 @@ COPY . .
 RUN go get -d -v ./...
 RUN go install -v ./...
 
-CMD go run $WORKPATH/main.go
+# 重定向日志输出
+CMD go run $WORKPATH/main.go > ./server.log

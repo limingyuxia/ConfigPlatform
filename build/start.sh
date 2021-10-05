@@ -18,7 +18,7 @@ if [ $baseServer = "mysql" ]; then
     mysql -h 127.0.0.1 -u root -p123456 < $(pwd)/../docs/sql/config.sql
 elif [ $baseServer = "backend" ]; then
     # 运行服务端容器
-    docker run -d --rm -p 8000:8000 --name config-platform 18509518245/config-server:$serverTag
+    docker run -d --rm -p 8000:8000 --name config-server 18509518245/config-server:$serverTag
 elif [ $baseServer = "frontend" ]; then
     # 运行前端容器
     container_id=$(docker create 18509518245/config-web:$serverTag)

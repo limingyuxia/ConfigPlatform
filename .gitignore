@@ -16,3 +16,7 @@ tests/**/coverage/
 *.ntvs*
 *.njsproj
 *.sln
+
+# 域名的证书文件
+limingyuxia.asia.crt
+limingyuxia.asia.key
