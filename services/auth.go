@@ -3,13 +3,17 @@ package services
 import (
 	"crypto/md5"
 	"encoding/hex"
+	"strconv"
 	"time"
 
 	"github.com/dgrijalva/jwt-go"
 	"github.com/gin-gonic/gin"
+
+	"ConfigPlatform/api/users"
+	"ConfigPlatform/conf"
 )
 
-type User struct {
+type LoginReq struct {
 	Username string `json:"username" binding:"required"` // 用户名
 	Password string `json:"password" binding:"required"` // 密码
 }
@@ -25,13 +29,17 @@ type Claims struct {
 	jwt.StandardClaims
 }
 
-var jwtSecret []byte
-
 func encodeMD5(value string) string {
 	m := md5.New()
 	m.Write([]byte(value))
 
 	return hex.EncodeToString(m.Sum(nil))
+}
+
+var jwtSecret []byte
+
+func init() {
+	jwtSecret = []byte(conf.JwtSecret)
 }
 
 func ParseToken(token string) (*Claims, error) {
@@ -70,26 +78,59 @@ func generateToken(username, password string) (string, error) {
 // @Summary 登录
 // @Accept  json
 // @Produce  json
-// @Param user body User true "用户信息"
+// @Param Login body LoginReq true "登录用户的账号密码"
 // @Success 200 {object} Token
 // @Failure 400 {object} WebResponse
 // @Router /login [post]
 func Login(c *gin.Context) {
-	var user User
-	if err := c.ShouldBindJSON(&user); err == nil {
-		if user.Username == "superuser" && user.Password == "supertoken" {
-			token, err := generateToken(user.Username, user.Password)
+	var login LoginReq
+
+	if err := c.ShouldBindJSON(&login); err == nil {
+
+		// 校验用户名密码
+		if err := users.IsUserRegisted(c, login.Username, login.Password); err == nil {
+
+			// 生成token
+			token, err := generateToken(login.Username, login.Password)
 			if err != nil {
-				ResponseError(NOAUTH_ERROR, RETCODE_name[NOAUTH_ERROR], c)
+				ResponseError(TOKEN_ERROR, err.Error(), c)
+				return
 			}
 
 			ResponseData(Token{
 				Token:  token,
-				Expire: 60,
+				Expire: time.Now().Add(3 * time.Hour).Unix(),
 			}, c)
+
 		} else {
-			ResponseError(NOAUTH_ERROR, RETCODE_name[NOAUTH_ERROR], c)
+			ResponseError(DB_ERROR, err.Error(), c)
 		}
+
+	} else {
+		ResponseError(PARAMS_ERROR, err.Error(), c)
+	}
+}
+
+// @Tags 鉴权
+// @Summary 注册账号
+// @Accept  json
+// @Produce  json
+// @Param Register body LoginReq true "注册用户的账号密码"
+// @Success 200 {string} string
+// @Failure 400 {object} WebResponse
+// @Router /register [post]
+func Register(c *gin.Context) {
+	var register LoginReq
+
+	if err := c.ShouldBindJSON(&register); err == nil {
+
+		userId, err := users.UserRegisted(c, register.Username, register.Password)
+		if err != nil {
+			ResponseError(REGISTER_ERROR, err.Error(), c)
+			return
+		}
+
+		ResponseData("注册成功, id: "+strconv.Itoa(int(userId)), c)
 	} else {
 		ResponseError(PARAMS_ERROR, err.Error(), c)
 	}

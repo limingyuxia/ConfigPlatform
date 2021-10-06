@@ -1,0 +1,12 @@
+# 执行 sqlboiler mysql
+output   = "models"
+wipe     = true
+no-tests = true
+
+[mysql]
+  dbname = "config_plaform"
+  host   = "limingyuxia.asia"
+  port   = 3306
+  user   = "root"
+  pass   = "123456"
+  sslmode = "false"

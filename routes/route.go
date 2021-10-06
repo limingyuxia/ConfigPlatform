@@ -27,7 +27,11 @@ func InitRouter() {
 	// swagger文档
 	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 
+	// 登录
 	r.POST("/login", services.Login)
+
+	// 注册
+	r.POST("/register", services.Register)
 
 	// api 接口
 	api := r.Group("/config")

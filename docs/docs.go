@@ -38,11 +38,62 @@ var doc = `{
                     "配置"
                 ],
                 "summary": "获取项目列表",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "管理员",
+                        "name": "admin",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "项目所属部门",
+                        "name": "department",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "项目的开发人员",
+                        "name": "develop_user",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "name": "id",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "项目名称",
+                        "name": "name",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "页码",
+                        "name": "page_index",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "页大小",
+                        "name": "page_size",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "项目创建者",
+                        "name": "project_user",
+                        "in": "query"
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/services.ProjectList"
+                            "$ref": "#/definitions/model.GetProjectListResp"
                         }
                     },
                     "400": {
@@ -68,12 +119,12 @@ var doc = `{
                 "summary": "登录",
                 "parameters": [
                     {
-                        "description": "用户信息",
-                        "name": "user",
+                        "description": "登录用户的账号密码",
+                        "name": "Login",
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/services.User"
+                            "$ref": "#/definitions/services.LoginReq"
                         }
                     }
                 ],
@@ -92,20 +143,71 @@ var doc = `{
                     }
                 }
             }
+        },
+        "/register": {
+            "post": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "鉴权"
+                ],
+                "summary": "注册账号",
+                "parameters": [
+                    {
+                        "description": "注册用户的账号密码",
+                        "name": "Register",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/services.LoginReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/services.WebResponse"
+                        }
+                    }
+                }
+            }
         }
     },
     "definitions": {
-        "services.ProjectInfo": {
+        "model.GetProjectListResp": {
+            "type": "object",
+            "properties": {
+                "projectList": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/model.ProjectInfo"
+                    }
+                },
+                "total": {
+                    "type": "integer"
+                }
+            }
+        },
+        "model.ProjectInfo": {
             "type": "object",
             "properties": {
                 "admin": {
                     "description": "管理员",
                     "type": "string"
                 },
-                "c_time": {
-                    "type": "string"
-                },
                 "create_time": {
+                    "description": "项目创建时间",
                     "type": "string"
                 },
                 "department": {
@@ -116,6 +218,10 @@ var doc = `{
                     "description": "项目描述",
                     "type": "string"
                 },
+                "develop_user": {
+                    "description": "项目的开发人员",
+                    "type": "string"
+                },
                 "id": {
                     "type": "integer"
                 },
@@ -123,42 +229,17 @@ var doc = `{
                     "description": "项目名称",
                     "type": "string"
                 },
-                "u_time": {
+                "project_user": {
+                    "description": "项目创建者",
                     "type": "string"
                 },
                 "update_time": {
+                    "description": "删除时间",
                     "type": "string"
                 }
             }
         },
-        "services.ProjectList": {
-            "type": "object",
-            "properties": {
-                "list": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/services.ProjectInfo"
-                    }
-                },
-                "total": {
-                    "type": "integer"
-                }
-            }
-        },
-        "services.Token": {
-            "type": "object",
-            "properties": {
-                "expire": {
-                    "description": "过期时间",
-                    "type": "integer"
-                },
-                "token": {
-                    "description": "token",
-                    "type": "string"
-                }
-            }
-        },
-        "services.User": {
+        "services.LoginReq": {
             "type": "object",
             "required": [
                 "password",
@@ -171,6 +252,19 @@ var doc = `{
                 },
                 "username": {
                     "description": "用户名",
+                    "type": "string"
+                }
+            }
+        },
+        "services.Token": {
+            "type": "object",
+            "properties": {
+                "expire": {
+                    "description": "过期时间",
+                    "type": "integer"
+                },
+                "token": {
+                    "description": "token",
                     "type": "string"
                 }
             }

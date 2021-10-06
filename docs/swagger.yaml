@@ -1,12 +1,20 @@
 definitions:
-  services.ProjectInfo:
+  model.GetProjectListResp:
+    properties:
+      projectList:
+        items:
+          $ref: '#/definitions/model.ProjectInfo'
+        type: array
+      total:
+        type: integer
+    type: object
+  model.ProjectInfo:
     properties:
       admin:
         description: 管理员
         type: string
-      c_time:
-        type: string
       create_time:
+        description: 项目创建时间
         type: string
       department:
         description: 项目所属部门
@@ -14,35 +22,22 @@ definitions:
       description:
         description: 项目描述
         type: string
+      develop_user:
+        description: 项目的开发人员
+        type: string
       id:
         type: integer
       name:
         description: 项目名称
         type: string
-      u_time:
+      project_user:
+        description: 项目创建者
         type: string
       update_time:
+        description: 删除时间
         type: string
     type: object
-  services.ProjectList:
-    properties:
-      list:
-        items:
-          $ref: '#/definitions/services.ProjectInfo'
-        type: array
-      total:
-        type: integer
-    type: object
-  services.Token:
-    properties:
-      expire:
-        description: 过期时间
-        type: integer
-      token:
-        description: token
-        type: string
-    type: object
-  services.User:
+  services.LoginReq:
     properties:
       password:
         description: 密码
@@ -53,6 +48,15 @@ definitions:
     required:
     - password
     - username
+    type: object
+  services.Token:
+    properties:
+      expire:
+        description: 过期时间
+        type: integer
+      token:
+        description: token
+        type: string
     type: object
   services.WebResponse:
     properties:
@@ -75,13 +79,47 @@ paths:
     get:
       consumes:
       - application/json
+      parameters:
+      - description: 管理员
+        in: query
+        name: admin
+        type: string
+      - description: 项目所属部门
+        in: query
+        name: department
+        type: string
+      - description: 项目的开发人员
+        in: query
+        name: develop_user
+        type: string
+      - in: query
+        name: id
+        type: integer
+      - description: 项目名称
+        in: query
+        name: name
+        type: string
+      - description: 页码
+        in: query
+        name: page_index
+        required: true
+        type: integer
+      - description: 页大小
+        in: query
+        name: page_size
+        required: true
+        type: integer
+      - description: 项目创建者
+        in: query
+        name: project_user
+        type: string
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/services.ProjectList'
+            $ref: '#/definitions/model.GetProjectListResp'
         "400":
           description: Bad Request
           schema:
@@ -94,12 +132,12 @@ paths:
       consumes:
       - application/json
       parameters:
-      - description: 用户信息
+      - description: 登录用户的账号密码
         in: body
-        name: user
+        name: Login
         required: true
         schema:
-          $ref: '#/definitions/services.User'
+          $ref: '#/definitions/services.LoginReq'
       produces:
       - application/json
       responses:
@@ -112,6 +150,31 @@ paths:
           schema:
             $ref: '#/definitions/services.WebResponse'
       summary: 登录
+      tags:
+      - 鉴权
+  /register:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: 注册用户的账号密码
+        in: body
+        name: Register
+        required: true
+        schema:
+          $ref: '#/definitions/services.LoginReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/services.WebResponse'
+      summary: 注册账号
       tags:
       - 鉴权
 swagger: "2.0"

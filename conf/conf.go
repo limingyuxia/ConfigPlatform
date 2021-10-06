@@ -21,7 +21,10 @@ type Nginx struct {
 }
 
 var DatabaseSetting = &Database{}
+
 var NginxSetting = &Nginx{}
+
+var JwtSecret string
 
 func LoadConf() {
 	cfg, err := ini.Load("conf/conf.ini")
@@ -37,6 +40,12 @@ func LoadConf() {
 
 	// 加载nginx配置
 	err = cfg.Section("nginx").MapTo(NginxSetting)
+	if err != nil {
+		log.Print(err)
+	}
+
+	// 加载jwt秘钥
+	err = cfg.Section("app").MapTo(JwtSecret)
 	if err != nil {
 		log.Print(err)
 	}

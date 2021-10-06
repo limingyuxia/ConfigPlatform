@@ -6,8 +6,10 @@ import (
 	"time"
 
 	"ConfigPlatform/conf"
+	"ConfigPlatform/util"
 
 	_ "github.com/go-sql-driver/mysql"
+	"github.com/volatiletech/sqlboiler/boil"
 )
 
 var (
@@ -32,6 +34,10 @@ func InitDb() {
 	Conn.SetConnMaxLifetime(time.Minute * 3)
 	Conn.SetMaxOpenConns(10)
 	Conn.SetMaxIdleConns(10)
+
+	// 设置sql debug
+	boil.DebugMode = true
+	boil.DebugWriter = &util.LogWriter{}
 }
 
 func GetDb() *sql.DB {

@@ -15,7 +15,7 @@ if [ $baseServer = "mysql" ]; then
     # 等待数据库初始化
     sleep 30
     # 初始化table
-    mysql -h 127.0.0.1 -u root -p123456 < $(pwd)/../docs/sql/config.sql
+    mysql -h limingyuxia.asia -u root -p123456 < $(pwd)/../docs/sql/config.sql
 elif [ $baseServer = "backend" ]; then
     # 运行服务端容器
     docker run -d --rm -p 8000:8000 --name config-server 18509518245/config-server:$serverTag
