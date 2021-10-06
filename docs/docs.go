@@ -26,7 +26,46 @@ var doc = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
-        "/config/list": {
+        "/login": {
+            "post": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "鉴权"
+                ],
+                "summary": "登录",
+                "parameters": [
+                    {
+                        "description": "登录用户的账号密码",
+                        "name": "Login",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/services.LoginReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/services.Token"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/services.WebResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/project/detail": {
             "get": {
                 "consumes": [
                     "application/json"
@@ -35,7 +74,50 @@ var doc = `{
                     "application/json"
                 ],
                 "tags": [
-                    "配置"
+                    "项目"
+                ],
+                "summary": "获取项目详情",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "项目id",
+                        "name": "id",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "项目名称",
+                        "name": "name",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/model.ProjectInfo"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/services.WebResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/project/list": {
+            "get": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "项目"
                 ],
                 "summary": "获取项目列表",
                 "parameters": [
@@ -59,6 +141,7 @@ var doc = `{
                     },
                     {
                         "type": "integer",
+                        "description": "项目id",
                         "name": "id",
                         "in": "query"
                     },
@@ -94,45 +177,6 @@ var doc = `{
                         "description": "OK",
                         "schema": {
                             "$ref": "#/definitions/model.GetProjectListResp"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/services.WebResponse"
-                        }
-                    }
-                }
-            }
-        },
-        "/login": {
-            "post": {
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "鉴权"
-                ],
-                "summary": "登录",
-                "parameters": [
-                    {
-                        "description": "登录用户的账号密码",
-                        "name": "Login",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/services.LoginReq"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/services.Token"
                         }
                     },
                     "400": {
@@ -223,6 +267,7 @@ var doc = `{
                     "type": "string"
                 },
                 "id": {
+                    "description": "项目id",
                     "type": "integer"
                 },
                 "name": {

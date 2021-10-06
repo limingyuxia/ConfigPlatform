@@ -26,6 +26,7 @@ definitions:
         description: 项目的开发人员
         type: string
       id:
+        description: 项目id
         type: integer
       name:
         description: 项目名称
@@ -75,7 +76,60 @@ info:
   title: 配置平台
   version: "1.0"
 paths:
-  /config/list:
+  /login:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: 登录用户的账号密码
+        in: body
+        name: Login
+        required: true
+        schema:
+          $ref: '#/definitions/services.LoginReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/services.Token'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/services.WebResponse'
+      summary: 登录
+      tags:
+      - 鉴权
+  /project/detail:
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - description: 项目id
+        in: query
+        name: id
+        required: true
+        type: integer
+      - description: 项目名称
+        in: query
+        name: name
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.ProjectInfo'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/services.WebResponse'
+      summary: 获取项目详情
+      tags:
+      - 项目
+  /project/list:
     get:
       consumes:
       - application/json
@@ -92,7 +146,8 @@ paths:
         in: query
         name: develop_user
         type: string
-      - in: query
+      - description: 项目id
+        in: query
         name: id
         type: integer
       - description: 项目名称
@@ -126,32 +181,7 @@ paths:
             $ref: '#/definitions/services.WebResponse'
       summary: 获取项目列表
       tags:
-      - 配置
-  /login:
-    post:
-      consumes:
-      - application/json
-      parameters:
-      - description: 登录用户的账号密码
-        in: body
-        name: Login
-        required: true
-        schema:
-          $ref: '#/definitions/services.LoginReq'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/services.Token'
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/services.WebResponse'
-      summary: 登录
-      tags:
-      - 鉴权
+      - 项目
   /register:
     post:
       consumes:

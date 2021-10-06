@@ -39,7 +39,3 @@ func InitDb() {
 	boil.DebugMode = true
 	boil.DebugWriter = &util.LogWriter{}
 }
-
-func GetDb() *sql.DB {
-	return Conn
-}

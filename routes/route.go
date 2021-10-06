@@ -34,7 +34,7 @@ func InitRouter() {
 	r.POST("/register", services.Register)
 
 	// api 接口
-	api := r.Group("/config")
+	api := r.Group("/project")
 
 	addConfigRoute(api)
 
@@ -45,5 +45,6 @@ func addConfigRoute(g *gin.RouterGroup) {
 	g.Use(jwt.JWT())
 	{
 		g.GET("list", services.GetProjectList)
+		g.GET("detail", services.GetProjectDetail)
 	}
 }

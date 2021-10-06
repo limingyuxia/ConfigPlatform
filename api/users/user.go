@@ -11,7 +11,7 @@ import (
 func IsUserRegisted(ctx context.Context, userName, passWord string) error {
 	querySql := "select id from user where `username` = ? and `password` = ?"
 
-	user, err := mysql.GetDb().QueryContext(ctx, querySql, userName, passWord)
+	user, err := mysql.Conn.QueryContext(ctx, querySql, userName, passWord)
 	if err != nil {
 		log.Print("IsUserRegisted error: ", err)
 		return err
@@ -32,7 +32,7 @@ func UserRegisted(ctx context.Context, userName, passWord string) (int64, error)
 
 	insertSql := `insert into user(username, password) VALUES(?, ?)`
 
-	result, err := mysql.GetDb().ExecContext(ctx, insertSql, userName, passWord)
+	result, err := mysql.Conn.ExecContext(ctx, insertSql, userName, passWord)
 	if err != nil {
 		log.Print("UserRegisted error: ", err)
 		return 0, api.GetDbError(err)
