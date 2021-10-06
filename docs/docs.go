@@ -65,6 +65,88 @@ var doc = `{
                 }
             }
         },
+        "/project/add": {
+            "post": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "项目"
+                ],
+                "summary": "添加项目",
+                "parameters": [
+                    {
+                        "description": "添加项目数据",
+                        "name": "project",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/model.AddProject"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/services.WebResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/project/delete": {
+            "delete": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "项目"
+                ],
+                "summary": "删除项目",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "项目id",
+                        "name": "id",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "项目创建者",
+                        "name": "project_user",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/services.WebResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/project/detail": {
             "get": {
                 "consumes": [
@@ -97,6 +179,45 @@ var doc = `{
                         "description": "OK",
                         "schema": {
                             "$ref": "#/definitions/model.ProjectInfo"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/services.WebResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/project/edit": {
+            "post": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "项目"
+                ],
+                "summary": "编辑项目",
+                "parameters": [
+                    {
+                        "description": "编辑项目数据",
+                        "name": "project",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/model.EditProject"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "string"
                         }
                     },
                     "400": {
@@ -169,7 +290,8 @@ var doc = `{
                         "type": "string",
                         "description": "项目创建者",
                         "name": "project_user",
-                        "in": "query"
+                        "in": "query",
+                        "required": true
                     }
                 ],
                 "responses": {
@@ -229,6 +351,85 @@ var doc = `{
         }
     },
     "definitions": {
+        "model.AddProject": {
+            "type": "object",
+            "required": [
+                "name",
+                "project_user"
+            ],
+            "properties": {
+                "admin": {
+                    "description": "管理员",
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "department": {
+                    "description": "项目所属部门",
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "description": {
+                    "description": "项目描述",
+                    "type": "string"
+                },
+                "develop_user": {
+                    "description": "项目的开发人员",
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "name": {
+                    "description": "项目名称",
+                    "type": "string"
+                },
+                "project_user": {
+                    "description": "项目创建者",
+                    "type": "string"
+                }
+            }
+        },
+        "model.EditProject": {
+            "type": "object",
+            "required": [
+                "id"
+            ],
+            "properties": {
+                "admin": {
+                    "description": "管理员",
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "department": {
+                    "description": "项目所属部门",
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "description": {
+                    "description": "项目描述",
+                    "type": "string"
+                },
+                "develop_user": {
+                    "description": "项目的开发人员",
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "id": {
+                    "description": "项目id",
+                    "type": "integer"
+                }
+            }
+        },
         "model.GetProjectListResp": {
             "type": "object",
             "properties": {
@@ -248,7 +449,10 @@ var doc = `{
             "properties": {
                 "admin": {
                     "description": "管理员",
-                    "type": "string"
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
                 },
                 "create_time": {
                     "description": "项目创建时间",
@@ -256,7 +460,10 @@ var doc = `{
                 },
                 "department": {
                     "description": "项目所属部门",
-                    "type": "string"
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
                 },
                 "description": {
                     "description": "项目描述",
@@ -264,7 +471,10 @@ var doc = `{
                 },
                 "develop_user": {
                     "description": "项目的开发人员",
-                    "type": "string"
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
                 },
                 "id": {
                     "description": "项目id",
@@ -279,7 +489,7 @@ var doc = `{
                     "type": "string"
                 },
                 "update_time": {
-                    "description": "删除时间",
+                    "description": "更新时间",
                     "type": "string"
                 }
             }

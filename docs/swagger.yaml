@@ -1,4 +1,60 @@
 definitions:
+  model.AddProject:
+    properties:
+      admin:
+        description: 管理员
+        items:
+          type: string
+        type: array
+      department:
+        description: 项目所属部门
+        items:
+          type: string
+        type: array
+      description:
+        description: 项目描述
+        type: string
+      develop_user:
+        description: 项目的开发人员
+        items:
+          type: string
+        type: array
+      name:
+        description: 项目名称
+        type: string
+      project_user:
+        description: 项目创建者
+        type: string
+    required:
+    - name
+    - project_user
+    type: object
+  model.EditProject:
+    properties:
+      admin:
+        description: 管理员
+        items:
+          type: string
+        type: array
+      department:
+        description: 项目所属部门
+        items:
+          type: string
+        type: array
+      description:
+        description: 项目描述
+        type: string
+      develop_user:
+        description: 项目的开发人员
+        items:
+          type: string
+        type: array
+      id:
+        description: 项目id
+        type: integer
+    required:
+    - id
+    type: object
   model.GetProjectListResp:
     properties:
       projectList:
@@ -12,19 +68,25 @@ definitions:
     properties:
       admin:
         description: 管理员
-        type: string
+        items:
+          type: string
+        type: array
       create_time:
         description: 项目创建时间
         type: string
       department:
         description: 项目所属部门
-        type: string
+        items:
+          type: string
+        type: array
       description:
         description: 项目描述
         type: string
       develop_user:
         description: 项目的开发人员
-        type: string
+        items:
+          type: string
+        type: array
       id:
         description: 项目id
         type: integer
@@ -35,7 +97,7 @@ definitions:
         description: 项目创建者
         type: string
       update_time:
-        description: 删除时间
+        description: 更新时间
         type: string
     type: object
   services.LoginReq:
@@ -101,6 +163,59 @@ paths:
       summary: 登录
       tags:
       - 鉴权
+  /project/add:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: 添加项目数据
+        in: body
+        name: project
+        required: true
+        schema:
+          $ref: '#/definitions/model.AddProject'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/services.WebResponse'
+      summary: 添加项目
+      tags:
+      - 项目
+  /project/delete:
+    delete:
+      consumes:
+      - application/json
+      parameters:
+      - description: 项目id
+        in: query
+        name: id
+        required: true
+        type: integer
+      - description: 项目创建者
+        in: query
+        name: project_user
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/services.WebResponse'
+      summary: 删除项目
+      tags:
+      - 项目
   /project/detail:
     get:
       consumes:
@@ -127,6 +242,31 @@ paths:
           schema:
             $ref: '#/definitions/services.WebResponse'
       summary: 获取项目详情
+      tags:
+      - 项目
+  /project/edit:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: 编辑项目数据
+        in: body
+        name: project
+        required: true
+        schema:
+          $ref: '#/definitions/model.EditProject'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/services.WebResponse'
+      summary: 编辑项目
       tags:
       - 项目
   /project/list:
@@ -167,6 +307,7 @@ paths:
       - description: 项目创建者
         in: query
         name: project_user
+        required: true
         type: string
       produces:
       - application/json

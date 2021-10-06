@@ -4,11 +4,15 @@ import (
 	"ConfigPlatform/conf/mysql"
 	"ConfigPlatform/model"
 	"strconv"
+	"strings"
+	"time"
 
 	"ConfigPlatform/models"
 	"context"
 	"log"
 
+	"github.com/volatiletech/null/v8"
+	"github.com/volatiletech/sqlboiler/v4/boil"
 	"github.com/volatiletech/sqlboiler/v4/queries/qm"
 )
 
@@ -73,10 +77,10 @@ func GetProjectList(ctx context.Context, req *model.GetProjectListReq) (
 			ID:          project.ID,
 			Name:        project.Name,
 			Description: project.Description.String,
-			Department:  project.Department.String,
-			Admin:       project.Admin.String,
+			Department:  strings.Split(project.Department.String, "/"),
+			Admin:       strings.Split(project.Admin.String, ","),
 			ProjectUser: project.ProjectUser,
-			DevelopUser: project.DevelopUser.String,
+			DevelopUser: strings.Split(project.DevelopUser.String, ","),
 			CreateTime:  project.CreateTime.Format("2006-01-02 15:04:05"),
 			UpdateTime:  project.UpdateTime.Format("2006-01-02 15:04:05"),
 		})
@@ -85,7 +89,7 @@ func GetProjectList(ctx context.Context, req *model.GetProjectListReq) (
 	return projectList, nil
 }
 
-func GetProjectDetail(ctx context.Context, req model.GetProjectDetailReq) (*model.ProjectInfo, error) {
+func GetProjectDetail(ctx context.Context, req *model.GetProjectDetailReq) (*model.ProjectInfo, error) {
 
 	queryMod := []qm.QueryMod{
 		qm.Where("id = ?", req.ID),
@@ -106,23 +110,69 @@ func GetProjectDetail(ctx context.Context, req model.GetProjectDetailReq) (*mode
 		ID:          project.ID,
 		Name:        project.Name,
 		Description: project.Description.String,
-		Department:  project.Department.String,
-		Admin:       project.Admin.String,
+		Department:  strings.Split(project.Department.String, "/"),
+		Admin:       strings.Split(project.Admin.String, ","),
 		ProjectUser: project.ProjectUser,
-		DevelopUser: project.Department.String,
+		DevelopUser: strings.Split(project.DevelopUser.String, ","),
 		CreateTime:  project.CreateTime.Format("2006-01-02 15:04:05"),
 		UpdateTime:  project.UpdateTime.Format("2006-01-02 15:04:05"),
 	}, nil
 }
 
-func InsertProject() {
+func InsertProject(ctx context.Context, req *model.AddProject) error {
 
+	insertData := models.Project{
+		Name:        req.Name,
+		Description: null.StringFrom(req.Description),
+		Department:  null.StringFrom(strings.Join(req.Department, "/")),
+		Admin:       null.StringFrom(strings.Join(req.Admin, ",")),
+		ProjectUser: req.ProjectUser,
+		DevelopUser: null.StringFrom(strings.Join(req.DevelopUser, ",")),
+	}
+
+	err := insertData.Insert(ctx, mysql.Conn, boil.Infer())
+	if err != nil {
+		log.Print("InsertProject error: ", err)
+		return err
+	}
+
+	return nil
 }
 
-func UpdateProject() {
+func UpdateProject(ctx context.Context, req *model.EditProject) error {
+	project, err := models.FindProject(ctx, mysql.Conn, req.ID)
+	if err != nil {
+		log.Print("FindProject error: ", err)
+		return err
+	}
 
+	project.Description = null.StringFrom(req.Description)
+	project.Department = null.StringFrom(strings.Join(req.Department, "/"))
+	project.Admin = null.StringFrom(strings.Join(req.Admin, ","))
+	project.DevelopUser = null.StringFrom(strings.Join(req.DevelopUser, ","))
+	project.UpdateTime = time.Now()
+
+	_, err = project.Update(ctx, mysql.Conn, boil.Infer())
+	if err != nil {
+		log.Print("UpdateProject error: ", err)
+		return err
+	}
+
+	return nil
 }
 
-func DeleteProject() {
+func DeleteProject(ctx context.Context, req *model.DeleteProject) error {
+	project, err := models.FindProject(ctx, mysql.Conn, req.ID)
+	if err != nil {
+		log.Print("FindProject error: ", err)
+		return err
+	}
 
+	_, err = project.Delete(ctx, mysql.Conn)
+	if err != nil {
+		log.Print("DeleteProject error: ", err)
+		return err
+	}
+
+	return nil
 }

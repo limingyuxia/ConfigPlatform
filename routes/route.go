@@ -36,15 +36,18 @@ func InitRouter() {
 	// api 接口
 	api := r.Group("/project")
 
-	addConfigRoute(api)
+	addProjectRoute(api)
 
 	r.Run(":8000")
 }
 
-func addConfigRoute(g *gin.RouterGroup) {
+func addProjectRoute(g *gin.RouterGroup) {
 	g.Use(jwt.JWT())
 	{
 		g.GET("list", services.GetProjectList)
 		g.GET("detail", services.GetProjectDetail)
+		g.POST("add", services.AddProject)
+		g.POST("edit", services.EditProject)
+		g.DELETE("delete", services.DeleteProject)
 	}
 }
