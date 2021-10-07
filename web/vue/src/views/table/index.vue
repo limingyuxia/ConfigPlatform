@@ -8,7 +8,6 @@
         <el-input v-model="formInline.sn" placeholder="临时2" />
       </el-form-item>
     </el-form>
-
     <!-- 表格 -->
     <el-card v-loading="listLoading" class="box-card">
 
@@ -17,7 +16,7 @@
         <el-button style="float: right; padding: 3px 0" type="text" @click="queryData">查询</el-button>
         <div style="width: 30px;text-align: center; float: right; padding: 3px 0">  |  </div>
 
-        <el-button style="float: right; padding: 3px 0" type="text" @click="addData">添加</el-button>
+        <el-button style="float: right; padding: 3px 0" type="text" @click="dialogShow([],'add')">添加</el-button>
 
       </div>
 
@@ -31,33 +30,53 @@
           height="500"
           width="700"
         >
-          <el-table-column
-            type="index"
-          />
 
           <el-table-column
-            v-for="item,index in Header"
-            :key="index"
-            :prop="item.valueStr"
-            :label="item.label"
+            label="序号"
+            type="index"
           />
+          <template v-for="item,index in Header">
+
+            <el-table-column
+              v-if="item.type == 'text'"
+              :key="index"
+              :prop="item.valueStr"
+              :label="item.label"
+            />
+            <el-table-column
+              v-if="item.type == 'tagArray'"
+              :key="index"
+
+              :label="item.label"
+            >
+
+              <template slot-scope="scope">
+
+                <el-tag v-for="item1,index1 in scope.row.department" :key="index1" size="medium">{{ item1 }}</el-tag>
+
+              </template>
+
+            </el-table-column>
+
+          </template>
           <el-table-column
             fixed="right"
             label="操作"
             width="150"
           >
             <template slot-scope="scope">
-              <el-button type="text" size="small" @click="handleClick(scope.row)">查看</el-button>
-              <el-button type="text" size="small">编辑</el-button>
-              <el-button type="text" size="small">删除</el-button>
+              <el-button type="text" size="small" @click="getDetail(scope.row,'view')">查看</el-button>
+              <el-button type="text" size="small" @click="getDetail(scope.row,'edit')">编辑</el-button>
+              <el-button type="text" size="small" @click="deleteClick(scope.row)">删除</el-button>
             </template>
           </el-table-column>
 
         </el-table>
       </el-scrollbar>
+
       <div
         class="block"
-        style="margin-top:15px;"
+        style="margin-bottom:15px;"
       >
         <el-pagination
 
@@ -72,27 +91,252 @@
         />
       </div>
     </el-card>
-    <!-- 分页器 -->
+
+    <el-dialog v-loading="dialogFormLoading" :visible.sync="dialogFormVisible" v-bind="$attrs" title="项目详情">
+      <el-form
+        ref="elForm"
+        :disabled="dialogformDisabled"
+        :model="formData"
+        :rules="formRules"
+        size="medium"
+        label-width="100px"
+        label-position="left"
+      >
+        <el-row type="flex" justify="start" align="bottom">
+          <el-col :span="11">
+            <el-form-item label="项目id" prop="id">
+              <el-input
+                v-model="formData.id"
+                placeholder="由系统自动生成项目id项目id"
+                :maxlength="11"
+                show-word-limit
+                readonly
+                :disabled="true"
+                clearable
+                prefix-icon="el-icon-s-unfold"
+                :style="{width: '100%'}"
+              />
+            </el-form-item>
+          </el-col>
+          <el-col :span="13">
+            <el-form-item label="项目创建者" prop="project_user">
+              <el-input
+                v-model="formData.project_user"
+                placeholder="请输入项目创建者"
+                readonly
+                :disabled="true"
+                clearable
+                :style="{width: '100%'}"
+              />
+            </el-form-item>
+          </el-col>
+        </el-row>
+        <el-form-item label="项目名称" prop="name">
+          <el-input v-model="formData.name" placeholder="请输入项目名称" clearable :style="{width: '100%'}" />
+        </el-form-item>
+        <el-form-item label="项目描述" prop="description">
+          <el-input
+            v-model="formData.description"
+            type="textarea"
+            placeholder="请输入项目描述"
+            :autosize="{minRows: 4, maxRows: 4}"
+            :style="{width: '100%'}"
+          />
+        </el-form-item>
+        <el-row>
+          <el-col :span="24">
+            <el-form-item label-width="130px" label="项目所属的部门">
+
+              <el-form-item
+                v-for="item,index in formData.department"
+                :key="index"
+                :label="index +'级部门'"
+                style="margin-bottom:10px"
+              >
+                <el-input v-model="formData.department[index]" style=" float:left;min-width:85%;" placeholder="请输入部门名称">
+                  <el-button slot="append" icon="el-icon-close" @click.prevent="removeDepartment(index)" />
+                </el-input>
+
+              </el-form-item>
+              <div align="center">
+                <el-button @click="addDepartment">增加部门</el-button>
+              </div>
+
+            </el-form-item>
+          </el-col>
+        </el-row>
+        <el-row>
+          <el-col :span="11">
+
+            <el-form-item label="管理员" prop="admin">
+              <div class="divTagAll">
+
+                <el-tag
+                  v-for="item,index in formData.admin"
+                  :key="item.index"
+                  color="white"
+                  size="medium"
+                  :closable="!dialogformDisabled"
+                  :disable-transitions="false"
+                  @close="handleClose(index,'admin')"
+                >
+                  {{ item }}
+                </el-tag>
+                <el-input
+                  v-if="adminTagSys.inputVisible"
+                  ref="saveTagInput"
+                  v-model="adminTagSys.inputValue"
+                  class="input-new-tag"
+                  size="medium"
+                  @keyup.enter.native="handleInputConfirm('admin')"
+                  @blur="handleInputConfirm('admin')"
+                />
+                <el-button v-else class="button-new-tag" size="small" @click="showInput('admin')">添加</el-button>
+
+              </div>
+            </el-form-item>
+          </el-col>
+          <el-col :span="12">
+            <el-form-item label="项目研发人员" prop="develop_user">
+              <div class="divTagAll">
+
+                <el-tag
+                  v-for="item,index in formData.develop_user"
+                  :key="item.index"
+                  color="white"
+                  class="el-tag"
+                  :disable-transitions="false"
+
+                  :closable="!dialogformDisabled"
+                  size="medium"
+                  @close="handleClose(index,'developUser')"
+                >
+                  {{ item }}
+                </el-tag>
+                <el-input
+                  v-if="developUserTagSys.inputVisible"
+                  ref="saveTagInput"
+                  v-model="developUserTagSys.inputValue"
+                  class="input-new-tag"
+                  size="medium"
+                  @keyup.enter.native="handleInputConfirm('developUser')"
+                  @blur="handleInputConfirm('developUser')"
+                />
+                <el-button v-else class="button-new-tag" size="medium" @click="showInput('developUser')">添加</el-button>
+
+              </div>
+
+            </el-form-item>
+          </el-col>
+        </el-row>
+        <el-row>
+          <el-col :span="12">
+            <el-form-item label="创建时间" prop="create_time">
+              <!--
+               <el-date-picker
+                v-model="formData.create_time"
+                type="datetime"
+                placeholder="选择日期时间">
+              </el-date-picker>
+-->
+              <el-date-picker
+                v-model="formData.create_time"
+                type="datetime"
+                :style="{width: '100%'}"
+                placeholder="请选择创建时间"
+                clearable
+                :disabled="true"
+              />
+
+            </el-form-item>
+          </el-col>
+          <el-col :span="12">
+            <el-form-item label="更新时间" prop="update_time">
+              <el-date-picker
+                v-model="formData.update_time"
+                type="datetime"
+                :style="{width: '100%'}"
+                placeholder="请选择时间选择更新时间"
+                clearable
+                :disabled="true"
+              />
+            </el-form-item>
+          </el-col>
+        </el-row>
+      </el-form>
+      <div slot="footer">
+        <!--<el-button @click="close">取消</el-button>-->
+        <el-button :disabled="dialogformDisabled" type="primary" @click="handelConfirm">保存更改</el-button>
+      </div>
+    </el-dialog>
 
   </div>
+
 </template>
 
 <script>
-import { getList } from '@/api/table'
+import { getList, getDetailList } from '@/api/project'
 
 export default {
   data() {
     return {
+      adminTagSys: {
+        'inputVisible': false,
+        'inputValue': ''
+      },
+      developUserTagSys: {
+        'inputVisible': false,
+        'inputValue': ''
+      },
+      formRules: {
+        id: [],
+        project_user: [],
+        name: [{
+          required: true,
+          message: '请输入项目名称',
+          trigger: 'blur'
+        }],
+        description: [{
+          required: true,
+          message: '请输入项目描述',
+          trigger: 'blur'
+        }],
+        department: [{
+          required: true,
+          message: '请输入项目所属的部门',
+          trigger: 'blur'
+        }],
+        admin: [],
+        develop_user: [],
+        create_time: [],
+        update_time: []
+      },
 
+      formData: {
+        id: undefined,
+        project_user: undefined,
+        name: undefined,
+        description: undefined,
+        department: undefined,
+        admin: undefined,
+        develop_user: undefined,
+        create_time: '23:30:09',
+        update_time: null
+      },
+
+      addform: {
+        'name': 'aa',
+        'region': ''
+      },
       Header: [
 
-        { 'label': '项目id', 'valueStr': 'id' },
-        { 'label': '项目名称', 'valueStr': 'name' },
-        { 'label': '项目描述', 'valueStr': 'description' },
-        { 'label': '项目所属的部门', 'valueStr': 'department' },
-        { 'label': '管理员', 'valueStr': 'admin' },
-        { 'label': '创建时间', 'valueStr': 'create_time' },
-        { 'label': '更新时间', 'valueStr': 'update_time' }
+        // { 'label': '项目id', 'valueStr': 'id' ,'type':'text'},
+        { 'label': '项目名称', 'valueStr': 'name', 'type': 'text' },
+        // { 'label': '项目描述', 'valueStr': 'description' ,'type':'text'},
+        { 'label': '项目所属的部门', 'valueStr': 'department', 'type': 'tagArray' },
+        // { 'label': '管理员', 'valueStr': 'admin' ,'type':'text'},
+        { 'label': '创建时间', 'valueStr': 'create_time', 'type': 'text' },
+        { 'label': '更新时间', 'valueStr': 'update_time', 'type': 'text' }
 
       ],
 
@@ -106,16 +350,156 @@ export default {
         tmp2: ''
 
       },
-
+      dialogFormVisible: false,
+      dialogVisible: false,
+      dialogformDisabled: false,
+      dialogFormLoading: false,
       listLoading: false
     }
   },
   created() {
     console.log('初始化表格')
-    // this.fetchData()
+    this.queryData()
   },
 
   methods: {
+
+    handleClose(index, type) {
+      if (type === 'admin') {
+        this.formData.admin.splice(index, 1)
+      } else if (type === 'developUser') {
+        this.formData.develop_user.splice(index, 1)
+      }
+    },
+
+    showInput(type) {
+      if (type === 'admin') {
+        this.adminTagSys.inputVisible = true
+      } else if (type === 'developUser') {
+        this.developUserTagSys.inputVisible = true
+      } else {
+        console.log('onthon')
+      }
+    },
+
+    handleInputConfirm(type) {
+      if (type === 'admin') {
+        const inputValue = this.adminTagSys.inputValue
+        if (inputValue) {
+          this.formData.admin.push(inputValue)
+        }
+        this.adminTagSys.inputVisible = false
+        this.adminTagSys.inputValue = ''
+      } else if (type === 'developUser') {
+        const inputValue = this.developUserTagSys.inputValue
+        if (inputValue) {
+          this.formData.develop_user.push(inputValue)
+        }
+        this.developUserTagSys.inputVisible = false
+        this.developUserTagSys.inputValue = ''
+      } else {
+        console.log('onthon')
+      }
+    },
+    removeDepartment(index) {
+      console.log('remove:', index)
+      // var index = this.formData.department.indexOf(item)
+      if (index !== -1) {
+        this.formData.department.splice(index, 1)
+      }
+    },
+
+    addDepartment() {
+      this.formData.department.push('')
+    },
+    onClose() {
+      this.$refs['elForm'].resetFields()
+    },
+    close() {
+      this.$emit('update:visible', false)
+    },
+    handelConfirm() {
+      this.$refs['elForm'].validate(valid => {
+        if (!valid) return
+        this.close()
+      })
+    },
+
+    getDetail(data, type) { // 弹窗的
+      console.log('dialogShow:', data, type)
+      var updata = {}
+      if (type === 'view') { // 查看
+      // 获取详情
+        updata = {
+          'id': data['id'],
+          'name': data['name']
+        }
+
+        this.dialogformDisabled = true
+        // this.formData = data
+        this.dialogFormVisible = true
+        this.dialogFormLoading = true
+
+        getDetailList(updata).then(response => {
+          console.log('DatailList', response)
+          this.dialogFormLoading = false
+          this.formData = response
+        }, reason => {
+          this.dialogFormLoading = false
+          console.error(reason) // 出错了！
+        })
+      } else if (type === 'edit') { // 编辑
+        updata = {
+          'id': data['id'],
+          'name': data['name']
+        }
+
+        this.dialogformDisabled = false
+        // this.formData = data
+        this.dialogFormVisible = true
+        this.dialogFormLoading = true
+
+        getDetailList(updata).then(response => {
+          console.log('DatailList', response)
+          this.dialogFormLoading = false
+          this.formData = response
+        }, reason => {
+          this.dialogFormLoading = false
+          console.error(reason) // 出错了！
+        })
+      } else { // 异常
+        console.log('onthon')
+      }
+      // dialogformDisabled
+    },
+
+    dialogShow(data, type) { // 弹窗
+      console.log('dialogShow:', data, type)
+      this.formData = data
+      this.dialogFormVisible = true
+
+      // 获取详情数据
+    },
+
+    deleteClick(data) { // 删除项目
+      console.log('delete:', data)
+      this.$confirm('此操作将永久删除该项目, 是否继续?', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning',
+        center: true
+      }).then(() => {
+        this.$message({
+          type: 'success',
+          message: '删除成功!'
+        })
+      }).catch(() => {
+        this.$message({
+          type: 'info',
+          message: '已取消删除'
+        })
+      })
+    },
     handleSizeChange(pageSize) {
       console.log('pageSize!', pageSize)
       this.pageSize = pageSize
@@ -129,18 +513,26 @@ export default {
       this.listLoading = true
 
       var data = {
-        'dataEnd': this.formInline['dataEnd'],
-        'dataStart': this.formInline['dataStart'],
-        'sn': this.formInline['sn'],
-        'user': this.formInline['user']
+        'page_index': 1,
+        'page_size': 20,
+        'project_user': 'superuser'// 用户名 必须
       }
-      console.log('传入前:', data)
-      getList(data).then(response => {
-        console.log('网页返回:', response)
+      console.log('upData:', data)
 
-        this.tableData = response.list
+      getList(data).then(response => {
+        const tableDataList = response.ProjectList
+        const total = response.Total
+        console.log('tableData', response, total === 0)
+        if (total === 0) {
+          this.total = 0
+          this.tableData = []
+          this.listLoading = false
+          return 0
+        }
+
+        this.tableData = tableDataList
+        this.total = total
         this.listLoading = false
-        this.total = 100
       }, reason => {
         this.total = 0
         this.tableData = []
@@ -153,6 +545,19 @@ export default {
 }
 </script>
 <style>
+.divTagAll{
+  border:1px solid
+}
+.el-tag{
+    white-space: normal;
+    height:auto;
+    display:block;
+    margin-bottom: 5px;
+    margin-top: 5px;
+}
+.el-textarea .el-textarea__inner{
+  resize: none;
+}
   .text {
     font-size: 14px;
   }
