@@ -11,6 +11,7 @@ type Database struct {
 	User     string // 数据库用户名
 	Password string // 数据库密码
 	Host     string // 数据库host
+	Port     int    // 数据库port
 	Name     string // 要连接的database名称
 }
 
@@ -20,33 +21,57 @@ type Nginx struct {
 	HttpPort  int    // http port
 }
 
+type Server struct {
+	Port int // 服务端的端口
+}
+
+type App struct {
+	JwtSecret string // jwt秘钥
+}
+
 var DatabaseSetting = &Database{}
 
 var NginxSetting = &Nginx{}
 
-var JwtSecret string
+var ServerSetting = &Server{}
 
-func LoadConf() {
+var AppSetting = &App{}
+
+func LoadConf() error {
+
 	cfg, err := ini.Load("conf/conf.ini")
 	if err != nil {
-		panic(err)
+		log.Print("load configure file failed: ", err)
+		return err
 	}
 
 	// 加载数据库配置
 	err = cfg.Section("database").MapTo(DatabaseSetting)
 	if err != nil {
-		log.Print(err)
+		log.Print("load database config failed: ", err)
+		return err
 	}
 
 	// 加载nginx配置
 	err = cfg.Section("nginx").MapTo(NginxSetting)
 	if err != nil {
-		log.Print(err)
+		log.Print("load nginx config failed: ", err)
+		return err
 	}
 
 	// 加载jwt秘钥
-	err = cfg.Section("app").MapTo(JwtSecret)
+	err = cfg.Section("app").MapTo(AppSetting)
 	if err != nil {
-		log.Print(err)
+		log.Print("load jwt config failed: ", err)
+		return err
 	}
+
+	// 加载服务端配置
+	err = cfg.Section("server").MapTo(ServerSetting)
+	if err != nil {
+		log.Print("load server config failed: ", err)
+		return err
+	}
+
+	return nil
 }

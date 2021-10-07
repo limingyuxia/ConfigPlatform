@@ -3,6 +3,7 @@ package services
 import (
 	"crypto/md5"
 	"encoding/hex"
+	"log"
 	"strconv"
 	"time"
 
@@ -39,7 +40,7 @@ func encodeMD5(value string) string {
 var jwtSecret []byte
 
 func init() {
-	jwtSecret = []byte(conf.JwtSecret)
+	jwtSecret = []byte(conf.AppSetting.JwtSecret)
 }
 
 func ParseToken(token string) (*Claims, error) {
@@ -93,7 +94,8 @@ func Login(c *gin.Context) {
 			// 生成token
 			token, err := generateToken(login.Username, login.Password)
 			if err != nil {
-				ResponseError(TOKEN_ERROR, err.Error(), c)
+				log.Print("generateToken failed: ", err)
+				ResponseError(TOKEN_ERROR, RETCODE_MSG[TOKEN_ERROR], c)
 				return
 			}
 
@@ -103,11 +105,12 @@ func Login(c *gin.Context) {
 			}, c)
 
 		} else {
-			ResponseError(DB_ERROR, err.Error(), c)
+			ResponseError(DB_ERROR, RETCODE_MSG[DB_ERROR], c)
 		}
 
 	} else {
-		ResponseError(PARAMS_ERROR, err.Error(), c)
+		log.Print("Login param error: ", err)
+		ResponseError(PARAMS_ERROR, RETCODE_MSG[PARAMS_ERROR], c)
 	}
 }
 
@@ -126,12 +129,14 @@ func Register(c *gin.Context) {
 
 		userId, err := users.UserRegisted(c, register.Username, register.Password)
 		if err != nil {
-			ResponseError(REGISTER_ERROR, err.Error(), c)
+			ResponseError(REGISTER_ERROR, RETCODE_MSG[REGISTER_ERROR], c)
 			return
 		}
 
 		ResponseData("注册成功, id: "+strconv.Itoa(int(userId)), c)
+
 	} else {
-		ResponseError(PARAMS_ERROR, err.Error(), c)
+		log.Print("register param error: ", err)
+		ResponseError(PARAMS_ERROR, RETCODE_MSG[PARAMS_ERROR], c)
 	}
 }

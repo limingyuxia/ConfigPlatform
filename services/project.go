@@ -3,6 +3,7 @@ package services
 import (
 	"ConfigPlatform/api/project"
 	"ConfigPlatform/model"
+	"log"
 
 	"github.com/gin-gonic/gin"
 )
@@ -22,13 +23,13 @@ func GetProjectList(c *gin.Context) {
 
 		total, err := project.GetProjectTotal(c, &req)
 		if err != nil {
-			ResponseError(DB_ERROR, err.Error(), c)
+			ResponseError(PROJ_TOTAL_ERROR, RETCODE_MSG[PROJ_TOTAL_ERROR], c)
 			return
 		}
 
 		list, err := project.GetProjectList(c, &req)
 		if err != nil {
-			ResponseError(DB_ERROR, err.Error(), c)
+			ResponseError(PROJ_LIST_ERROR, RETCODE_MSG[PROJ_LIST_ERROR], c)
 			return
 		}
 
@@ -38,7 +39,8 @@ func GetProjectList(c *gin.Context) {
 		}, c)
 
 	} else {
-		ResponseError(PARAMS_ERROR, err.Error(), c)
+		log.Print("GetProjectList param error: ", err)
+		ResponseError(PARAMS_ERROR, RETCODE_MSG[PARAMS_ERROR], c)
 	}
 }
 
@@ -57,14 +59,15 @@ func GetProjectDetail(c *gin.Context) {
 
 		projectDetail, err := project.GetProjectDetail(c, &req)
 		if err != nil {
-			ResponseError(DB_ERROR, err.Error(), c)
+			ResponseError(PROJ_DETAIL_ERROR, RETCODE_MSG[PROJ_DETAIL_ERROR], c)
 			return
 		}
 
 		ResponseData(projectDetail, c)
 
 	} else {
-		ResponseError(PARAMS_ERROR, err.Error(), c)
+		log.Print("GetProjectDetail param failed: ", err)
+		ResponseError(PARAMS_ERROR, RETCODE_MSG[PARAMS_ERROR], c)
 	}
 }
 
@@ -82,14 +85,15 @@ func AddProject(c *gin.Context) {
 	if err := c.ShouldBindJSON(&req); err == nil {
 
 		if err := project.InsertProject(c, &req); err != nil {
-			ResponseError(DB_ERROR, err.Error(), c)
+			ResponseError(PROJ_ADD_ERROR, RETCODE_MSG[PROJ_ADD_ERROR], c)
 			return
 		}
 
 		ResponseData("新建成功", c)
 
 	} else {
-		ResponseError(PARAMS_ERROR, err.Error(), c)
+		log.Print("AddProject param error: ", err)
+		ResponseError(PARAMS_ERROR, RETCODE_MSG[PARAMS_ERROR], c)
 	}
 }
 
@@ -107,14 +111,15 @@ func EditProject(c *gin.Context) {
 	if err := c.ShouldBindJSON(&req); err == nil {
 
 		if err := project.UpdateProject(c, &req); err != nil {
-			ResponseError(DB_ERROR, err.Error(), c)
+			ResponseError(PROJ_EDIT_ERROR, RETCODE_MSG[PROJ_EDIT_ERROR], c)
 			return
 		}
 
 		ResponseData("更新成功", c)
 
 	} else {
-		ResponseError(PARAMS_ERROR, err.Error(), c)
+		log.Print("EditProject param error: ", err)
+		ResponseError(PARAMS_ERROR, RETCODE_MSG[PARAMS_ERROR], c)
 	}
 }
 
@@ -132,13 +137,13 @@ func DeleteProject(c *gin.Context) {
 	if err := c.ShouldBindQuery(&req); err == nil {
 
 		if err := project.DeleteProject(c, &req); err != nil {
-			ResponseError(DB_ERROR, err.Error(), c)
+			ResponseError(PROJ_DEL_ERROR, RETCODE_MSG[PROJ_DEL_ERROR], c)
 			return
 		}
 
 		ResponseData("删除成功", c)
 
 	} else {
-		ResponseError(PARAMS_ERROR, err.Error(), c)
+		ResponseError(PARAMS_ERROR, RETCODE_MSG[PARAMS_ERROR], c)
 	}
 }

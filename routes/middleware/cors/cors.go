@@ -19,7 +19,6 @@ func HandleCors(c *gin.Context) {
 		c.Header("Access-Control-Allow-Origin", httpReq)
 	}
 
-	c.Header("Access-Control-Allow-Origin", httpReq)
 	c.Header("Access-Control-Allow-Methods", "GET, POST, PUT, PATCH, DELETE, OPTION")
 	c.Header("Access-Control-Allow-Headers", "Authorization, Origin, Content-Type")
 	c.Header("Access-Control-Allow-Credentials", "true")

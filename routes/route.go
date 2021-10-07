@@ -1,9 +1,11 @@
 package routes
 
 import (
+	"ConfigPlatform/conf"
 	"ConfigPlatform/routes/middleware/cors"
 	"ConfigPlatform/routes/middleware/jwt"
 	"ConfigPlatform/services"
+	"strconv"
 
 	"github.com/gin-gonic/gin"
 	swaggerFiles "github.com/swaggo/files"
@@ -38,7 +40,8 @@ func InitRouter() {
 
 	addProjectRoute(api)
 
-	r.Run(":8000")
+	// 运行服务
+	r.Run(":" + strconv.Itoa(conf.ServerSetting.Port))
 }
 
 func addProjectRoute(g *gin.RouterGroup) {

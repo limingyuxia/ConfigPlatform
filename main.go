@@ -7,6 +7,8 @@ import (
 	"ConfigPlatform/conf/mysql"
 	_ "ConfigPlatform/docs"
 	"ConfigPlatform/routes"
+
+	"github.com/volatiletech/sqlboiler/v4/boil"
 )
 
 // @title 配置平台
@@ -22,11 +24,18 @@ func main() {
 	}()
 
 	// 加载配置文件
-	conf.LoadConf()
+	if err := conf.LoadConf(); err != nil {
+		return
+	}
 
 	// 初始化db
-	mysql.InitDb()
+	if err := mysql.InitDb(); err != nil {
+		return
+	}
 	defer mysql.Conn.Close()
+
+	// MySQL 设置Debug模式
+	boil.DebugMode = true
 
 	// 初始化路由
 	routes.InitRouter()

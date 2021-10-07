@@ -40,7 +40,6 @@ func getQueryCond(req *model.GetProjectListReq) []qm.QueryMod {
 	return queryMod
 }
 
-// 获取用户创建的项目总数
 func GetProjectTotal(ctx context.Context, req *model.GetProjectListReq) (int64, error) {
 
 	queryMod := getQueryCond(req)

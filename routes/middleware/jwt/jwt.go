@@ -12,9 +12,9 @@ func JWT() gin.HandlerFunc {
 		var code services.RETCODE = services.SUCCESS
 
 		// 取token
-		token := c.GetHeader("authorization")
+		token := c.GetHeader("Authorization")
 		if token == "" {
-			code = services.PARAMS_ERROR
+			code = services.NO_TOKEN_ERROR
 		} else {
 			_, err := services.ParseToken(token)
 			if err != nil {
@@ -28,7 +28,7 @@ func JWT() gin.HandlerFunc {
 		}
 
 		if code != services.SUCCESS {
-			services.ResponseError(code, services.RETCODE_name[code], c)
+			services.ResponseError(code, services.RETCODE_MSG[code], c)
 			c.Abort()
 			return
 		}
