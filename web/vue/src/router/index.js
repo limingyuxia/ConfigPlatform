@@ -63,9 +63,9 @@ export const constantRoutes = [
     children: [
       {
         path: 'table',
-        name: '配置文件',
+        name: '项目列表',
         component: () => import('@/views/table/index'),
-        meta: { title: '配置文件', icon: 'table' }
+        meta: { title: '项目列表', icon: 'table' }
       }
     ]
   },
