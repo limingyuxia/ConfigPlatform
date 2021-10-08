@@ -33,7 +33,7 @@ export function addProject(params, type) {
   return request({
     url: '/project/add',
     method: 'post',
-    data:params
+    data: params
   })
 }
 
@@ -49,13 +49,11 @@ export function deleteProject(params, type) {
 
 export function editProject(params, type) {
   console.log('editProject:', params, type)
-  
+
   return request({
     url: '/project/edit',
     method: 'POST',
-    data:params
+    data: params
   })
 }
-
-
 
