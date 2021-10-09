@@ -164,7 +164,7 @@
                 </el-input>
 
               </el-form-item>
-              <div align="center">
+              <div v-show="!dialogformDisabled" align="center">
                 <el-button @click="addDepartment">增加部门</el-button>
               </div>
 
@@ -197,7 +197,7 @@
                   @keyup.enter.native="handleInputConfirm('admin')"
                   @blur="handleInputConfirm('admin')"
                 />
-                <el-button v-else class="button-new-tag" size="small" @click="showInput('admin')">添加</el-button>
+                <el-button v-else v-show="!dialogformDisabled" class="button-new-tag" size="small" @click="showInput('admin')">添加</el-button>
 
               </div>
             </el-form-item>
@@ -228,7 +228,7 @@
                   @keyup.enter.native="handleInputConfirm('developUser')"
                   @blur="handleInputConfirm('developUser')"
                 />
-                <el-button v-else class="button-new-tag" size="medium" @click="showInput('developUser')">添加</el-button>
+                <el-button v-else v-show="!dialogformDisabled"  class="button-new-tag" size="medium" @click="showInput('developUser')">添加</el-button>
 
               </div>
 
@@ -352,8 +352,8 @@ export default {
         // { 'label': '项目描述', 'valueStr': 'description' ,'type':'text'},
         { 'label': '项目所属的部门', 'valueStr': 'department', 'type': 'tagArray' },
         // { 'label': '管理员', 'valueStr': 'admin' ,'type':'text'},
-        { 'label': '创建时间', 'valueStr': 'create_time', 'type': 'text',"width":180 },
-        { 'label': '更新时间', 'valueStr': 'update_time', 'type': 'text',"width":180  }
+        { 'label': '创建时间', 'valueStr': 'create_time', 'type': 'text', 'width': 180 },
+        { 'label': '更新时间', 'valueStr': 'update_time', 'type': 'text', 'width': 180 }
 
       ],
 
