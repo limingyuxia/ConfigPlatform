@@ -66,11 +66,15 @@ if [ $BaseServer = "mysql" ]; then
     sleep 30
     # 初始化table
     mysql -h $MysqlHost -u root -p123456 < $(pwd)/../docs/sql/config.sql
-elif [$BaseServer = "redis"]; then 
+elif [ $BaseServer = "redis" ]; then
     docker run -d --rm -p 6379:6379 -v $(pwd)/../conf/redis/redis.conf:/etc/redis/redis.conf --name config-redis redis:$ServerTag --requirepass 123456
 elif [ $BaseServer = "backend" ]; then
     # 运行服务端容器
-    docker run -d --rm -p $ServerPort:8000 -p 8001:8001 --name config-server 18509518245/config-server:$ServerTag
+    if [ $# -ge 3 ] && [ $3 = "https" ]; then
+        docker run -d --rm -p 8001:8001 --name config-server-https 18509518245/config-server-https:$ServerTag
+    else
+        docker run -d --rm -p 8000:8000 --name config-server-http 18509518245/config-server-http:$ServerTag
+    fi
 elif [ $BaseServer = "frontend" ]; then
     # 运行前端容器
     container_id=$(docker create 18509518245/config-web:$ServerTag)
