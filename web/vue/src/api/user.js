@@ -15,6 +15,14 @@ export function login(params) {
   })
 }
 
+export function reCode() {
+  return request({
+    url: 'https://api.btstu.cn/sjbz/api.php?lx=dongman&format=json',
+    method: 'GET'
+
+  })
+}
+
 export function getInfo(token) {
   return request({
     url: '/vue-admin-template/user/info',

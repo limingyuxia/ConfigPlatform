@@ -1,19 +1,19 @@
 <template>
   <div class="app-container">
-    <el-form :inline="true" :model="formInline" class="demo-form-inline">
-      <el-form-item label="临时1">
-        <el-input v-model="formInline.user" placeholder="临时1" />
+    <el-form :inline="true" class="demo-form-inline">
+
+      <el-form-item v-for="item,index in formInline" :key="index" :label="item.label">
+        <!--formInline.user-->
+        <el-input v-model="item.value" :placeholder="item.placeholder" />
       </el-form-item>
-      <el-form-item label="临时2">
-        <el-input v-model="formInline.sn" placeholder="临时2" />
-      </el-form-item>
+
     </el-form>
     <!-- 表格 -->
     <el-card v-loading="listLoading" class="box-card">
 
       <div slot="header" class="clearfix">
 
-        <el-button style="float: right; padding: 3px 0" type="text" @click="queryData">查询</el-button>
+        <el-button style="float: right; padding: 3px 0" type="text" @click="queryDataFuc()">查询</el-button>
         <div style="width: 30px;text-align: center; float: right; padding: 3px 0">  |  </div>
 
         <el-button style="float: right; padding: 3px 0" type="text" @click="dialogShow([],'add')">添加</el-button>
@@ -42,6 +42,7 @@
               :key="index"
               :prop="item.valueStr"
               :label="item.label"
+              :width="item.width"
             />
             <el-table-column
               v-if="item.type == 'tagArray'"
@@ -51,14 +52,19 @@
             >
 
               <template slot-scope="scope">
-
-                <el-tag v-for="item1,index1 in scope.row.department" :key="index1" size="medium">{{ item1 }}</el-tag>
-
+                <template v-for="item1,index1 in scope.row.department">
+                  <el-tag
+                    v-if="item1 !== ''"
+                    :key="index1"
+                    size="medium"
+                  >{{ item1 }}</el-tag>
+                </template>
               </template>
 
             </el-table-column>
 
           </template>
+
           <el-table-column
             fixed="right"
             label="操作"
@@ -81,7 +87,7 @@
         <el-pagination
 
           :current-page="currentPage"
-          :page-sizes="[20]"
+          :page-sizes="[5,10,20]"
           :page-size="pageSize"
           :total="total"
           align="center"
@@ -158,7 +164,7 @@
                 </el-input>
 
               </el-form-item>
-              <div align="center">
+              <div v-show="!dialogformDisabled" align="center">
                 <el-button @click="addDepartment">增加部门</el-button>
               </div>
 
@@ -191,7 +197,7 @@
                   @keyup.enter.native="handleInputConfirm('admin')"
                   @blur="handleInputConfirm('admin')"
                 />
-                <el-button v-else class="button-new-tag" size="small" @click="showInput('admin')">添加</el-button>
+                <el-button v-else v-show="!dialogformDisabled" class="button-new-tag" size="small" @click="showInput('admin')">添加</el-button>
 
               </div>
             </el-form-item>
@@ -222,7 +228,7 @@
                   @keyup.enter.native="handleInputConfirm('developUser')"
                   @blur="handleInputConfirm('developUser')"
                 />
-                <el-button v-else class="button-new-tag" size="medium" @click="showInput('developUser')">添加</el-button>
+                <el-button v-else v-show="!dialogformDisabled"  class="button-new-tag" size="medium" @click="showInput('developUser')">添加</el-button>
 
               </div>
 
@@ -243,7 +249,7 @@
                 v-model="formData.create_time"
                 type="datetime"
                 :style="{width: '100%'}"
-                placeholder="请选择创建时间"
+                placeholder="由系统自动生成"
                 clearable
                 :disabled="true"
               />
@@ -256,7 +262,7 @@
                 v-model="formData.update_time"
                 type="datetime"
                 :style="{width: '100%'}"
-                placeholder="请选择时间选择更新时间"
+                placeholder="由系统自动生成"
                 clearable
                 :disabled="true"
               />
@@ -275,11 +281,21 @@
 </template>
 
 <script>
-import { getList, getDetailList } from '@/api/project'
+import { getList, getDetailList, addProject, deleteProject, editProject } from '@/api/project'
+import { Message } from 'element-ui'
 
 export default {
+
   data() {
     return {
+      formInline: [
+        { 'label': '项目名称', 'value': '', 'model': 'name', 'placeholder': '请输入' },
+        { 'label': '项目id', 'value': '', 'model': 'id', 'placeholder': '请输入' },
+        { 'label': '项目的开发人员', 'value': '', 'model': 'develop_user', 'placeholder': '请输入' },
+        { 'label': '项目所属部门', 'value': '', 'model': 'department', 'placeholder': '请输入' },
+        { 'label': '管理员', 'value': '', 'model': 'admin', 'placeholder': '请输入' }
+
+      ],
       adminTagSys: {
         'inputVisible': false,
         'inputValue': ''
@@ -292,17 +308,17 @@ export default {
         id: [],
         project_user: [],
         name: [{
-          required: true,
+
           message: '请输入项目名称',
           trigger: 'blur'
         }],
         description: [{
-          required: true,
+
           message: '请输入项目描述',
           trigger: 'blur'
         }],
         department: [{
-          required: true,
+
           message: '请输入项目所属的部门',
           trigger: 'blur'
         }],
@@ -313,6 +329,7 @@ export default {
       },
 
       formData: {
+        systype: '',
         id: undefined,
         project_user: undefined,
         name: undefined,
@@ -335,8 +352,8 @@ export default {
         // { 'label': '项目描述', 'valueStr': 'description' ,'type':'text'},
         { 'label': '项目所属的部门', 'valueStr': 'department', 'type': 'tagArray' },
         // { 'label': '管理员', 'valueStr': 'admin' ,'type':'text'},
-        { 'label': '创建时间', 'valueStr': 'create_time', 'type': 'text' },
-        { 'label': '更新时间', 'valueStr': 'update_time', 'type': 'text' }
+        { 'label': '创建时间', 'valueStr': 'create_time', 'type': 'text', 'width': 180 },
+        { 'label': '更新时间', 'valueStr': 'update_time', 'type': 'text', 'width': 180 }
 
       ],
 
@@ -345,11 +362,6 @@ export default {
       total: 0, // 总条数
       pageSize: 20, // 每页的数据条数
 
-      formInline: { // 表单信息
-        tmp1: '',
-        tmp2: ''
-
-      },
       dialogFormVisible: false,
       dialogVisible: false,
       dialogformDisabled: false,
@@ -359,11 +371,34 @@ export default {
   },
   created() {
     console.log('初始化表格')
-    this.queryData()
+    var data = {
+      'page_index': 1,
+      'page_size': 20,
+      'project_user': 'superuser'// 用户名 必须
+    }
+    this.queryData(data)
   },
 
   methods: {
+    queryDataFuc() { // 查询
+      console.log('queryDataFuc:')
+      const formInline = this.formInline
+      var data = {
+        'page_index': this.currentPage,
+        'page_size': this.pageSize,
+        'project_user': 'superuser'// 用户名 必须
+      }
 
+      for (let index = 0; index < formInline.length; index++) {
+        const element = formInline[index]
+        if (element.value !== '') {
+          data[element.model] = element.value
+        }
+      }
+
+      console.log('upData:', data)
+      this.queryData(data)
+    },
     handleClose(index, type) {
       if (type === 'admin') {
         this.formData.admin.splice(index, 1)
@@ -418,11 +453,75 @@ export default {
     close() {
       this.$emit('update:visible', false)
     },
+
     handelConfirm() {
-      this.$refs['elForm'].validate(valid => {
-        if (!valid) return
-        this.close()
-      })
+      console.log('123:', this.formData)
+
+      if (this.formData.systype === 'add') {
+        const upData = {
+          'admin': this.formData.admin,
+          'department': this.formData.department,
+          'description': this.formData.description,
+          'develop_user': this.formData.develop_user,
+          'name': this.formData.name,
+          'project_user': 'superuser'
+        }
+        console.log('upData:', upData)
+        this.dialogFormLoading = true
+        addProject(upData).then(response => {
+          console.log('addProject', response)
+          Message({
+            message: response,
+            type: 'success',
+            duration: 5 * 1000
+          })
+          this.dialogFormLoading = false
+          this.dialogFormVisible = false
+          var data = {
+            'page_index': this.currentPage,
+            'page_size': this.pageSize,
+            'project_user': 'superuser'// 用户名 必须
+          }
+          this.queryData(data)
+          // this.formData = response
+        }, reason => {
+          this.dialogFormLoading = false
+          console.error(reason) // 出错了！
+        })
+      } else if (this.formData.systype === 'edit') {
+        const upData = {
+          'admin': this.formData.admin,
+          'department': this.formData.department,
+          'description': this.formData.description,
+          'develop_user': this.formData.develop_user,
+          'id': this.formData.id
+
+        }
+        console.log('upData:', upData)
+        this.dialogFormLoading = true
+
+        editProject(upData).then(response => {
+          console.log('editProject', response)
+          Message({
+            message: response,
+            type: 'success',
+            duration: 5 * 1000
+          })
+          this.dialogFormLoading = false
+          this.dialogFormVisible = false
+
+          var data = {
+            'page_index': this.currentPage,
+            'page_size': this.pageSize,
+            'project_user': 'superuser'// 用户名 必须
+          }
+          this.queryData(data)
+          // this.formData = response
+        }, reason => {
+          this.dialogFormLoading = false
+          console.error(reason) // 出错了！
+        })
+      }
     },
 
     getDetail(data, type) { // 弹窗的
@@ -463,18 +562,31 @@ export default {
           console.log('DatailList', response)
           this.dialogFormLoading = false
           this.formData = response
+          this.formData.systype = 'edit'
         }, reason => {
           this.dialogFormLoading = false
           console.error(reason) // 出错了！
         })
-      } else { // 异常
+      } else if (type === 'add') { // 异常
         console.log('onthon')
       }
       // dialogformDisabled
     },
 
-    dialogShow(data, type) { // 弹窗
+    dialogShow(data, type) { // 添加弹窗
       console.log('dialogShow:', data, type)
+
+      data = {
+        'systype': 'add',
+        'admin': [],
+        'department': [],
+        'description': '',
+        'develop_user': [],
+        'id': '',
+        'name': '',
+        'project_user': 'superuser'
+      }
+      this.dialogformDisabled = false
       this.formData = data
       this.dialogFormVisible = true
 
@@ -489,11 +601,38 @@ export default {
         type: 'warning',
         center: true
       }).then(() => {
-        this.$message({
-          type: 'success',
-          message: '删除成功!'
+        console.log('delete_1:', data)
+        var upData = {
+          'id': data.id,
+          'project_user': data.project_user
+        }
+
+        deleteProject(upData).then(response => {
+          console.log('deleteProject', response)
+
+          Message({
+            message: response,
+            type: 'success',
+            duration: 5 * 1000
+          })
+          // 取余数
+          const remainder = this.total % this.pageSize
+          if (remainder === 1 && this.currentPage > 1) {
+            this.currentPage = this.currentPage - 1
+          }
+          var data = {
+            'page_index': this.currentPage,
+            'page_size': this.pageSize,
+            'project_user': 'superuser'// 用户名 必须
+          }
+          this.queryData(data)
+        }, reason => {
+          this.dialogFormLoading = false
+          console.log('deleteProjectError', reason)
+          console.error(reason) // 出错了！
         })
-      }).catch(() => {
+      }).catch((e) => {
+        console.log('deleteProjectError_12', e)
         this.$message({
           type: 'info',
           message: '已取消删除'
@@ -503,25 +642,53 @@ export default {
     handleSizeChange(pageSize) {
       console.log('pageSize!', pageSize)
       this.pageSize = pageSize
+
+      var data = {
+        'page_index': this.currentPage,
+        'page_size': pageSize,
+        'project_user': 'superuser'// 用户名 必须
+      }
+      this.queryData(data)
     },
     handleCurrentChange(currentPage) {
       console.log('currentPage!', currentPage)
+      var data = {
+        'page_index': currentPage,
+        'page_size': this.pageSize,
+        'project_user': 'superuser'// 用户名 必须
+      }
+      this.queryData(data)
+
       this.currentPage = currentPage
     },
 
-    queryData() {
+    queryData(data) {
       this.listLoading = true
 
+      /*
       var data = {
-        'page_index': 1,
-        'page_size': 20,
+        'page_index': currentPage,
+        'page_size': this.pageSize,
         'project_user': 'superuser'// 用户名 必须
       }
+      */
       console.log('upData:', data)
+      this.tableData = []
+      /*
+       currentPage: 1, // 当前页码
+      total: 0, // 总条数
+      pageSize: 20, // 每页的数据条数
+*/
+      for (let index = 0; index < (data.page_index - 1) * data.page_size; index++) {
+        this.tableData.push(index)
+      }
+
+      console.log('this.tableData_tmp:', this.tableData, this.currentPage, this.pageSize)
 
       getList(data).then(response => {
         const tableDataList = response.ProjectList
         const total = response.Total
+
         console.log('tableData', response, total === 0)
         if (total === 0) {
           this.total = 0
@@ -530,7 +697,21 @@ export default {
           return 0
         }
 
-        this.tableData = tableDataList
+        if (tableDataList === null) {
+          this.total = total
+          this.tableData = []
+          this.listLoading = false
+          return 0
+        }
+
+        for (let index = 0; index < tableDataList.length; index++) {
+          const element = tableDataList[index]
+
+          this.tableData.push(element)
+        }
+
+        console.log('this.tableData:', this.tableData, this.currentPage, this.pageSize)
+
         this.total = total
         this.listLoading = false
       }, reason => {
