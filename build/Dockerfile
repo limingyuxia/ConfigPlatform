@@ -10,4 +10,5 @@ RUN go get -d -v ./...
 RUN go install -v ./...
 
 # 重定向日志输出
-CMD go run $WORKPATH/main.go > ./server.log
+CMD go run $WORKPATH/main.go > ./httpServer.log
+CMD go run Proto=Https $WORKPATH/main.go > ./httpsServer.log

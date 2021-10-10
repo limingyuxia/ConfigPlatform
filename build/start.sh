@@ -3,7 +3,7 @@
 # 这是服务启动脚本
 
 if [ $# -lt 2 ]; then
-    echo "usage [ mysql|backend|frontend ] [ tag ]"
+    echo "usage [ mysql | redis | backend | frontend ] [ tag ]"
     exit 1
 fi
 
@@ -63,12 +63,14 @@ if [ $BaseServer = "mysql" ]; then
     # 构建数据库
     docker run -d --rm -p $MysqlPort:3306 --name config-db --env MYSQL_ROOT_PASSWORD=123456 mysql:$ServerTag
     # 等待数据库初始化
-    sleep 20
+    sleep 30
     # 初始化table
     mysql -h $MysqlHost -u root -p123456 < $(pwd)/../docs/sql/config.sql
+elif [$BaseServer = "redis"]; then 
+    docker run -d --rm -p 6379:6379 -v $(pwd)/../conf/redis/redis.conf:/etc/redis/redis.conf --name config-redis redis:$ServerTag --requirepass 123456
 elif [ $BaseServer = "backend" ]; then
     # 运行服务端容器
-    docker run -d --rm -p $ServerPort:8000 --name config-server 18509518245/config-server:$ServerTag
+    docker run -d --rm -p $ServerPort:8000 -p 8001:8001 --name config-server 18509518245/config-server:$ServerTag
 elif [ $BaseServer = "frontend" ]; then
     # 运行前端容器
     container_id=$(docker create 18509518245/config-web:$ServerTag)

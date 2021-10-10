@@ -78,6 +78,12 @@ type LoginResp struct {
 	Expire string `json:"expire"` // 过期时间
 }
 
+type Register struct {
+	Username     string `json:"username" binding:"required"`      // 用户名
+	Password     string `json:"password" binding:"required"`      // 密码
+	EmailAddress string `json:"email_address" binding:"required"` // 邮箱地址
+}
+
 type AuthError struct {
 	Code    int    `json:"code"`
 	Message string `json:"message"`
@@ -86,4 +92,17 @@ type AuthError struct {
 // 嵌入到jwt中的user信息
 type JwtUser struct {
 	UserName string `json:"username"`
+}
+
+type CaptchaToken struct {
+	CaptchaToken string `json:"captcha_token"` // 图片验证码验证成功返回的token
+}
+
+type SendEmailCode struct {
+	CaptchaToken string `json:"captcha_token" binding:"required"` // 图片验证码验证成功返回的token
+	EmailAddress string `json:"email_address" binding:"required"` // 邮箱地址
+}
+
+type EmailCode struct {
+	EmailCode string `json:"email_code" binding:"required"` // 邮箱验证码
 }

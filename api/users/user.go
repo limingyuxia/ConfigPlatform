@@ -3,6 +3,7 @@ package users
 import (
 	"ConfigPlatform/api"
 	"ConfigPlatform/conf/mysql"
+	"ConfigPlatform/model"
 	"context"
 	"errors"
 	"log"
@@ -36,11 +37,12 @@ func IsUserRegisted(ctx context.Context, userName, passWord string) error {
 	return nil
 }
 
-func UserRegisted(ctx context.Context, userName, passWord string) (int64, error) {
+func UserRegisted(ctx context.Context, register *model.Register) (int64, error) {
 
-	insertSql := `insert into user(username, password) VALUES(?, ?)`
+	insertSql := `insert into user(username, password, email) VALUES(?, ?, ?)`
 
-	result, err := mysql.Conn.ExecContext(ctx, insertSql, userName, passWord)
+	result, err := mysql.Conn.ExecContext(ctx, insertSql, register.Username,
+		register.Password, register.EmailAddress)
 	if err != nil {
 		log.Print("UserRegisted error: ", err)
 		return 0, api.GetDbError(err)

@@ -20,7 +20,7 @@ func JwtInit() *jwt.GinJWTMiddleware {
 
 	authMiddleware, err := jwt.New(&jwt.GinJWTMiddleware{
 		Realm:       "test zone",
-		Key:         []byte(conf.AppSetting.JwtSecret),
+		Key:         []byte(conf.ServerSetting.JwtSecret),
 		Timeout:     tokenValidity,
 		MaxRefresh:  tokenRefreshValidity,
 		IdentityKey: identityKey,

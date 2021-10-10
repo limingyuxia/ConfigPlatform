@@ -75,7 +75,7 @@ var doc = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "type": "string"
+                            "$ref": "#/definitions/model.CaptchaToken"
                         }
                     },
                     "400": {
@@ -120,6 +120,84 @@ var doc = `{
                         "in": "query"
                     }
                 ]
+            }
+        },
+        "/email/confirm": {
+            "post": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "鉴权"
+                ],
+                "summary": "验证邮箱验证码",
+                "parameters": [
+                    {
+                        "description": "图片验证码返回的token",
+                        "name": "ConfirmEmailCode",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/model.EmailCode"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/services.WebResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/email/send": {
+            "post": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "鉴权"
+                ],
+                "summary": "发送邮箱验证码",
+                "parameters": [
+                    {
+                        "description": "图片验证码返回的token",
+                        "name": "SendEmailCode",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/model.SendEmailCode"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/services.WebResponse"
+                        }
+                    }
+                }
             }
         },
         "/login": {
@@ -436,12 +514,12 @@ var doc = `{
                 "summary": "注册账号",
                 "parameters": [
                     {
-                        "description": "注册用户的账号密码",
+                        "description": "注册用户的信息",
                         "name": "Register",
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/model.LoginReq"
+                            "$ref": "#/definitions/model.Register"
                         }
                     }
                 ],
@@ -516,6 +594,15 @@ var doc = `{
                 }
             }
         },
+        "model.CaptchaToken": {
+            "type": "object",
+            "properties": {
+                "captcha_token": {
+                    "description": "图片验证码验证成功返回的token",
+                    "type": "string"
+                }
+            }
+        },
         "model.ConfirmCaptcha": {
             "type": "object",
             "required": [
@@ -567,6 +654,18 @@ var doc = `{
                 "id": {
                     "description": "项目id",
                     "type": "integer"
+                }
+            }
+        },
+        "model.EmailCode": {
+            "type": "object",
+            "required": [
+                "email_code"
+            ],
+            "properties": {
+                "email_code": {
+                    "description": "邮箱验证码",
+                    "type": "string"
                 }
             }
         },
@@ -669,6 +768,45 @@ var doc = `{
                 },
                 "update_time": {
                     "description": "更新时间",
+                    "type": "string"
+                }
+            }
+        },
+        "model.Register": {
+            "type": "object",
+            "required": [
+                "email_address",
+                "password",
+                "username"
+            ],
+            "properties": {
+                "email_address": {
+                    "description": "邮箱地址",
+                    "type": "string"
+                },
+                "password": {
+                    "description": "密码",
+                    "type": "string"
+                },
+                "username": {
+                    "description": "用户名",
+                    "type": "string"
+                }
+            }
+        },
+        "model.SendEmailCode": {
+            "type": "object",
+            "required": [
+                "captcha_token",
+                "email_address"
+            ],
+            "properties": {
+                "captcha_token": {
+                    "description": "图片验证码验证成功返回的token",
+                    "type": "string"
+                },
+                "email_address": {
+                    "description": "邮箱地址",
                     "type": "string"
                 }
             }

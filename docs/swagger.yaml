@@ -36,6 +36,12 @@ definitions:
       message:
         type: string
     type: object
+  model.CaptchaToken:
+    properties:
+      captcha_token:
+        description: 图片验证码验证成功返回的token
+        type: string
+    type: object
   model.ConfirmCaptcha:
     properties:
       captcha_id:
@@ -73,6 +79,14 @@ definitions:
         type: integer
     required:
     - id
+    type: object
+  model.EmailCode:
+    properties:
+      email_code:
+        description: 邮箱验证码
+        type: string
+    required:
+    - email_code
     type: object
   model.GetCaptchaResp:
     properties:
@@ -146,6 +160,34 @@ definitions:
         description: 更新时间
         type: string
     type: object
+  model.Register:
+    properties:
+      email_address:
+        description: 邮箱地址
+        type: string
+      password:
+        description: 密码
+        type: string
+      username:
+        description: 用户名
+        type: string
+    required:
+    - email_address
+    - password
+    - username
+    type: object
+  model.SendEmailCode:
+    properties:
+      captcha_token:
+        description: 图片验证码验证成功返回的token
+        type: string
+      email_address:
+        description: 邮箱地址
+        type: string
+    required:
+    - captcha_token
+    - email_address
+    type: object
   services.WebResponse:
     properties:
       errcode:
@@ -206,7 +248,7 @@ paths:
         "200":
           description: OK
           schema:
-            type: string
+            $ref: '#/definitions/model.CaptchaToken'
         "400":
           description: Bad Request
           schema:
@@ -222,6 +264,56 @@ paths:
           schema:
             $ref: '#/definitions/model.GetCaptchaResp'
       summary: 获取图片验证码id
+      tags:
+      - 鉴权
+  /email/confirm:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: 图片验证码返回的token
+        in: body
+        name: ConfirmEmailCode
+        required: true
+        schema:
+          $ref: '#/definitions/model.EmailCode'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/services.WebResponse'
+      summary: 验证邮箱验证码
+      tags:
+      - 鉴权
+  /email/send:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: 图片验证码返回的token
+        in: body
+        name: SendEmailCode
+        required: true
+        schema:
+          $ref: '#/definitions/model.SendEmailCode'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/services.WebResponse'
+      summary: 发送邮箱验证码
       tags:
       - 鉴权
   /login:
@@ -424,12 +516,12 @@ paths:
       consumes:
       - application/json
       parameters:
-      - description: 注册用户的账号密码
+      - description: 注册用户的信息
         in: body
         name: Register
         required: true
         schema:
-          $ref: '#/definitions/model.LoginReq'
+          $ref: '#/definitions/model.Register'
       produces:
       - application/json
       responses:

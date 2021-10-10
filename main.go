@@ -5,6 +5,7 @@ import (
 
 	"ConfigPlatform/conf"
 	"ConfigPlatform/conf/mysql"
+	"ConfigPlatform/conf/redis"
 	_ "ConfigPlatform/docs"
 	"ConfigPlatform/routes"
 
@@ -33,6 +34,12 @@ func main() {
 		return
 	}
 	defer mysql.Conn.Close()
+
+	// 初始化redis
+	if err := redis.InitRedis(); err != nil {
+		return
+	}
+	defer redis.RedisConn.Close()
 
 	// MySQL 设置Debug模式
 	boil.DebugMode = true

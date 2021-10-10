@@ -15,6 +15,12 @@ type Database struct {
 	Name     string // 要连接的database名称
 }
 
+type Redis struct {
+	Host     string
+	Port     int
+	Password string
+}
+
 type Nginx struct {
 	Domain    string // 域名或者ip
 	HttpsPort int    // https port
@@ -22,20 +28,18 @@ type Nginx struct {
 }
 
 type Server struct {
-	Port int // 服务端的端口
-}
-
-type App struct {
+	HttpPort  int    // 服务端https端口
+	HttpsPort int    // 服务端http端口
 	JwtSecret string // jwt秘钥
 }
 
 var DatabaseSetting = &Database{}
 
+var RedisSetting = &Redis{}
+
 var NginxSetting = &Nginx{}
 
 var ServerSetting = &Server{}
-
-var AppSetting = &App{}
 
 func LoadConf() error {
 
@@ -52,17 +56,17 @@ func LoadConf() error {
 		return err
 	}
 
+	// 加载redis配置
+	err = cfg.Section("redis").MapTo(RedisSetting)
+	if err != nil {
+		log.Print("load redis config failed: ", err)
+		return err
+	}
+
 	// 加载nginx配置
 	err = cfg.Section("nginx").MapTo(NginxSetting)
 	if err != nil {
 		log.Print("load nginx config failed: ", err)
-		return err
-	}
-
-	// 加载jwt秘钥
-	err = cfg.Section("app").MapTo(AppSetting)
-	if err != nil {
-		log.Print("load jwt config failed: ", err)
 		return err
 	}
 
