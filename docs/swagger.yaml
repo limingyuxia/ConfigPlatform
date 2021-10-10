@@ -29,6 +29,25 @@ definitions:
     - name
     - project_user
     type: object
+  model.AuthError:
+    properties:
+      code:
+        type: integer
+      message:
+        type: string
+    type: object
+  model.ConfirmCaptcha:
+    properties:
+      captcha_id:
+        description: 验证码id
+        type: string
+      captcha_solution:
+        description: 验证码的值
+        type: string
+    required:
+    - captcha_id
+    - captcha_solution
+    type: object
   model.EditProject:
     properties:
       admin:
@@ -55,6 +74,12 @@ definitions:
     required:
     - id
     type: object
+  model.GetCaptchaResp:
+    properties:
+      captcha_id:
+        description: 验证码id
+        type: string
+    type: object
   model.GetProjectListResp:
     properties:
       projectList:
@@ -63,6 +88,27 @@ definitions:
         type: array
       total:
         type: integer
+    type: object
+  model.LoginReq:
+    properties:
+      password:
+        description: 密码
+        type: string
+      username:
+        description: 用户名
+        type: string
+    required:
+    - password
+    - username
+    type: object
+  model.LoginResp:
+    properties:
+      expire:
+        description: 过期时间
+        type: string
+      token:
+        description: token
+        type: string
     type: object
   model.ProjectInfo:
     properties:
@@ -100,27 +146,6 @@ definitions:
         description: 更新时间
         type: string
     type: object
-  services.LoginReq:
-    properties:
-      password:
-        description: 密码
-        type: string
-      username:
-        description: 用户名
-        type: string
-    required:
-    - password
-    - username
-    type: object
-  services.Token:
-    properties:
-      expire:
-        description: 过期时间
-        type: integer
-      token:
-        description: token
-        type: string
-    type: object
   services.WebResponse:
     properties:
       errcode:
@@ -138,29 +163,100 @@ info:
   title: 配置平台
   version: "1.0"
 paths:
-  /login:
+  /auth/refreshToken:
+    get:
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.LoginResp'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/model.AuthError'
+      summary: 刷新token
+      tags:
+      - 鉴权
+  /captcha/{{.captcha_id}}.png:
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - description: 时间戳或随机数
+        in: query
+        name: reload
+        type: integer
+      summary: 获取或刷新图片验证码
+      tags:
+      - 鉴权
+  /captcha/confirm:
     post:
       consumes:
       - application/json
       parameters:
-      - description: 登录用户的账号密码
+      - description: 校验图片验证码
         in: body
-        name: Login
+        name: ConfirmCaptcha
         required: true
         schema:
-          $ref: '#/definitions/services.LoginReq'
+          $ref: '#/definitions/model.ConfirmCaptcha'
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/services.Token'
+            type: string
         "400":
           description: Bad Request
           schema:
             $ref: '#/definitions/services.WebResponse'
+      summary: 校验图片验证码
+      tags:
+      - 鉴权
+  /captcha/get:
+    get:
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.GetCaptchaResp'
+      summary: 获取图片验证码id
+      tags:
+      - 鉴权
+  /login:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: 登录的账号和密码
+        in: body
+        name: Login
+        required: true
+        schema:
+          $ref: '#/definitions/model.LoginReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.LoginResp'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/model.AuthError'
       summary: 登录
+      tags:
+      - 鉴权
+  /logout:
+    get:
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+      summary: 登出
       tags:
       - 鉴权
   /project/add:
@@ -333,7 +429,7 @@ paths:
         name: Register
         required: true
         schema:
-          $ref: '#/definitions/services.LoginReq'
+          $ref: '#/definitions/model.LoginReq'
       produces:
       - application/json
       responses:
@@ -347,5 +443,5 @@ paths:
             $ref: '#/definitions/services.WebResponse'
       summary: 注册账号
       tags:
-      - 鉴权
+      - 用户管理
 swagger: "2.0"

@@ -2,11 +2,13 @@ package routes
 
 import (
 	"ConfigPlatform/conf"
+	"ConfigPlatform/routes/middleware/captcha"
 	"ConfigPlatform/routes/middleware/cors"
-	"ConfigPlatform/routes/middleware/jwt"
+	"ConfigPlatform/routes/middleware/jwts"
 	"ConfigPlatform/services"
 	"strconv"
 
+	jwt "github.com/appleboy/gin-jwt/v2"
 	"github.com/gin-gonic/gin"
 	swaggerFiles "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"
@@ -22,30 +24,45 @@ func InitRouter() {
 	r.Use(cors.HandleCors)
 
 	// 加载静态文件
-	r.StaticFile("/", "web/index.html")
-	r.StaticFile("project.js", "web/project.js")
-	r.StaticFile("project.css", "web/project.css")
+	// r.StaticFile("/", "web/index.html")
+	// r.StaticFile("project.js", "web/project.js")
+	// r.StaticFile("project.css", "web/project.css")
 
 	// swagger文档
 	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 
+	authMiddleware := jwts.JwtInit()
+
 	// 登录
-	r.POST("/login", services.Login)
+	r.POST("/login", authMiddleware.LoginHandler)
+
+	// 登出
+	r.GET("/logout", authMiddleware.LogoutHandler)
+
+	// 刷新token
+	r.GET("/auth/refreshToken", authMiddleware.RefreshHandler)
 
 	// 注册
 	r.POST("/register", services.Register)
 
 	// api 接口
-	api := r.Group("/project")
+	project := r.Group("/project")
 
-	addProjectRoute(api)
+	captchas := r.Group("/captcha")
+
+	addProjectRoute(project, authMiddleware)
+
+	addCaptchasRoute(captchas)
+
+	// 处理图片验证码
+	r.Use(captcha.RefeshCaptcha())
 
 	// 运行服务
 	r.Run(":" + strconv.Itoa(conf.ServerSetting.Port))
 }
 
-func addProjectRoute(g *gin.RouterGroup) {
-	g.Use(jwt.JWT())
+func addProjectRoute(g *gin.RouterGroup, authMiddleware *jwt.GinJWTMiddleware) {
+	g.Use(authMiddleware.MiddlewareFunc())
 	{
 		g.GET("list", services.GetProjectList)
 		g.GET("detail", services.GetProjectDetail)
@@ -53,4 +70,12 @@ func addProjectRoute(g *gin.RouterGroup) {
 		g.POST("edit", services.EditProject)
 		g.DELETE("delete", services.DeleteProject)
 	}
+}
+
+func addCaptchasRoute(g *gin.RouterGroup) {
+	// 获取图片验证码id
+	g.GET("/get", services.GetCaptcha)
+
+	// 验证图片验证码
+	g.POST("/confirm", services.ConfirmCaptcha)
 }

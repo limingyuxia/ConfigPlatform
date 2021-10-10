@@ -18,6 +18,7 @@ const (
 	PROJ_ADD_ERROR    RETCODE = 4010
 	PROJ_EDIT_ERROR   RETCODE = 4011
 	PROJ_DEL_ERROR    RETCODE = 4012
+	CAPTCHA_ERROR     RETCODE = 4013
 )
 
 // 错误码和错误信息的关系
@@ -37,5 +38,6 @@ var (
 		4010: "项目添加失败",
 		4011: "项目编辑失败",
 		4012: "项目删除失败",
+		4013: "验证码有误",
 	}
 )

@@ -8,6 +8,14 @@ import (
 	"log"
 )
 
+// @Tags 鉴权
+// @Summary 登录
+// @Accept  json
+// @Produce  json
+// @Param Login body model.LoginReq true "登录的账号和密码"
+// @Success 200 {object} model.LoginResp
+// @Failure 400 {object} model.AuthError
+// @Router /login [post]
 func IsUserRegisted(ctx context.Context, userName, passWord string) error {
 	querySql := "select id from user where `username` = ? and `password` = ?"
 

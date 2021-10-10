@@ -26,6 +26,102 @@ var doc = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
+        "/auth/refreshToken": {
+            "get": {
+                "tags": [
+                    "鉴权"
+                ],
+                "summary": "刷新token",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/model.LoginResp"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/model.AuthError"
+                        }
+                    }
+                }
+            }
+        },
+        "/captcha/confirm": {
+            "post": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "鉴权"
+                ],
+                "summary": "校验图片验证码",
+                "parameters": [
+                    {
+                        "description": "校验图片验证码",
+                        "name": "ConfirmCaptcha",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/model.ConfirmCaptcha"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/services.WebResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/captcha/get": {
+            "get": {
+                "tags": [
+                    "鉴权"
+                ],
+                "summary": "获取图片验证码id",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/model.GetCaptchaResp"
+                        }
+                    }
+                }
+            }
+        },
+        "/captcha/{{.captcha_id}}.png": {
+            "get": {
+                "consumes": [
+                    "application/json"
+                ],
+                "tags": [
+                    "鉴权"
+                ],
+                "summary": "获取或刷新图片验证码",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "时间戳或随机数",
+                        "name": "reload",
+                        "in": "query"
+                    }
+                ]
+            }
+        },
         "/login": {
             "post": {
                 "consumes": [
@@ -40,12 +136,12 @@ var doc = `{
                 "summary": "登录",
                 "parameters": [
                     {
-                        "description": "登录用户的账号密码",
+                        "description": "登录的账号和密码",
                         "name": "Login",
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/services.LoginReq"
+                            "$ref": "#/definitions/model.LoginReq"
                         }
                     }
                 ],
@@ -53,13 +149,29 @@ var doc = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/services.Token"
+                            "$ref": "#/definitions/model.LoginResp"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/services.WebResponse"
+                            "$ref": "#/definitions/model.AuthError"
+                        }
+                    }
+                }
+            }
+        },
+        "/logout": {
+            "get": {
+                "tags": [
+                    "鉴权"
+                ],
+                "summary": "登出",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "string"
                         }
                     }
                 }
@@ -319,7 +431,7 @@ var doc = `{
                     "application/json"
                 ],
                 "tags": [
-                    "鉴权"
+                    "用户管理"
                 ],
                 "summary": "注册账号",
                 "parameters": [
@@ -329,7 +441,7 @@ var doc = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/services.LoginReq"
+                            "$ref": "#/definitions/model.LoginReq"
                         }
                     }
                 ],
@@ -393,6 +505,34 @@ var doc = `{
                 }
             }
         },
+        "model.AuthError": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "integer"
+                },
+                "message": {
+                    "type": "string"
+                }
+            }
+        },
+        "model.ConfirmCaptcha": {
+            "type": "object",
+            "required": [
+                "captcha_id",
+                "captcha_solution"
+            ],
+            "properties": {
+                "captcha_id": {
+                    "description": "验证码id",
+                    "type": "string"
+                },
+                "captcha_solution": {
+                    "description": "验证码的值",
+                    "type": "string"
+                }
+            }
+        },
         "model.EditProject": {
             "type": "object",
             "required": [
@@ -430,6 +570,15 @@ var doc = `{
                 }
             }
         },
+        "model.GetCaptchaResp": {
+            "type": "object",
+            "properties": {
+                "captcha_id": {
+                    "description": "验证码id",
+                    "type": "string"
+                }
+            }
+        },
         "model.GetProjectListResp": {
             "type": "object",
             "properties": {
@@ -441,6 +590,36 @@ var doc = `{
                 },
                 "total": {
                     "type": "integer"
+                }
+            }
+        },
+        "model.LoginReq": {
+            "type": "object",
+            "required": [
+                "password",
+                "username"
+            ],
+            "properties": {
+                "password": {
+                    "description": "密码",
+                    "type": "string"
+                },
+                "username": {
+                    "description": "用户名",
+                    "type": "string"
+                }
+            }
+        },
+        "model.LoginResp": {
+            "type": "object",
+            "properties": {
+                "expire": {
+                    "description": "过期时间",
+                    "type": "string"
+                },
+                "token": {
+                    "description": "token",
+                    "type": "string"
                 }
             }
         },
@@ -490,36 +669,6 @@ var doc = `{
                 },
                 "update_time": {
                     "description": "更新时间",
-                    "type": "string"
-                }
-            }
-        },
-        "services.LoginReq": {
-            "type": "object",
-            "required": [
-                "password",
-                "username"
-            ],
-            "properties": {
-                "password": {
-                    "description": "密码",
-                    "type": "string"
-                },
-                "username": {
-                    "description": "用户名",
-                    "type": "string"
-                }
-            }
-        },
-        "services.Token": {
-            "type": "object",
-            "properties": {
-                "expire": {
-                    "description": "过期时间",
-                    "type": "integer"
-                },
-                "token": {
-                    "description": "token",
                     "type": "string"
                 }
             }

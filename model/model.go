@@ -55,33 +55,35 @@ type DeleteProject struct {
 	ProjectUser string `json:"project_user" form:"id"`          // 项目创建者
 }
 
-/*
-func (p *ProjectInfo) GetMemberByJsonTag(columns []string) []interface{} {
-	var Member []interface{}
-
-	for _, column := range columns {
-		switch column {
-		case "id":
-			Member = append(Member, &p.ID)
-		case "name":
-			Member = append(Member, &p.Name)
-		case "description":
-			Member = append(Member, &p.Description)
-		case "department":
-			Member = append(Member, &p.Department)
-		case "admin":
-			Member = append(Member, &p.Admin)
-		case "project_user":
-			Member = append(Member, &p.ProjectUser)
-		case "develop_user":
-			Member = append(Member, &p.DevelopUser)
-		case "create_time":
-			Member = append(Member, &p.CreateTime)
-		case "update_time":
-			Member = append(Member, &p.UpdateTime)
-		}
-	}
-
-	return Member
+type GetCaptchaResp struct {
+	CaptchaId string `json:"captcha_id"` // 验证码id
 }
-*/
+
+type ConfirmCaptcha struct {
+	CaptchaId       string `json:"captcha_id" binding:"required"`       // 验证码id
+	CaptchaSolution string `json:"captcha_solution" binding:"required"` // 验证码的值
+}
+
+type RefeshCaptcha struct {
+	Reload int64 `json:"reload"` // 时间戳或随机数
+}
+
+type LoginReq struct {
+	Username string `json:"username" form:"username" binding:"required"` // 用户名
+	Password string `json:"password" form:"password" binding:"required"` // 密码
+}
+
+type LoginResp struct {
+	Token  string `json:"token"`  // token
+	Expire string `json:"expire"` // 过期时间
+}
+
+type AuthError struct {
+	Code    int    `json:"code"`
+	Message string `json:"message"`
+}
+
+// 嵌入到jwt中的user信息
+type JwtUser struct {
+	UserName string `json:"username"`
+}
