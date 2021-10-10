@@ -5,7 +5,7 @@ import { getToken } from '@/utils/auth'
 
 // create an axios instance
 const service = axios.create({
-  baseURL: process.env.VUE_APP_BASE_API, // url = base url + request url
+  baseURL: process.env.VUE_APP_BASE_HTTP_API, // url = base url + request url
   // withCredentials: true, // send cookies when cross-domain requests
   timeout: 5000 // request timeout
 })
@@ -16,16 +16,17 @@ service.interceptors.request.use(
     // do something before request is sent
 
     // 配置http
+    
     var protocolStr = document.location.protocol
 
     if (protocolStr === 'http:') {
-      config.baseURL = 'http://' + process.env.VUE_APP_BASE_API
+      config.baseURL = 'http://' + process.env.VUE_APP_BASE_HTTP_API
       console.log('protocol = ' + protocolStr)
     } else if (protocolStr === 'https:') {
-      config.baseURL = 'https://' + process.env.VUE_APP_BASE_API
+      config.baseURL = 'https://' + process.env.VUE_APP_BASE_HTTPS_API
       console.log('protocol = ' + protocolStr)
     } else {
-      config.baseURL = 'http://' + process.env.VUE_APP_BASE_API
+      config.baseURL = 'http://' + process.env.VUE_APP_BASE_HTTP_API
       console.log('other protocol')
     }
 
@@ -61,6 +62,7 @@ service.interceptors.response.use(
     console.log('webDataAll:', response)
 
     const res = response.data
+
     const statusCode = response.status
 
     // if the custom code is not 20000, it is judged as an error.

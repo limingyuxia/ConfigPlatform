@@ -23,24 +23,52 @@
             class="bbutton"
             @click="login"
           >登录</button>
+          <span id="qqLoginBtn"></span>
+          
+          <div class="social-signup-container">
+
+    <div class="sign-btn" @click="wechatHandleClick('wechat')">
+      <span class="wx-svg-container"><svg-icon icon-class="wechat" class="icon"/></span> 微信
+    </div>
+    <div class="sign-btn" @click="tencentHandleClick('tencent')">
+      <span class="qq-svg-container"><svg-icon icon-class="qq" class="icon" id="qqLoginBtn"/></span> QQ
+    </div>
+  </div>
+
         </el-form>
         <el-form
           v-else
           class="big-contain"
+          ref="inputRegister"
+          :model="inputRegister"
+          :rules="inputRegisterRules"
         >
           <div class="btitle">创建账户</div>
           <div style="height: 70%;" class="bform">
 
-            <el-input v-model="inputRegister.username" type="text" title="请输入用户名" style=" width: 50%;" placeholder="请输入用户名" />
-            <el-input v-model="inputRegister.email" type="email" title="请输入邮箱" style=" width: 50%;" placeholder="请输入邮箱" />
+            <el-form-item style="width: 50%;" prop="username">
+              <el-input v-model="inputRegister.username" type="text" title="请输入用户名" placeholder="请输入用户名" />
+            </el-form-item>
 
-            <el-input v-model="inputRegister.codeNum" type="text" title="请输入图形验证码" style=" width: 50%;" placeholder="请输入图形验证码"><el-button slot="append" v-loading="reCodeLoading" @click="reCodefuc()"><img onerror="default" style="width: 125px;height: 30px;" :src="src1"></el-button></el-input>
-            
-            <el-input v-model="inputRegister.codeEmail" type="text" title="请输入邮箱验证码" style=" width: 50%;" placeholder="请输入邮箱验证码"  ><el-button slot="append">点击获取邮箱验证码</el-button> </el-input>
+            <el-form-item style=" width: 50%;" prop="email">
+              <el-input  v-model="inputRegister.email" type="email" title="请输入邮箱"  placeholder="请输入邮箱" />
+            </el-form-item>
 
-            <el-input v-model="inputRegister.password1" type="password" title="请输入密码" style=" width: 50%;" placeholder="请输入密码" show-password />
-            <el-input v-model="inputRegister.password2" type="password" title="请输入确认密码" style=" width: 50%;" placeholder="请输入确认密码" show-password />
+            <el-form-item style=" width: 50%;" prop="codeNum">
+              <el-input v-model="inputRegister.codeNum" type="text"  @input="codeNumIn" title="请输入图形验证码" placeholder="请输入图形验证码"><el-button slot="append" v-loading="reCodeLoading" @click="reCodefuc()"><img onerror="default" style="width: 130px;height: 40px;" :src="src1"></el-button></el-input>
+            </el-form-item>
 
+            <el-form-item style=" width: 50%;" prop="codeEmail">
+              <el-input v-model="inputRegister.codeEmail" type="text" title="请输入邮箱验证码" placeholder="请输入邮箱验证码"  ><el-button slot="append">{{emailCodeStr}}</el-button> </el-input>
+            </el-form-item>
+
+            <el-form-item style=" width: 50%;" prop="password1">
+              <el-input v-model="inputRegister.password1" type="password" title="请输入密码"  placeholder="请输入密码" show-password />
+            </el-form-item>
+
+            <el-form-item style=" width: 50%;" prop="password2">
+              <el-input v-model="inputRegister.password2" type="password" title="请输入确认密码"  placeholder="请输入确认密码" show-password />
+            </el-form-item>
           </div>
           <button
             class="bbutton"
@@ -82,7 +110,8 @@
 
 <script>
 
-import { reCode } from '@/api/user'
+import { getCodeId,confirmCode } from '@/api/user'
+import { MessageBox } from 'element-ui'
 
 export default {
 
@@ -90,6 +119,30 @@ export default {
   data() {
     return {
       src1: 'https://tva2.sinaimg.cn/large/9bd9b167gy1g2qkt9k952j21hc0u01kx.jpg',
+      inputRegisterRules:{//校验
+        
+        "username":[//用户名
+          { required: true, message: '用户名不可为空', trigger: 'blur' },
+        ],
+        "email": [//邮件
+          { required: true, message: '邮件不可为空', trigger: 'blur' },
+        ],
+        
+        'codeNum': [
+          { required: true, message: '图片验证码不可为空', trigger: 'blur' },
+        ],
+        "codeEmail":[
+          { required: true, message: '邮件验证码不可为空', trigger: 'blur' },
+        ],
+        'password1': [
+          { required: true, message: '密码不可为空', trigger: 'blur' },
+        ],
+        'password2': [
+          { required: true, message: '密码不可为空', trigger: 'blur' },
+        ],
+
+
+      },
       inputLogin: { // 登录数据
         'password': '',
         'username': ''
@@ -102,6 +155,8 @@ export default {
         "codeEmail":'',
         'email': ''
       },
+      emailCodeStr:"点击获取邮箱验证码",
+      captcha_id:"",
       reCodeLoading: false,
       isLogin: true,
       loginLoading: false,
@@ -115,22 +170,86 @@ export default {
       }
     }
   },
+
   methods: {
-    changeType() {
-      this.isLogin = !this.isLogin
-      this.form.username = ''
-      this.form.useremail = ''
-      this.form.userpwd = ''
+    codeNumIn(str){
+      const codeStr = str
+      if(codeStr.length === 6){//启动验证
+        this.confirmCodeNum(codeStr)
+
+      }
     },
+    confirmCodeNum(codeNum){
+      const that = this
+      const updata = {
+        "captcha_solution":codeNum,
+        "captcha_id":this.captcha_id
+      }
+      confirmCode(updata).then(response => {
+        console.log('confirmCode:', response)
+        if (response === "验证成功") {
+          that.emailCodeStr ="已经发送验证码"
+        }else{
+            Message({
+            message: response,
+            type: 'error',
+            duration: 5 * 1000
+          })
+        }
+        
+        
+      }, reason => {
+        this.reCodefuc()
+        console.error(reason) // 出错了！
+      })
+    },
+    changeType() {
+      console.log("changeType",this.isLogin)
+      if (this.isLogin) {
+        this.reCodefuc()
+      }
+      this.isLogin = !this.isLogin
+
+      this.inputLogin= { // 登录数据
+        'password': '',
+        'username': ''
+      }
+      this.inputRegister= { // 注册数据
+        'password1': '',
+        'password2': '',
+        'username': '',
+        'codeNum': '',
+        "codeEmail":'',
+        'email': ''
+      }
+
+      
+
+    },
+
     reCodefuc() {
       console.log('reCodefuc:')
       if (this.reCodeLoading === true) {
         return 0
       }
       this.reCodeLoading = true
-      reCode().then(response => {
+      getCodeId().then(response => {
         console.log('response:', response)
-        this.src1 = response.imgurl
+        this.captcha_id = response.captcha_id
+         var protocolStr = document.location.protocol
+
+        if (protocolStr === 'http:') {
+          this.src1 = 'http://' + process.env.VUE_APP_BASE_HTTP_API + response.captcha_id + ".png"
+          //console.log('protocol = ' + protocolStr)
+        } else if (protocolStr === 'https:') {
+          this.src1 = 'https://' + process.env.VUE_APP_BASE_HTTPS_API + response.captcha_id + ".png"
+          //console.log('protocol = ' + protocolStr)
+        } else {
+          this.src1 = 'http://' + process.env.VUE_APP_BASE_HTTP_API + response.captcha_id + ".png"
+          //console.log('other protocol')
+        }
+
+        
         this.reCodeLoading = false
         // this.formData = response
       }, reason => {
@@ -160,40 +279,53 @@ export default {
         return false
       }
     },
-    register() {
-      const self = this
-      if (
-        self.form.username !== '' &&
-        self.form.useremail !== '' &&
-        self.form.userpwd !== ''
-      ) {
-        self
-          .$axios({
-            method: 'post',
-            url: 'http://127.0.0.1:10520/api/user/add',
-            data: {
-              username: self.form.username,
-              email: self.form.useremail,
-              password: self.form.userpwd
-            }
+    wechatHandleClick(thirdpart) {
+                alert('ok')
+                // this.$store.commit('SET_AUTH_TYPE', thirdpart)
+                // const appid = 'xxxxx'
+                // const redirect_uri = encodeURIComponent('xxx/redirect?redirect=' + window.location.origin + '/auth-redirect')
+                // const url = 'https://open.weixin.qq.com/connect/qrconnect?appid=' + appid + '&redirect_uri=' + redirect_uri + '&response_type=code&scope=snsapi_login#wechat_redirect'
+                // openWindow(url, thirdpart, 540, 540)
+            },
+            // QQ 第三方登录
+            tencentHandleClick(thirdpart) {
+                // 直接弹出授权页面，授权过后跳转到回调页面进行登录处理
+                QC.Login.showPopup({
+                    appId:"123132",
+                    redirectURI:"xxx"  //登录成功后会自动跳往该地址
+                });
+
+                // 法二
+                // var _self = this;// 先将vue这个对象保存在_self对象中
+                // _self.$store.commit('SET_AUTH_TYPE', thirdpart)
+                // const client_id = 'xxx';
+                // const redirect_uri = "xxx";
+                // const url = 'https://graph.qq.com/oauth2.0/authorize?response_type=code&client_id=' + client_id + '&redirect_uri=' + redirect_uri;
+                // 打开QQ授权登录界面，授权成功后会重定向
+                // openWindow(url, thirdpart, 540, 540);
+            },
+    register() {//注册
+      this.$refs.inputRegister.validate(valid => {
+        console.log(valid)
+        if (valid) {
+          this.loading = true
+          const data = this.loginForm
+          // data['type'] = 'phone'
+
+          this.$store.dispatch('user/login', data).then(() => {
+            console.log('data,', this.redirect)
+            this.$router.push({ path: this.redirect || '/' })
+
+            this.loading = false
+          }).catch(() => {
+            this.loading = false
           })
-          .then((res) => {
-            switch (res.data) {
-              case 0:
-                alert('注册成功！')
-                this.login()
-                break
-              case -1:
-                this.existed = true
-                break
-            }
-          })
-          .catch((err) => {
-            console.log(err)
-          })
-      } else {
-        alert('填写不能为空！')
-      }
+        } else {
+          console.log('error submit!!')
+          return false
+        }
+      })
+      
     }
   }
 }
@@ -331,4 +463,45 @@ export default {
   transform: translateX(-100%);
   transition: all 1s;
 }
+</style>
+
+<!-- 三方登录样式  -->
+<style rel="stylesheet/scss" lang="scss" scoped>
+  .social-signup-container {
+    margin: 20px 0;
+
+  .sign-btn {
+    display: inline-block;
+    cursor: pointer;
+  }
+
+  .icon {
+    color: #fff;
+    font-size: 24px;
+    margin-top: 8px;
+  }
+
+  .wx-svg-container,
+  .qq-svg-container {
+    display: inline-block;
+    width: 40px;
+    height: 40px;
+    line-height: 40px;
+    text-align: center;
+    padding-top: 1px;
+    border-radius: 4px;
+    margin-bottom: 20px;
+    margin-right: 5px;
+  }
+
+  .wx-svg-container {
+    background-color: #24da70;
+  }
+
+  .qq-svg-container {
+    background-color: #6BA2D6;
+    margin-left: 50px;
+  }
+
+  }
 </style>
