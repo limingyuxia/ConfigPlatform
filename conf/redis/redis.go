@@ -14,8 +14,6 @@ var (
 )
 
 func InitRedis() error {
-	log.Print("redis: ", conf.RedisSetting.Host+":"+strconv.Itoa(conf.RedisSetting.Port))
-
 	RedisConn = redis.NewClient(&redis.Options{
 		Addr:     conf.RedisSetting.Host + ":" + strconv.Itoa(conf.RedisSetting.Port),
 		Password: conf.DatabaseSetting.Password,

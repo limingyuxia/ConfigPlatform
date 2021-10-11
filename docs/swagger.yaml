@@ -32,8 +32,10 @@ definitions:
   model.AuthError:
     properties:
       code:
+        description: http 状态码
         type: integer
       message:
+        description: 错误信息
         type: string
     type: object
   model.CaptchaToken:
@@ -53,6 +55,18 @@ definitions:
     required:
     - captcha_id
     - captcha_solution
+    type: object
+  model.ConfirmEmail:
+    properties:
+      captcha_token:
+        description: 图片验证码验证成功返回的token
+        type: string
+      email_code:
+        description: 邮箱验证码
+        type: string
+    required:
+    - captcha_token
+    - email_code
     type: object
   model.EditProject:
     properties:
@@ -80,14 +94,6 @@ definitions:
     required:
     - id
     type: object
-  model.EmailCode:
-    properties:
-      email_code:
-        description: 邮箱验证码
-        type: string
-    required:
-    - email_code
-    type: object
   model.GetCaptchaResp:
     properties:
       captcha_id:
@@ -96,11 +102,13 @@ definitions:
     type: object
   model.GetProjectListResp:
     properties:
-      projectList:
+      project_list:
+        description: 项目列表
         items:
           $ref: '#/definitions/model.ProjectInfo'
         type: array
       total:
+        description: 总数
         type: integer
     type: object
   model.LoginReq:
@@ -201,7 +209,7 @@ info:
   contact:
     email: 2572597150@qq.com
     name: 李明
-  description: 配置平台 HTTP接口文档
+  description: 配置管理平台 HTTP接口文档
   title: 配置平台
   version: "1.0"
 paths:
@@ -236,7 +244,7 @@ paths:
       consumes:
       - application/json
       parameters:
-      - description: 校验图片验证码
+      - description: 图片验证码的id和值
         in: body
         name: ConfirmCaptcha
         required: true
@@ -271,12 +279,12 @@ paths:
       consumes:
       - application/json
       parameters:
-      - description: 图片验证码返回的token
+      - description: 邮箱验证码和图片验证码的token
         in: body
         name: ConfirmEmailCode
         required: true
         schema:
-          $ref: '#/definitions/model.EmailCode'
+          $ref: '#/definitions/model.ConfirmEmail'
       produces:
       - application/json
       responses:
@@ -296,7 +304,7 @@ paths:
       consumes:
       - application/json
       parameters:
-      - description: 图片验证码返回的token
+      - description: 图片验证码返回的token和邮件地址
         in: body
         name: SendEmailCode
         required: true

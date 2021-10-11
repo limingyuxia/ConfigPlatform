@@ -36,7 +36,7 @@ func GetCaptcha(c *gin.Context) {
 // @Summary 校验图片验证码
 // @Accept  json
 // @Produce  json
-// @Param ConfirmCaptcha body model.ConfirmCaptcha true "校验图片验证码"
+// @Param ConfirmCaptcha body model.ConfirmCaptcha true "图片验证码的id和值"
 // @Success 200 {object} model.CaptchaToken
 // @Failure 400 {object} WebResponse
 // @Router /captcha/confirm [post]
@@ -49,7 +49,7 @@ func ConfirmCaptcha(c *gin.Context) {
 			ResponseError(CAPTCHA_ERROR, RETCODE_MSG[CAPTCHA_ERROR], c)
 		} else {
 
-			// 生成随机token
+			// 生成随机长度的token
 			RandStr := func(length int) []byte {
 				str := "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
 				bytes := []byte(str)
@@ -62,12 +62,12 @@ func ConfirmCaptcha(c *gin.Context) {
 			}
 
 			// 对生成的token进行md5加密
-			h := md5.New()
-			h.Write(RandStr(8))
-			captchaToken := hex.EncodeToString(h.Sum(nil))
+			md5Token := md5.New()
+			md5Token.Write(RandStr(8))
+			captchaToken := hex.EncodeToString(md5Token.Sum(nil))
 
-			// 存token
-			err = redis.RedisConn.Set(string(captchaToken), "", 2*time.Minute).Err()
+			// 存token，设置有效期为2分钟
+			err = redis.RedisConn.Set(captchaToken, "", 2*time.Minute).Err()
 			if err != nil {
 				log.Print("set the captcha token failed: ", err)
 				ResponseError(REDIS_ERROR, RETCODE_MSG[REDIS_ERROR], c)
@@ -75,7 +75,7 @@ func ConfirmCaptcha(c *gin.Context) {
 			}
 
 			ResponseData(&model.CaptchaToken{
-				CaptchaToken: string(captchaToken),
+				CaptchaToken: captchaToken,
 			}, c)
 		}
 
@@ -83,6 +83,18 @@ func ConfirmCaptcha(c *gin.Context) {
 		log.Print("ConfirmCapcha param error: ", err)
 		ResponseError(PARAMS_ERROR, RETCODE_MSG[PARAMS_ERROR], c)
 	}
+
+}
+
+// @Tags 鉴权
+// @Summary 登录
+// @Accept  json
+// @Produce  json
+// @Param Login body model.LoginReq true "登录的账号和密码"
+// @Success 200 {object} model.LoginResp
+// @Failure 400 {object} model.AuthError
+// @Router /login [post]
+func Login(c *gin.Context) {
 
 }
 
@@ -107,7 +119,7 @@ func RefeshToken(c *gin.Context) {
 // @Summary 发送邮箱验证码
 // @Accept  json
 // @Produce  json
-// @Param SendEmailCode body model.SendEmailCode true "图片验证码返回的token"
+// @Param SendEmailCode body model.SendEmailCode true "图片验证码返回的token和邮件地址"
 // @Success 200 {string} string
 // @Failure 400 {object} WebResponse
 // @Router /email/send [post]
@@ -123,21 +135,21 @@ func SendEmailCode(c *gin.Context) {
 			return
 		}
 
-		// 设置邮箱验证码的code
+		// 获取6位随机验证码
 		random := func() string {
 			return fmt.Sprintf("%06v", rand.New(rand.NewSource(time.Now().UnixNano())).Int31n(1000000))
 		}
 
 		// 设置邮箱验证码有效期为2分钟
 		emailCode := random()
-		err = redis.RedisConn.Set(emailCode, "", 2*time.Minute).Err()
+		err = redis.RedisConn.Set(emailCode, captchaToken.CaptchaToken, 2*time.Minute).Err()
 		if err != nil {
 			log.Print("set the email code failed: ", err)
 			ResponseError(REDIS_ERROR, RETCODE_MSG[REDIS_ERROR], c)
 			return
 		}
 
-		// 这是收件人和发件人的信息
+		// 设置收件人和发件人的信息
 		e := &email.Email{
 			To:      []string{captchaToken.EmailAddress},
 			From:    "ConfigPlatform <2572597150@qq.com>",
@@ -146,14 +158,15 @@ func SendEmailCode(c *gin.Context) {
 			Headers: textproto.MIMEHeader{},
 		}
 
-		// 这是发送邮件使用的服务器已经授权码
+		// 获取发送邮件使用的服务器授权码
 		secret, err := ioutil.ReadFile("./conf/email/email.conf")
 		if err != nil {
 			log.Print("read send email secret faile! ", err)
-			ResponseError(REDIS_ERROR, RETCODE_MSG[REDIS_ERROR], c)
+			ResponseError(READ_FAILED_ERROR, RETCODE_MSG[READ_FAILED_ERROR], c)
 			return
 		}
 
+		// 发送邮件
 		err = e.Send("smtp.qq.com:587", smtp.PlainAuth("", "2572597150@qq.com", string(secret), "smtp.qq.com"))
 		if err != nil {
 			log.Print("send email code failed: ", err)
@@ -173,19 +186,25 @@ func SendEmailCode(c *gin.Context) {
 // @Summary 验证邮箱验证码
 // @Accept  json
 // @Produce  json
-// @Param ConfirmEmailCode body model.EmailCode true "邮箱验证码"
+// @Param ConfirmEmailCode body model.ConfirmEmail true "邮箱验证码和图片验证码的token"
 // @Success 200 {string} string
 // @Failure 400 {object} WebResponse
 // @Router /email/confirm [post]
 func ConfirmEmailCode(c *gin.Context) {
-	var emailCode model.EmailCode
+	var confirmEmail model.ConfirmEmail
 
-	if err := c.ShouldBindJSON(&emailCode); err == nil {
+	if err := c.ShouldBindJSON(&confirmEmail); err == nil {
 
 		// 校验邮箱验证码
-		_, err := redis.RedisConn.Get(emailCode.EmailCode).Result()
+		captchaToken, err := redis.RedisConn.Get(confirmEmail.EmailCode).Result()
 		if err != nil {
 			log.Print("get email code error: ", err)
+			ResponseError(EMAIL_CODE_ERROR, RETCODE_MSG[EMAIL_CODE_ERROR], c)
+			return
+		}
+
+		// 验证邮箱验证码是不是和图片验证码匹配
+		if captchaToken != confirmEmail.CaptchaToken {
 			ResponseError(EMAIL_CODE_ERROR, RETCODE_MSG[EMAIL_CODE_ERROR], c)
 			return
 		}

@@ -24,8 +24,8 @@ type ProjectInfo struct {
 }
 
 type GetProjectListResp struct {
-	Total       int64
-	ProjectList []*ProjectInfo
+	Total       int64          `json:"total"`        // 总数
+	ProjectList []*ProjectInfo `json:"project_list"` // 项目列表
 }
 
 type GetProjectDetailReq struct {
@@ -85,13 +85,13 @@ type Register struct {
 }
 
 type AuthError struct {
-	Code    int    `json:"code"`
-	Message string `json:"message"`
+	Code    int    `json:"code"`    // http 状态码
+	Message string `json:"message"` // 错误信息
 }
 
 // 嵌入到jwt中的user信息
 type JwtUser struct {
-	UserName string `json:"username"`
+	UserName string `json:"username"` // jwt token第二部分的值
 }
 
 type CaptchaToken struct {
@@ -103,6 +103,7 @@ type SendEmailCode struct {
 	EmailAddress string `json:"email_address" binding:"required"` // 邮箱地址
 }
 
-type EmailCode struct {
-	EmailCode string `json:"email_code" binding:"required"` // 邮箱验证码
+type ConfirmEmail struct {
+	EmailCode    string `json:"email_code" binding:"required"`    // 邮箱验证码
+	CaptchaToken string `json:"captcha_token" binding:"required"` // 图片验证码验证成功返回的token
 }

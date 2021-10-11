@@ -25,6 +25,7 @@ func JwtInit() *jwt.GinJWTMiddleware {
 		MaxRefresh:  tokenRefreshValidity,
 		IdentityKey: identityKey,
 
+		// 校验登录的用户名和密码
 		Authenticator: func(c *gin.Context) (interface{}, error) {
 
 			var loginReq model.LoginReq
@@ -39,6 +40,7 @@ func JwtInit() *jwt.GinJWTMiddleware {
 					UserName: loginReq.Username,
 				}, nil
 			}
+			services.Login(c)
 
 			return nil, jwt.ErrFailedAuthentication
 		},

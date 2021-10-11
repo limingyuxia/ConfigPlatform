@@ -67,5 +67,4 @@ func (p *ProjectInfo) GetMemberByJsonTag(columns []string) []interface{} {
 
 	return Member
 }
-
 */

@@ -62,7 +62,7 @@ var doc = `{
                 "summary": "校验图片验证码",
                 "parameters": [
                     {
-                        "description": "校验图片验证码",
+                        "description": "图片验证码的id和值",
                         "name": "ConfirmCaptcha",
                         "in": "body",
                         "required": true,
@@ -136,12 +136,12 @@ var doc = `{
                 "summary": "验证邮箱验证码",
                 "parameters": [
                     {
-                        "description": "图片验证码返回的token",
+                        "description": "邮箱验证码和图片验证码的token",
                         "name": "ConfirmEmailCode",
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/model.EmailCode"
+                            "$ref": "#/definitions/model.ConfirmEmail"
                         }
                     }
                 ],
@@ -175,7 +175,7 @@ var doc = `{
                 "summary": "发送邮箱验证码",
                 "parameters": [
                     {
-                        "description": "图片验证码返回的token",
+                        "description": "图片验证码返回的token和邮件地址",
                         "name": "SendEmailCode",
                         "in": "body",
                         "required": true,
@@ -587,9 +587,11 @@ var doc = `{
             "type": "object",
             "properties": {
                 "code": {
+                    "description": "http 状态码",
                     "type": "integer"
                 },
                 "message": {
+                    "description": "错误信息",
                     "type": "string"
                 }
             }
@@ -616,6 +618,23 @@ var doc = `{
                 },
                 "captcha_solution": {
                     "description": "验证码的值",
+                    "type": "string"
+                }
+            }
+        },
+        "model.ConfirmEmail": {
+            "type": "object",
+            "required": [
+                "captcha_token",
+                "email_code"
+            ],
+            "properties": {
+                "captcha_token": {
+                    "description": "图片验证码验证成功返回的token",
+                    "type": "string"
+                },
+                "email_code": {
+                    "description": "邮箱验证码",
                     "type": "string"
                 }
             }
@@ -657,18 +676,6 @@ var doc = `{
                 }
             }
         },
-        "model.EmailCode": {
-            "type": "object",
-            "required": [
-                "email_code"
-            ],
-            "properties": {
-                "email_code": {
-                    "description": "邮箱验证码",
-                    "type": "string"
-                }
-            }
-        },
         "model.GetCaptchaResp": {
             "type": "object",
             "properties": {
@@ -681,13 +688,15 @@ var doc = `{
         "model.GetProjectListResp": {
             "type": "object",
             "properties": {
-                "projectList": {
+                "project_list": {
+                    "description": "项目列表",
                     "type": "array",
                     "items": {
                         "$ref": "#/definitions/model.ProjectInfo"
                     }
                 },
                 "total": {
+                    "description": "总数",
                     "type": "integer"
                 }
             }
@@ -843,7 +852,7 @@ var SwaggerInfo = swaggerInfo{
 	BasePath:    "",
 	Schemes:     []string{},
 	Title:       "配置平台",
-	Description: "配置平台 HTTP接口文档",
+	Description: "配置管理平台 HTTP接口文档",
 }
 
 type s struct{}

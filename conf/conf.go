@@ -16,9 +16,9 @@ type Database struct {
 }
 
 type Redis struct {
-	Host     string
-	Port     int
-	Password string
+	Host     string // redis host
+	Port     int    // redis port
+	Password string // redis password
 }
 
 type Nginx struct {

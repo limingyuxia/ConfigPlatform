@@ -8,16 +8,15 @@ import (
 	"github.com/unrolled/secure"
 )
 
+// gtin 处理 https
 func TlsHandler() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		secureMiddleware := secure.New(secure.Options{
 			SSLRedirect: true,
 			SSLHost:     conf.NginxSetting.Domain + ":" + strconv.Itoa(conf.ServerSetting.HttpsPort),
 		})
-		err := secureMiddleware.Process(c.Writer, c.Request)
 
-		// If there was an error, do not continue.
-		if err != nil {
+		if err := secureMiddleware.Process(c.Writer, c.Request); err != nil {
 			return
 		}
 

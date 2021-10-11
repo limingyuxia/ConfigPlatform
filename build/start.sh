@@ -60,22 +60,29 @@ echo "run server, based on "$BaseServer" tag "$ServerTag
 # 有的参数暂时不能用shell变量代替
 
 if [ $BaseServer = "mysql" ]; then
+
     # 构建数据库
     docker run -d --rm -p $MysqlPort:3306 --name config-db --env MYSQL_ROOT_PASSWORD=123456 mysql:$ServerTag
     # 等待数据库初始化
     sleep 30
     # 初始化table
     mysql -h $MysqlHost -u root -p123456 < $(pwd)/../docs/sql/config.sql
+
 elif [ $BaseServer = "redis" ]; then
+
     docker run -d --rm -p 6379:6379 -v $(pwd)/../conf/redis/redis.conf:/etc/redis/redis.conf --name config-redis redis:$ServerTag --requirepass 123456
+
 elif [ $BaseServer = "backend" ]; then
+
     # 运行服务端容器
     if [ $# -ge 3 ] && [ $3 = "https" ]; then
         docker run -d --rm -p 8001:8001 --name config-server-https 18509518245/config-server-https:$ServerTag
     else
         docker run -d --rm -p 8000:8000 --name config-server-http 18509518245/config-server-http:$ServerTag
     fi
+
 elif [ $BaseServer = "frontend" ]; then
+
     # 运行前端容器
     container_id=$(docker create 18509518245/config-web:$ServerTag)
     docker cp $container_id:/home/dist $(pwd)/../web
@@ -84,6 +91,7 @@ elif [ $BaseServer = "frontend" ]; then
     # -d 后台运行 --rm 如果有同名的容器，自动删除
     docker run -d --rm -p $HttpPort:9528 -p $HttpsPort:9529 -v $(pwd)/../web/dist:/usr/share/nginx/html:ro \
         --name config-web 18509518245/config-nginx:$ServerTag
+
 else 
     echo "参数错误"
 fi

@@ -16,7 +16,7 @@ import (
 // @contact.name 李明
 // @contact.email 2572597150@qq.com
 // @version 1.0
-// @description  配置平台 HTTP接口文档
+// @description  配置管理平台 HTTP接口文档
 func main() {
 	defer func() {
 		if err := recover(); err != nil {
