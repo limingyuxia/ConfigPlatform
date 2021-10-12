@@ -8,21 +8,29 @@
         <el-form
           v-if="isLogin"
           class="big-contain"
+          ref="inputLogin"
+          :model="inputLogin"
+          :rules="inputLoginRules"
+
         >
 
           <div class="btitle">账户登录</div>
 
           <div style="height: 40%;" class="bform">
-
-            <el-input v-model="inputLogin.username" type="text" title="请输入用户名" style=" width: 50%;" placeholder="请输入用户名" />
-            <el-input v-model="inputLogin.password" type="password" title="请输入密码" style=" width: 50%;" placeholder="请输入密码" show-password />
-
+          <el-form-item style="width: 50%;" prop="username">
+            <el-input v-model="inputLogin.username" type="text" title="请输入用户名"  placeholder="请输入用户名" />
+          </el-form-item>
+          <el-form-item style="width: 50%;" prop="password">
+            <el-input v-model="inputLogin.password" type="password" title="请输入密码" placeholder="请输入密码" show-password />
+          </el-form-item>
           </div>
 
-          <button
-            class="bbutton"
-            @click="login"
-          >登录</button>
+          <el-button round  type="primary" style="width: 30%;"
+            @click="login">
+            登录
+          </el-button>
+ 
+
           <span id="qqLoginBtn"></span>
           
           <div class="social-signup-container">
@@ -59,7 +67,7 @@
             </el-form-item>
 
             <el-form-item style=" width: 50%;" prop="codeEmail">
-              <el-input v-model="inputRegister.codeEmail" type="text" title="请输入邮箱验证码" placeholder="请输入邮箱验证码"  ><el-button slot="append">{{emailCodeStr}}</el-button> </el-input>
+              <el-input v-model="inputRegister.codeEmail" type="text" @input="codeEmailIn" title="请输入邮箱验证码" v-loading="inputRegister.emailLoading" placeholder="请输入邮箱验证码"  ><el-button slot="append">{{emailCodeStr}}</el-button> </el-input>
             </el-form-item>
 
             <el-form-item style=" width: 50%;" prop="password1">
@@ -70,10 +78,10 @@
               <el-input v-model="inputRegister.password2" type="password" title="请输入确认密码"  placeholder="请输入确认密码" show-password />
             </el-form-item>
           </div>
-          <button
-            class="bbutton"
-            @click="register"
-          >注册</button>
+          <el-button style="width: 30%;" round type="primary"  @click="register" :disabled="inputRegister.buttonDisabled"  >
+            注册
+            </el-button>
+
 
         </el-form>
       </div>
@@ -110,13 +118,47 @@
 
 <script>
 
-import { getCodeId,confirmCode } from '@/api/user'
-import { MessageBox } from 'element-ui'
+import { getCodeId,confirmCode,emailSend,emailConfirm } from '@/api/user'
+import { MessageBox,Message } from 'element-ui'
 
 export default {
-
   name: 'LoginRegister',
   data() {
+    	const validateEmail = (rule, value, callback) => {
+        console.log("validateEmail",value)
+	        if (value === '') {
+	          callback(new Error('请正确填写邮箱'));
+	        } else {
+	          if (value !== '') { 
+              var reg = /^\w+([-+.])*@\w+([-.]\w+)*\.\w+([-.]\w+)*$/
+	            //var reg=/^[A-Za-z0-9\u4e00-\u9fa5]+@[a-zA-Z0-9_-]+(\.[a-zA-Z0-9_-]+)+$/;
+	            if(!reg.test(value)){
+	              callback(new Error('请输入有效的邮箱'));
+	            }
+	          }
+	          callback();
+	        }
+	      };
+
+        const validatepassword1 = (rule, value, callback) => {
+        if (value === '') {
+          callback(new Error('请输入密码'));
+        } else {
+          if (this.inputRegister.password2 !== '') {
+            this.$refs.inputRegister.validateField('password2');
+          }
+          callback();
+        }
+      };
+    const validatepassword2 = (rule, value, callback) => {
+        if (value === '') {
+          callback(new Error('请再次输入密码'));
+        } else if (value !== this.inputRegister.password1) {
+          callback(new Error('两次输入密码不一致!'));
+        } else {
+          callback();
+        }
+      };
     return {
       src1: 'https://tva2.sinaimg.cn/large/9bd9b167gy1g2qkt9k952j21hc0u01kx.jpg',
       inputRegisterRules:{//校验
@@ -125,7 +167,9 @@ export default {
           { required: true, message: '用户名不可为空', trigger: 'blur' },
         ],
         "email": [//邮件
-          { required: true, message: '邮件不可为空', trigger: 'blur' },
+        
+         {required: true, validator: validateEmail, trigger: 'blur' },
+     
         ],
         
         'codeNum': [
@@ -135,27 +179,40 @@ export default {
           { required: true, message: '邮件验证码不可为空', trigger: 'blur' },
         ],
         'password1': [
-          { required: true, message: '密码不可为空', trigger: 'blur' },
+          {required: true, validator: validatepassword1, trigger: 'blur' },
+         
         ],
         'password2': [
-          { required: true, message: '密码不可为空', trigger: 'blur' },
+          {required: true, validator: validatepassword2, trigger: 'blur' },
         ],
 
 
+      },
+      inputLoginRules:{
+        'password': [
+          { required: true, message: '密码不可为空', trigger: 'blur' },
+        ],
+        'username': [
+          { required: true, message: '用户名不可为空', trigger: 'blur' },
+        ],
       },
       inputLogin: { // 登录数据
         'password': '',
         'username': ''
       },
+      
       inputRegister: { // 注册数据
         'password1': '',
         'password2': '',
         'username': '',
         'codeNum': '',
         "codeEmail":'',
-        'email': ''
+        'email': '',
+        'codeNumToken':"",
+        "buttonDisabled":true,
+        "emailLoading":false
       },
-      emailCodeStr:"点击获取邮箱验证码",
+      emailCodeStr:"请输入图形验证码",
       captcha_id:"",
       reCodeLoading: false,
       isLogin: true,
@@ -172,36 +229,88 @@ export default {
   },
 
   methods: {
+    codeEmailIn(str){
+      const codeStr = str
+      console.log("codeEmailIn",codeStr)
+      if(codeStr.length === 6){
+        
+        console.log("checkEmail",this.inputRegister.codeNumToken)
+        var updata = {
+          "captcha_token": this.inputRegister.codeNumToken,
+          "email_code":codeStr
+        }
+        //emailConfirm
+        this.inputRegister.emailLoading = true
+
+        emailConfirm(updata).then(response => {
+          this.emailCodeStr = "验证成功"
+          //允许注册
+        this.inputRegister.emailLoading = false
+        this.inputRegister.buttonDisabled = false
+          Message({
+            message: response,
+            type: 'success',
+            duration: 5 * 1000
+          })
+
+      }, reason => {
+        console.error(reason) // 出错了！
+      })
+
+      }
+    },
     codeNumIn(str){
       const codeStr = str
+      console.log("codeNumIn",codeStr)
       if(codeStr.length === 6){//启动验证
-        this.confirmCodeNum(codeStr)
+        let validateList = [];
+
+        this.$refs['inputRegister'].validateField(['email','username'],(message) => {
+            validateList.push(message)
+        });
+        console.log("validateList:",validateList)
+        if (validateList.every((item) => item === '')) {
+            // 咱们的操作
+            this.confirmCodeNum(codeStr)  
+        }
 
       }
     },
     confirmCodeNum(codeNum){
+      console.log("confirmCodeNum",codeNum)
       const that = this
       const updata = {
         "captcha_solution":codeNum,
         "captcha_id":this.captcha_id
       }
       confirmCode(updata).then(response => {
+        //{captcha_token: 'f61daa354e778d0d5282892514f88bfd'}
         console.log('confirmCode:', response)
-        if (response === "验证成功") {
-          that.emailCodeStr ="已经发送验证码"
-        }else{
-            Message({
-            message: response,
-            type: 'error',
+        //发送邮箱验证码 emailSend 
+        that.inputRegister.codeNumToken = response.captcha_token
+        var updata = {
+          "captcha_token": response.captcha_token,
+          "email_address": this.inputRegister.email
+        }
+        console.log("sendEmail:",updata)
+        this.inputRegister.emailLoading = true
+        //发送邮件
+        emailSend(updata).then(response => {
+          console.log('sendEmail:', response)
+          that.inputRegister.emailCodeStr = "请输入邮箱验证码"
+          this.inputRegister.emailLoading = false
+          Message({
+            message: "验证码发送成功，请及时输入验证码",
+            type: 'success',
             duration: 5 * 1000
           })
-        }
-        
-        
+        })
+
       }, reason => {
         this.reCodefuc()
         console.error(reason) // 出错了！
       })
+
     },
     changeType() {
       console.log("changeType",this.isLogin)
@@ -220,7 +329,10 @@ export default {
         'username': '',
         'codeNum': '',
         "codeEmail":'',
-        'email': ''
+        'email': '',
+        'codeNumToken':"",
+        "buttonDisabled":true, //临时
+        "emailLoading":false
       }
 
       
@@ -257,27 +369,34 @@ export default {
         console.error(reason) // 出错了！
       })
     },
-    login() {
-      var valid = true
-      console.log(valid)
+    login() {//登录
 
-      if (valid) {
-        this.loading = true
-        const data = this.inputLogin
-        // data['type'] = 'phone'
 
-        this.$store.dispatch('user/login', data).then(() => {
-          console.log('data,', this.redirect)
-          this.$router.push({ path: this.redirect || '/' })
 
-          this.loading = false
-        }).catch(() => {
-          this.loading = false
-        })
-      } else {
-        console.log('error submit!!')
-        return false
-      }
+
+      this.$refs.inputLogin.validate(valid => {
+          if (valid) {
+              this.loading = true
+        
+            const data = this.inputLogin
+            // data['type'] = 'phone'
+
+            this.$store.dispatch('user/login', data).then(() => {
+              console.log('data,', this.redirect)
+              this.$router.push({ path: this.redirect || '/' })
+
+              this.loading = false
+            }).catch(() => {
+              this.loading = false
+            })
+
+          } else {
+            console.log('error submit!!');
+            return false;
+          }
+      });
+
+
     },
     wechatHandleClick(thirdpart) {
                 alert('ok')
@@ -402,8 +521,7 @@ export default {
   border-radius: 24px;
   border: none;
   outline: none;
-  background-color: rgb(57, 167, 176);
-  color: #fff;
+
   font-size: 0.9em;
   cursor: pointer;
 }

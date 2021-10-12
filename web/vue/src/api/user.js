@@ -36,6 +36,26 @@ export function getCodeId() {
   })
 }
 
+export function emailSend(params) {
+
+  return request({
+    url: '/email/send',
+    method: 'POST',
+    data:params
+  })
+}
+
+export function emailConfirm(params) {
+
+  return request({
+    url: '/email/confirm',
+    method: 'POST',
+    data:params
+  })
+}
+
+
+
 
 export function getInfo(token) {
   return request({
