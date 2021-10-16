@@ -228,7 +228,7 @@
                   @keyup.enter.native="handleInputConfirm('developUser')"
                   @blur="handleInputConfirm('developUser')"
                 />
-                <el-button v-else v-show="!dialogformDisabled"  class="button-new-tag" size="medium" @click="showInput('developUser')">添加</el-button>
+                <el-button v-else v-show="!dialogformDisabled" class="button-new-tag" size="medium" @click="showInput('developUser')">添加</el-button>
 
               </div>
 

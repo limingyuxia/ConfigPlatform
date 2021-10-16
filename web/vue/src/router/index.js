@@ -41,7 +41,11 @@ export const constantRoutes = [
     component: () => import('@/views/404'),
     hidden: true
   },
-
+  {
+    path: '/proxy',
+    component: () => import('@/views/login/proxy'),
+    hidden: true
+  },
   {
     path: '/',
     component: Layout,

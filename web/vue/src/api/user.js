@@ -18,17 +18,14 @@ export function reCode() {
 }
 
 export function confirmCode(params) {
-
   return request({
     url: '/captcha/confirm',
     method: 'POST',
-    data:params
+    data: params
   })
 }
 
-
 export function getCodeId() {
-
   return request({
     url: '/captcha/get',
     method: 'GET'
@@ -37,25 +34,28 @@ export function getCodeId() {
 }
 
 export function emailSend(params) {
-
   return request({
     url: '/email/send',
     method: 'POST',
-    data:params
+    data: params
+  })
+}
+
+export function registerUser(params) {
+  return request({
+    url: '/register',
+    method: 'POST',
+    data: params
   })
 }
 
 export function emailConfirm(params) {
-
   return request({
     url: '/email/confirm',
     method: 'POST',
-    data:params
+    data: params
   })
 }
-
-
-
 
 export function getInfo(token) {
   return request({

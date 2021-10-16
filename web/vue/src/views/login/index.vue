@@ -7,81 +7,82 @@
       >
         <el-form
           v-if="isLogin"
-          class="big-contain"
           ref="inputLogin"
+          class="big-contain"
           :model="inputLogin"
           :rules="inputLoginRules"
-
         >
 
           <div class="btitle">账户登录</div>
 
           <div style="height: 40%;" class="bform">
-          <el-form-item style="width: 50%;" prop="username">
-            <el-input v-model="inputLogin.username" type="text" title="请输入用户名"  placeholder="请输入用户名" />
-          </el-form-item>
-          <el-form-item style="width: 50%;" prop="password">
-            <el-input v-model="inputLogin.password" type="password" title="请输入密码" placeholder="请输入密码" show-password />
-          </el-form-item>
+            <el-form-item style="width: 50%;" prop="username">
+              <el-input v-model="inputLogin.username" type="text" title="请输入用户名" placeholder="请输入用户名" />
+            </el-form-item>
+            <el-form-item style="width: 50%;" prop="password">
+              <el-input v-model="inputLogin.password" type="password" title="请输入密码" placeholder="请输入密码" show-password />
+            </el-form-item>
           </div>
 
-          <el-button round  type="primary" style="width: 30%;"
-            @click="login">
+          <el-button
+            round
+            type="primary"
+            style="width: 30%;"
+            @click="login"
+          >
             登录
           </el-button>
- 
 
-          <span id="qqLoginBtn"></span>
-          
+          <span id="qqLoginBtn" />
+
           <div class="social-signup-container">
 
-    <div class="sign-btn" @click="wechatHandleClick('wechat')">
-      <span class="wx-svg-container"><svg-icon icon-class="wechat" class="icon"/></span> 微信
-    </div>
-    <div class="sign-btn" @click="tencentHandleClick('tencent')">
-      <span class="qq-svg-container"><svg-icon icon-class="qq" class="icon" id="qqLoginBtn"/></span> QQ
-    </div>
-  </div>
+            <div class="sign-btn" @click="wechatHandleClick('wechat')">
+              <span class="wx-svg-container"><svg-icon icon-class="wechat" class="icon" /></span> 微信
+            </div>
+            <div class="sign-btn" @click="tencentHandleClick('tencent')">
+              <span class="qq-svg-container"><svg-icon id="qqLoginBtn" icon-class="qq" class="icon" /></span> QQ
+            </div>
+          </div>
 
         </el-form>
         <el-form
           v-else
-          class="big-contain"
           ref="inputRegister"
+          class="big-contain"
           :model="inputRegister"
           :rules="inputRegisterRules"
         >
           <div class="btitle">创建账户</div>
-          <div style="height: 70%;" class="bform">
+          <div v-loading="inputRegister.registerLoading" style="height: 70%;" class="bform">
 
             <el-form-item style="width: 50%;" prop="username">
               <el-input v-model="inputRegister.username" type="text" title="请输入用户名" placeholder="请输入用户名" />
             </el-form-item>
 
             <el-form-item style=" width: 50%;" prop="email">
-              <el-input  v-model="inputRegister.email" type="email" title="请输入邮箱"  placeholder="请输入邮箱" />
+              <el-input v-model="inputRegister.email" type="email" title="请输入邮箱" placeholder="请输入邮箱" />
             </el-form-item>
 
             <el-form-item style=" width: 50%;" prop="codeNum">
-              <el-input v-model="inputRegister.codeNum" type="text"  @input="codeNumIn" title="请输入图形验证码" placeholder="请输入图形验证码"><el-button slot="append" v-loading="reCodeLoading" @click="reCodefuc()"><img onerror="default" style="width: 130px;height: 40px;" :src="src1"></el-button></el-input>
+              <el-input v-model="inputRegister.codeNum" type="text" title="请输入图形验证码" placeholder="请输入图形验证码" @input="codeNumIn"><el-button slot="append" v-loading="reCodeLoading" @click="reCodefuc()"><img onerror="default" style="width: 130px;height: 40px;" :src="src1"></el-button></el-input>
             </el-form-item>
 
             <el-form-item style=" width: 50%;" prop="codeEmail">
-              <el-input v-model="inputRegister.codeEmail" type="text" @input="codeEmailIn" title="请输入邮箱验证码" v-loading="inputRegister.emailLoading" placeholder="请输入邮箱验证码"  ><el-button slot="append">{{emailCodeStr}}</el-button> </el-input>
+              <el-input v-model="inputRegister.codeEmail" type="text" title="请输入邮箱验证码" placeholder="请输入邮箱验证码" @input="codeEmailIn"><el-button slot="append">{{ emailCodeStr }}</el-button> </el-input>
             </el-form-item>
 
             <el-form-item style=" width: 50%;" prop="password1">
-              <el-input v-model="inputRegister.password1" type="password" title="请输入密码"  placeholder="请输入密码" show-password />
+              <el-input v-model="inputRegister.password1" type="password" title="请输入密码" placeholder="请输入密码" show-password />
             </el-form-item>
 
             <el-form-item style=" width: 50%;" prop="password2">
-              <el-input v-model="inputRegister.password2" type="password" title="请输入确认密码"  placeholder="请输入确认密码" show-password />
+              <el-input v-model="inputRegister.password2" type="password" title="请输入确认密码" placeholder="请输入确认密码" show-password />
             </el-form-item>
           </div>
-          <el-button style="width: 30%;" round type="primary"  @click="register" :disabled="inputRegister.buttonDisabled"  >
+          <el-button style="width: 30%;" round type="primary" :disabled="inputRegister.buttonDisabled" @click="register">
             注册
-            </el-button>
-
+          </el-button>
 
         </el-form>
       </div>
@@ -118,102 +119,101 @@
 
 <script>
 
-import { getCodeId,confirmCode,emailSend,emailConfirm } from '@/api/user'
-import { MessageBox,Message } from 'element-ui'
+import { getCodeId, confirmCode, emailSend, emailConfirm, registerUser } from '@/api/user'
+import { Message } from 'element-ui'
 
 export default {
   name: 'LoginRegister',
   data() {
-    	const validateEmail = (rule, value, callback) => {
-        console.log("validateEmail",value)
-	        if (value === '') {
-	          callback(new Error('请正确填写邮箱'));
-	        } else {
-	          if (value !== '') { 
-              var reg = /^\w+([-+.])*@\w+([-.]\w+)*\.\w+([-.]\w+)*$/
-	            //var reg=/^[A-Za-z0-9\u4e00-\u9fa5]+@[a-zA-Z0-9_-]+(\.[a-zA-Z0-9_-]+)+$/;
-	            if(!reg.test(value)){
-	              callback(new Error('请输入有效的邮箱'));
-	            }
-	          }
-	          callback();
-	        }
-	      };
-
-        const validatepassword1 = (rule, value, callback) => {
-        if (value === '') {
-          callback(new Error('请输入密码'));
-        } else {
-          if (this.inputRegister.password2 !== '') {
-            this.$refs.inputRegister.validateField('password2');
+    const validateEmail = (rule, value, callback) => {
+      console.log('validateEmail', value)
+      if (value === '') {
+        callback(new Error('请正确填写邮箱'))
+      } else {
+        if (value !== '') {
+          var reg = /^\w+([-+.])*@\w+([-.]\w+)*\.\w+([-.]\w+)*$/
+          // var reg=/^[A-Za-z0-9\u4e00-\u9fa5]+@[a-zA-Z0-9_-]+(\.[a-zA-Z0-9_-]+)+$/;
+          if (!reg.test(value)) {
+            callback(new Error('请输入有效的邮箱'))
           }
-          callback();
         }
-      };
+        callback()
+      }
+    }
+
+    const validatepassword1 = (rule, value, callback) => {
+      if (value === '') {
+        callback(new Error('请输入密码'))
+      } else {
+        if (this.inputRegister.password2 !== '') {
+          this.$refs.inputRegister.validateField('password2')
+        }
+        callback()
+      }
+    }
     const validatepassword2 = (rule, value, callback) => {
-        if (value === '') {
-          callback(new Error('请再次输入密码'));
-        } else if (value !== this.inputRegister.password1) {
-          callback(new Error('两次输入密码不一致!'));
-        } else {
-          callback();
-        }
-      };
+      if (value === '') {
+        callback(new Error('请再次输入密码'))
+      } else if (value !== this.inputRegister.password1) {
+        callback(new Error('两次输入密码不一致!'))
+      } else {
+        callback()
+      }
+    }
     return {
       src1: 'https://tva2.sinaimg.cn/large/9bd9b167gy1g2qkt9k952j21hc0u01kx.jpg',
-      inputRegisterRules:{//校验
-        
-        "username":[//用户名
-          { required: true, message: '用户名不可为空', trigger: 'blur' },
+      inputRegisterRules: { // 校验
+
+        'username': [// 用户名
+          { required: true, message: '用户名不可为空', trigger: 'blur' }
         ],
-        "email": [//邮件
-        
-         {required: true, validator: validateEmail, trigger: 'blur' },
-     
+        'email': [// 邮件
+
+          { required: true, validator: validateEmail, trigger: 'blur' }
+
         ],
-        
+
         'codeNum': [
-          { required: true, message: '图片验证码不可为空', trigger: 'blur' },
+          { required: true, message: '图片验证码不可为空', trigger: 'blur' }
         ],
-        "codeEmail":[
-          { required: true, message: '邮件验证码不可为空', trigger: 'blur' },
+        'codeEmail': [
+          { required: true, message: '邮件验证码不可为空', trigger: 'blur' }
         ],
         'password1': [
-          {required: true, validator: validatepassword1, trigger: 'blur' },
-         
+          { required: true, validator: validatepassword1, trigger: 'blur' }
+
         ],
         'password2': [
-          {required: true, validator: validatepassword2, trigger: 'blur' },
-        ],
-
+          { required: true, validator: validatepassword2, trigger: 'blur' }
+        ]
 
       },
-      inputLoginRules:{
+      inputLoginRules: {
         'password': [
-          { required: true, message: '密码不可为空', trigger: 'blur' },
+          { required: true, message: '密码不可为空', trigger: 'blur' }
         ],
         'username': [
-          { required: true, message: '用户名不可为空', trigger: 'blur' },
-        ],
+          { required: true, message: '用户名不可为空', trigger: 'blur' }
+        ]
       },
       inputLogin: { // 登录数据
         'password': '',
         'username': ''
       },
-      
+
       inputRegister: { // 注册数据
         'password1': '',
         'password2': '',
         'username': '',
         'codeNum': '',
-        "codeEmail":'',
+        'codeEmail': '',
         'email': '',
-        'codeNumToken':"",
-        "buttonDisabled":true,
-        "emailLoading":false
+        'codeNumToken': '',
+        'buttonDisabled': true,
+        'registerLoading': false
       },
-      emailCodeStr:"请输入图形验证码",
-      captcha_id:"",
+      emailCodeStr: '请输入图形验证码',
+      captcha_id: '',
       reCodeLoading: false,
       isLogin: true,
       loginLoading: false,
@@ -229,114 +229,106 @@ export default {
   },
 
   methods: {
-    codeEmailIn(str){
+    codeEmailIn(str) {
       const codeStr = str
-      console.log("codeEmailIn",codeStr)
-      if(codeStr.length === 6){
-        
-        console.log("checkEmail",this.inputRegister.codeNumToken)
+      console.log('codeEmailIn', codeStr)
+      if (codeStr.length === 6) {
+        console.log('checkEmail', this.inputRegister.codeNumToken)
         var updata = {
-          "captcha_token": this.inputRegister.codeNumToken,
-          "email_code":codeStr
+          'captcha_token': this.inputRegister.codeNumToken,
+          'email_code': codeStr
         }
-        //emailConfirm
-        this.inputRegister.emailLoading = true
+        // emailConfirm
+        this.inputRegister.registerLoading = true
 
         emailConfirm(updata).then(response => {
-          this.emailCodeStr = "验证成功"
-          //允许注册
-        this.inputRegister.emailLoading = false
-        this.inputRegister.buttonDisabled = false
+          this.emailCodeStr = '验证成功'
+          // 允许注册
+          this.inputRegister.registerLoading = false
+          this.inputRegister.buttonDisabled = false
           Message({
             message: response,
             type: 'success',
             duration: 5 * 1000
           })
-
-      }, reason => {
-        console.error(reason) // 出错了！
-      })
-
+        }, reason => {
+          console.error(reason) // 出错了！
+        })
       }
     },
-    codeNumIn(str){
+    codeNumIn(str) {
       const codeStr = str
-      console.log("codeNumIn",codeStr)
-      if(codeStr.length === 6){//启动验证
-        let validateList = [];
+      console.log('codeNumIn', codeStr)
+      if (codeStr.length === 6) { // 启动验证
+        const validateList = []
 
-        this.$refs['inputRegister'].validateField(['email','username'],(message) => {
-            validateList.push(message)
-        });
-        console.log("validateList:",validateList)
+        this.$refs['inputRegister'].validateField(['email', 'username'], (message) => {
+          validateList.push(message)
+        })
+        console.log('validateList:', validateList)
         if (validateList.every((item) => item === '')) {
-            // 咱们的操作
-            this.confirmCodeNum(codeStr)  
+          // 咱们的操作
+          this.confirmCodeNum(codeStr)
         }
-
       }
     },
-    confirmCodeNum(codeNum){
-      console.log("confirmCodeNum",codeNum)
+    confirmCodeNum(codeNum) {
+      console.log('confirmCodeNum', codeNum)
       const that = this
       const updata = {
-        "captcha_solution":codeNum,
-        "captcha_id":this.captcha_id
+        'captcha_solution': codeNum,
+        'captcha_id': this.captcha_id
       }
+
       confirmCode(updata).then(response => {
-        //{captcha_token: 'f61daa354e778d0d5282892514f88bfd'}
+        // {captcha_token: 'f61daa354e778d0d5282892514f88bfd'}
         console.log('confirmCode:', response)
-        //发送邮箱验证码 emailSend 
+        // 发送邮箱验证码 emailSend
         that.inputRegister.codeNumToken = response.captcha_token
         var updata = {
-          "captcha_token": response.captcha_token,
-          "email_address": this.inputRegister.email
+          'captcha_token': response.captcha_token,
+          'email_address': this.inputRegister.email
         }
-        console.log("sendEmail:",updata)
-        this.inputRegister.emailLoading = true
-        //发送邮件
+        console.log('sendEmail:', updata)
+        this.inputRegister.registerLoading = true
+        // 发送邮件
         emailSend(updata).then(response => {
           console.log('sendEmail:', response)
-          that.inputRegister.emailCodeStr = "请输入邮箱验证码"
-          this.inputRegister.emailLoading = false
+          that.inputRegister.emailCodeStr = '请输入邮箱验证码'
+          this.inputRegister.registerLoading = false
           Message({
-            message: "验证码发送成功，请及时输入验证码",
+            message: '验证码发送成功，请及时输入验证码',
             type: 'success',
             duration: 5 * 1000
           })
         })
-
       }, reason => {
         this.reCodefuc()
         console.error(reason) // 出错了！
       })
-
     },
     changeType() {
-      console.log("changeType",this.isLogin)
+      console.log('changeType', this.isLogin)
       if (this.isLogin) {
         this.reCodefuc()
       }
       this.isLogin = !this.isLogin
 
-      this.inputLogin= { // 登录数据
+      this.inputLogin = { // 登录数据
         'password': '',
         'username': ''
       }
-      this.inputRegister= { // 注册数据
+      this.inputRegister = { // 注册数据
         'password1': '',
         'password2': '',
         'username': '',
         'codeNum': '',
-        "codeEmail":'',
+        'codeEmail': '',
         'email': '',
-        'codeNumToken':"",
-        "buttonDisabled":true, //临时
-        "emailLoading":false
+        'codeNumToken': '',
+        'buttonDisabled': true,
+        'registerLoading': false
       }
-
-      
-
     },
 
     reCodefuc() {
@@ -348,20 +340,19 @@ export default {
       getCodeId().then(response => {
         console.log('response:', response)
         this.captcha_id = response.captcha_id
-         var protocolStr = document.location.protocol
+        var protocolStr = document.location.protocol
 
         if (protocolStr === 'http:') {
-          this.src1 = 'http://' + process.env.VUE_APP_BASE_HTTP_API + response.captcha_id + ".png"
-          //console.log('protocol = ' + protocolStr)
+          this.src1 = 'http://' + process.env.VUE_APP_BASE_HTTP_API + response.captcha_id + '.png'
+          // console.log('protocol = ' + protocolStr)
         } else if (protocolStr === 'https:') {
-          this.src1 = 'https://' + process.env.VUE_APP_BASE_HTTPS_API + response.captcha_id + ".png"
-          //console.log('protocol = ' + protocolStr)
+          this.src1 = 'https://' + process.env.VUE_APP_BASE_HTTPS_API + response.captcha_id + '.png'
+          // console.log('protocol = ' + protocolStr)
         } else {
-          this.src1 = 'http://' + process.env.VUE_APP_BASE_HTTP_API + response.captcha_id + ".png"
-          //console.log('other protocol')
+          this.src1 = 'http://' + process.env.VUE_APP_BASE_HTTP_API + response.captcha_id + '.png'
+          // console.log('other protocol')
         }
 
-        
         this.reCodeLoading = false
         // this.formData = response
       }, reason => {
@@ -369,68 +360,14 @@ export default {
         console.error(reason) // 出错了！
       })
     },
-    login() {//登录
-
-
-
-
+    login() { // 登录
       this.$refs.inputLogin.validate(valid => {
-          if (valid) {
-              this.loading = true
-        
-            const data = this.inputLogin
-            // data['type'] = 'phone'
-
-            this.$store.dispatch('user/login', data).then(() => {
-              console.log('data,', this.redirect)
-              this.$router.push({ path: this.redirect || '/' })
-
-              this.loading = false
-            }).catch(() => {
-              this.loading = false
-            })
-
-          } else {
-            console.log('error submit!!');
-            return false;
-          }
-      });
-
-
-    },
-    wechatHandleClick(thirdpart) {
-                alert('ok')
-                // this.$store.commit('SET_AUTH_TYPE', thirdpart)
-                // const appid = 'xxxxx'
-                // const redirect_uri = encodeURIComponent('xxx/redirect?redirect=' + window.location.origin + '/auth-redirect')
-                // const url = 'https://open.weixin.qq.com/connect/qrconnect?appid=' + appid + '&redirect_uri=' + redirect_uri + '&response_type=code&scope=snsapi_login#wechat_redirect'
-                // openWindow(url, thirdpart, 540, 540)
-            },
-            // QQ 第三方登录
-            tencentHandleClick(thirdpart) {
-                // 直接弹出授权页面，授权过后跳转到回调页面进行登录处理
-                QC.Login.showPopup({
-                    appId:"123132",
-                    redirectURI:"xxx"  //登录成功后会自动跳往该地址
-                });
-
-                // 法二
-                // var _self = this;// 先将vue这个对象保存在_self对象中
-                // _self.$store.commit('SET_AUTH_TYPE', thirdpart)
-                // const client_id = 'xxx';
-                // const redirect_uri = "xxx";
-                // const url = 'https://graph.qq.com/oauth2.0/authorize?response_type=code&client_id=' + client_id + '&redirect_uri=' + redirect_uri;
-                // 打开QQ授权登录界面，授权成功后会重定向
-                // openWindow(url, thirdpart, 540, 540);
-            },
-    register() {//注册
-      this.$refs.inputRegister.validate(valid => {
-        console.log(valid)
         if (valid) {
           this.loading = true
-          const data = this.loginForm
-          // data['type'] = 'phone'
 
+          const data = this.inputLogin
+          // data['type'] = 'phone'
+          console.log('data', data)
           this.$store.dispatch('user/login', data).then(() => {
             console.log('data,', this.redirect)
             this.$router.push({ path: this.redirect || '/' })
@@ -444,7 +381,68 @@ export default {
           return false
         }
       })
-      
+    },
+    wechatHandleClick(thirdpart) {
+      alert('ok')
+      // this.$store.commit('SET_AUTH_TYPE', thirdpart)
+      // const appid = 'xxxxx'
+      // const redirect_uri = encodeURIComponent('xxx/redirect?redirect=' + window.location.origin + '/auth-redirect')
+      // const url = 'https://open.weixin.qq.com/connect/qrconnect?appid=' + appid + '&redirect_uri=' + redirect_uri + '&response_type=code&scope=snsapi_login#wechat_redirect'
+      // openWindow(url, thirdpart, 540, 540)
+    },
+    // QQ 第三方登录
+    tencentHandleClick(thirdpart) {
+      // 直接弹出授权页面，授权过后跳转到回调页面进行登录处理
+      QC.Login.showPopup({
+        appId: '101490224',
+        redirectURI: 'http://localhost:3000/#/proxy' // 登录成功后会自动跳往该地址
+      })
+
+      // 法二
+      // var _self = this;// 先将vue这个对象保存在_self对象中
+      // _self.$store.commit('SET_AUTH_TYPE', thirdpart)
+      // const client_id = 'xxx';
+      // const redirect_uri = "xxx";
+      // const url = 'https://graph.qq.com/oauth2.0/authorize?response_type=code&client_id=' + client_id + '&redirect_uri=' + redirect_uri;
+      // 打开QQ授权登录界面，授权成功后会重定向
+      // openWindow(url, thirdpart, 540, 540);
+    },
+    register() { // 注册
+      this.$refs.inputRegister.validate(valid => {
+        console.log(valid)
+        if (valid) {
+          console.log(this.inputRegister)
+          const updata = {
+            'email_address': this.inputRegister.email,
+            'password': this.inputRegister.password1,
+            'username': this.inputRegister.username
+          }
+          registerUser(updata).then(response => {
+            const data = {
+              'password': updata.password,
+              'username': updata.username
+            }
+            this.$store.dispatch('user/login', data).then(() => {
+              console.log('data,', this.redirect)
+              this.$router.push({ path: this.redirect || '/' })
+            }).catch(() => {
+
+            })
+
+            // 注册成功
+            Message({
+              message: '注册成功',
+              type: 'success',
+              duration: 5 * 1000
+            })
+          }, reason => {
+            console.error(reason) // 出错了！
+          })
+        } else {
+          console.log('error submit!!')
+          return false
+        }
+      })
     }
   }
 }
