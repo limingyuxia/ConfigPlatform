@@ -21,3 +21,5 @@ tests/**/coverage/
 limingyuxia.asia.crt
 limingyuxia.asia.key
 email.conf
+
+resource

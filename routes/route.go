@@ -7,6 +7,7 @@ import (
 	"ConfigPlatform/routes/middleware/jwts"
 	"ConfigPlatform/routes/middleware/secure"
 	"ConfigPlatform/services"
+	"ConfigPlatform/services/auth2/qq"
 	"os"
 	"strconv"
 
@@ -46,6 +47,9 @@ func InitRouter() {
 
 	// 注册
 	r.POST("/register", services.Register)
+
+	// QQ 登录的回调地址
+	r.GET("/proxy", qq.QQLogin)
 
 	// api 接口
 	project := r.Group("/project")
