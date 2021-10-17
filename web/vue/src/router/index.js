@@ -73,6 +73,21 @@ export const constantRoutes = [
       }
     ]
   },
+  {
+    path: '/confiList',
+    component: Layout,
+    redirect: '/confiList',
+    name: 'confiList',
+
+    children: [
+      {
+        path: 'confiList',
+        name: '配置列表',
+        component: () => import('@/views/confiList/index'),
+        meta: { title: '配置列表', icon: 'table' }
+      }
+    ]
+  },
 
   // 404 page must be placed at the end !!!
   { path: '*', redirect: '/404', hidden: true }
