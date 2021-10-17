@@ -8,6 +8,7 @@ import (
 	"ConfigPlatform/routes/middleware/secure"
 	"ConfigPlatform/services"
 	"ConfigPlatform/services/auth2/qq"
+	"ConfigPlatform/services/auth2/wechat"
 	"os"
 	"strconv"
 
@@ -27,9 +28,9 @@ func InitRouter() {
 	r.Use(cors.HandleCors)
 
 	// 加载静态文件
-	// r.StaticFile("/", "web/index.html")
-	// r.StaticFile("project.js", "web/project.js")
-	// r.StaticFile("project.css", "web/project.css")
+	// r.StaticFile("/", "resource/index.html")
+	// r.StaticFile("project.js", "resource/project.js")
+	// r.StaticFile("project.css", "resource/project.css")
 
 	// swagger文档
 	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
@@ -48,8 +49,11 @@ func InitRouter() {
 	// 注册
 	r.POST("/register", services.Register)
 
-	// QQ 登录的回调地址
+	// QQ登录的回调地址
 	r.GET("/proxy", qq.QQLogin)
+
+	// 微信登录回调地址
+	r.GET("/wechat/callback.do", wechat.WechatLogin)
 
 	// api 接口
 	project := r.Group("/project")

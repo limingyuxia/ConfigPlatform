@@ -4,11 +4,11 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
-	"io/ioutil"
 	"log"
 	"net/http"
-	"strconv"
 	"strings"
+
+	"ConfigPlatform/services/auth2"
 
 	"github.com/gin-gonic/gin"
 )
@@ -48,51 +48,6 @@ type accessToken struct {
 	ErrorDescription string `json:"error_description"` // 错误信息
 }
 
-// 发送http get请求
-func httpGet(ctx context.Context, url string, urlParam map[string]string) (string, error) {
-
-	// 新建请求
-	var req *http.Request
-	req, err := http.NewRequest(http.MethodGet, url, nil)
-	if err != nil {
-		log.Print("new http get request failed: ", err)
-		return "", err
-	}
-
-	// 添加url参数
-	params := req.URL.Query()
-	for key, value := range urlParam {
-		params.Add(key, value)
-	}
-	req.URL.RawQuery = params.Encode()
-
-	// 添加请求头参数
-	req.Header.Set("Content-type", "application/json")
-
-	// 发送请求
-	client := http.Client{}
-	resp, err := client.Do(req.WithContext(ctx))
-	if err != nil {
-		log.Print("client do request faile: ", err)
-		return "", err
-	}
-
-	// 读响应体
-	respBody, err := ioutil.ReadAll(resp.Body)
-	if err != nil {
-		log.Print(ctx, "read resp body failed: ", err)
-		return "", err
-	}
-
-	// 判断http状态码
-	if resp.StatusCode != http.StatusOK {
-		log.Print(ctx, "http request error: ", string(respBody))
-		return "", errors.New(strconv.Itoa(resp.StatusCode))
-	}
-
-	return string(respBody), nil
-}
-
 // 获取返回结构中json数据
 func getRespJson(originResp string) string {
 	jsonDataStart := strings.Index(originResp, "{")
@@ -122,7 +77,7 @@ func getAccessToken(ctx context.Context, authorizationCode string) (string, erro
 		"redirect_uri":  redirectUri,
 	}
 
-	accessTokenResp, err := httpGet(ctx, baseUrl, urlParam)
+	accessTokenResp, err := auth2.HttpGet(ctx, baseUrl, urlParam)
 	if err != nil {
 		return "", err
 	}
@@ -136,7 +91,7 @@ func getAccessToken(ctx context.Context, authorizationCode string) (string, erro
 	var accessToken accessToken
 	err = json.Unmarshal([]byte(jsonResp), &accessToken)
 	if err != nil {
-		log.Print("parse access token json data error: ", err)
+		log.Print("parse qq access token json data error: ", err)
 		return "", err
 	}
 
@@ -157,7 +112,7 @@ func getUserOpenid(ctx context.Context, accessToken string) (*authMe, error) {
 		"access_token": accessToken,
 	}
 
-	userOpenid, err := httpGet(ctx, baseUrl, urlParam)
+	userOpenid, err := auth2.HttpGet(ctx, baseUrl, urlParam)
 	if err != nil {
 		return nil, err
 	}
@@ -192,7 +147,7 @@ func getUserInfo(ctx context.Context, accessToken string, authMe *authMe) (*user
 		"format":             "json",
 	}
 
-	userInfoResp, err := httpGet(ctx, baseUrl, urlParam)
+	userInfoResp, err := auth2.HttpGet(ctx, baseUrl, urlParam)
 	if err != nil {
 		return nil, err
 	}
@@ -226,7 +181,7 @@ func QQLogin(c *gin.Context) {
 	}
 
 	// 校验state
-	if state != "liming" {
+	if state != "3d6be0a4035d839573b04816624a415e" {
 		c.JSON(http.StatusUnauthorized, "failed")
 		return
 	}
