@@ -76,8 +76,9 @@ func getAccessToken(ctx context.Context, authorizationCode string) (string, erro
 		"code":          authorizationCode, // 10分钟有效
 		"redirect_uri":  redirectUri,
 	}
+	var reqHeader = map[string]string{}
 
-	accessTokenResp, err := auth2.HttpGet(ctx, baseUrl, urlParam)
+	accessTokenResp, err := auth2.HttpGet(ctx, baseUrl, urlParam, reqHeader)
 	if err != nil {
 		return "", err
 	}
@@ -111,8 +112,9 @@ func getUserOpenid(ctx context.Context, accessToken string) (*authMe, error) {
 	var urlParam = map[string]string{
 		"access_token": accessToken,
 	}
+	var reqHeader = map[string]string{}
 
-	userOpenid, err := auth2.HttpGet(ctx, baseUrl, urlParam)
+	userOpenid, err := auth2.HttpGet(ctx, baseUrl, urlParam, reqHeader)
 	if err != nil {
 		return nil, err
 	}
@@ -146,8 +148,9 @@ func getUserInfo(ctx context.Context, accessToken string, authMe *authMe) (*user
 		"openid":             authMe.Openid,
 		"format":             "json",
 	}
+	var reqHeader = map[string]string{}
 
-	userInfoResp, err := auth2.HttpGet(ctx, baseUrl, urlParam)
+	userInfoResp, err := auth2.HttpGet(ctx, baseUrl, urlParam, reqHeader)
 	if err != nil {
 		return nil, err
 	}

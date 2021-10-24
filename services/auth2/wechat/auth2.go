@@ -35,8 +35,9 @@ func getAccessToken(ctx context.Context, authorizationCode string) (string, erro
 		"code":       authorizationCode,
 		"grant_type": "authorization_code",
 	}
+	var reqHeader = map[string]string{}
 
-	accessTokenResp, err := auth2.HttpGet(ctx, baseUrl, urlParam)
+	accessTokenResp, err := auth2.HttpGet(ctx, baseUrl, urlParam, reqHeader)
 	if err != nil {
 		return "", err
 	}

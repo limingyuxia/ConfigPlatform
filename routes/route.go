@@ -7,6 +7,7 @@ import (
 	"ConfigPlatform/routes/middleware/jwts"
 	"ConfigPlatform/routes/middleware/secure"
 	"ConfigPlatform/services"
+	"ConfigPlatform/services/auth2/github"
 	"ConfigPlatform/services/auth2/qq"
 	"ConfigPlatform/services/auth2/wechat"
 	"os"
@@ -54,6 +55,9 @@ func InitRouter() {
 
 	// 微信登录回调地址
 	r.GET("/wechat/callback.do", wechat.WechatLogin)
+
+	// github登录回调地址
+	r.GET("/githubLogin", github.GithubLogin)
 
 	// api 接口
 	project := r.Group("/project")
