@@ -78,7 +78,7 @@ func InitRouter() {
 	if os.Getenv("Proto") == "Https" {
 		r.Use(secure.TlsHandler())
 		r.RunTLS(":"+strconv.Itoa(conf.ServerSetting.HttpsPort),
-			"./conf/nginx/limingyuxia.asia.crt", "./conf/nginx/limingyuxia.asia.key")
+			"./conf/nginx/server.crt", "./conf/nginx/server.key")
 
 		return
 	}

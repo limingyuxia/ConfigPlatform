@@ -18,8 +18,8 @@ tests/**/coverage/
 *.sln
 
 # 域名的证书文件
-limingyuxia.asia.crt
-limingyuxia.asia.key
+server.crt
+server.key
 email.conf
 
 resource

@@ -4,8 +4,8 @@ wipe     = true
 no-tests = true
 
 [mysql]
-  dbname = "config_plaform"
-  host   = "limingyuxia.asia"
+  dbname = "config_platform"
+  host   = "config-platform.top"
   port   = 3306
   user   = "root"
   pass   = "123456"
