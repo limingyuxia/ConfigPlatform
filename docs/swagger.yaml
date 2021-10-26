@@ -519,7 +519,32 @@ paths:
       summary: 获取项目列表
       tags:
       - 项目
-  /register:
+  /user/avatar/update:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: multipart/form-data加密后的文件内容
+        in: body
+        name: UpdateAvatar
+        required: true
+        schema:
+          type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/services.WebResponse'
+      summary: 上传用户头像
+      tags:
+      - 用户管理
+  /user/register:
     post:
       consumes:
       - application/json

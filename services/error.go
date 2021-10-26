@@ -24,6 +24,8 @@ const (
 	SEND_EMAIL_ERROR    RETCODE = 4016
 	READ_FAILED_ERROR   RETCODE = 4017
 	EMAIL_CODE_ERROR    RETCODE = 4018
+	FILE_UPLOAD_H_ERROR RETCODE = 4019
+	FILE_UPLOAD_ERROR   RETCODE = 4020
 )
 
 // 错误码和错误信息的关系
@@ -49,5 +51,7 @@ var (
 		4016: "操作太频繁，1分钟以后在试",
 		4017: "读文件出错",
 		4018: "邮箱验证码错误或已过期",
+		4019: "上传文件的头部参数出错",
+		4020: "文件保存失败",
 	}
 )

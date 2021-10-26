@@ -33,6 +33,12 @@ type Server struct {
 	JwtSecret string // jwt秘钥
 }
 
+type SeaweedFs struct {
+	Domain     string // SeaweedFs 服务地址
+	ServerPort int    // server port
+	VolumePort int    // volume port
+}
+
 var DatabaseSetting = &Database{}
 
 var RedisSetting = &Redis{}
@@ -40,6 +46,8 @@ var RedisSetting = &Redis{}
 var NginxSetting = &Nginx{}
 
 var ServerSetting = &Server{}
+
+var SeaweedFsSetting = &SeaweedFs{}
 
 func LoadConf() error {
 
@@ -74,6 +82,13 @@ func LoadConf() error {
 	err = cfg.Section("server").MapTo(ServerSetting)
 	if err != nil {
 		log.Print("load server config failed: ", err)
+		return err
+	}
+
+	// 加载服务端配置
+	err = cfg.Section("seaweedfs").MapTo(SeaweedFsSetting)
+	if err != nil {
+		log.Print("load seaweedfs config failed: ", err)
 		return err
 	}
 

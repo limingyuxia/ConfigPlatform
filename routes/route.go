@@ -66,11 +66,15 @@ func InitRouter() {
 
 	emails := r.Group("/email")
 
+	users := r.Group("/user")
+
 	addProjectRoute(project, authMiddleware)
 
 	addCaptchasRoute(captchas)
 
 	addEmailsRoute(emails)
+
+	addUsersRoute(users)
 
 	// 处理图片验证码
 	r.Use(captcha.RefeshCaptcha())
@@ -110,4 +114,8 @@ func addEmailsRoute(g *gin.RouterGroup) {
 	g.POST("/send", services.SendEmailCode)
 
 	g.POST("/confirm", services.ConfirmEmailCode)
+}
+
+func addUsersRoute(g *gin.RouterGroup) {
+	g.POST("/avatar/update", services.UpdateAvatar)
 }
