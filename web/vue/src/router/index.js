@@ -41,7 +41,11 @@ export const constantRoutes = [
     component: () => import('@/views/404'),
     hidden: true
   },
-
+  {
+    path: '/proxy',
+    component: () => import('@/views/login/proxy'),
+    hidden: true
+  },
   {
     path: '/',
     component: Layout,
@@ -66,6 +70,21 @@ export const constantRoutes = [
         name: '项目列表',
         component: () => import('@/views/table/index'),
         meta: { title: '项目列表', icon: 'table' }
+      }
+    ]
+  },
+  {
+    path: '/confiList',
+    component: Layout,
+    redirect: '/confiList',
+    name: 'confiList',
+
+    children: [
+      {
+        path: 'confiList',
+        name: '配置列表',
+        component: () => import('@/views/confiList/index'),
+        meta: { title: '配置列表', icon: 'table' }
       }
     ]
   },
