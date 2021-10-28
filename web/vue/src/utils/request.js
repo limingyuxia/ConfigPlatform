@@ -110,9 +110,9 @@ service.interceptors.response.use(
     const statusCode = error.response.status
     const res = error.response.data
 
-    if (statusCode === 400) {
+    if (statusCode === 400 || statusCode === 401) {
       Message({
-        message: '[' + res.errcode + ']' + res.errmsg || 'Error',
+        message: '[' + res.code + ']' + res.message || 'Error',
         type: 'error',
         duration: 5 * 1000
       })

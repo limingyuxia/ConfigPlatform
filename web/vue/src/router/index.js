@@ -47,6 +47,11 @@ export const constantRoutes = [
     hidden: true
   },
   {
+    path: '/githubLogin',
+    component: () => import('@/views/login/githubLogin'),
+    hidden: true
+  },
+  {
     path: '/',
     component: Layout,
     redirect: '/dashboard',

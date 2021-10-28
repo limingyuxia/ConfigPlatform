@@ -35,6 +35,7 @@
             label="序号"
             type="index"
           />
+
           <template v-for="item,index in Header">
 
             <el-table-column
@@ -47,7 +48,6 @@
             <el-table-column
               v-if="item.type == 'tagArray'"
               :key="index"
-
               :label="item.label"
             >
 
