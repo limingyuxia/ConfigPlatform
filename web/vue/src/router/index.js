@@ -47,6 +47,11 @@ export const constantRoutes = [
     hidden: true
   },
   {
+    path: '/githubLogin',
+    component: () => import('@/views/login/githubLogin'),
+    hidden: true
+  },
+  {
     path: '/',
     component: Layout,
     redirect: '/dashboard',
@@ -70,6 +75,20 @@ export const constantRoutes = [
         name: '项目列表',
         component: () => import('@/views/table/index'),
         meta: { title: '项目列表', icon: 'table' }
+      }
+    ]
+  },
+  {
+    path: '/profile',
+    component: Layout,
+    redirect: '/profile/index',
+    hidden: true,
+    children: [
+      {
+        path: 'index',
+        component: () => import('@/views/profile/index'),
+        name: '个人中心',
+        meta: { title: 'Profile', icon: 'user' }
       }
     ]
   },

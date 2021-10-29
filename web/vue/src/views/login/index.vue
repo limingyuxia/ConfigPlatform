@@ -1,4 +1,5 @@
 <template>
+
   <div class="login-register">
     <div class="contain">
       <div
@@ -42,6 +43,9 @@
             </div>
             <div class="sign-btn" @click="tencentHandleClick('tencent')">
               <span class="qq-svg-container"><svg-icon id="qqLoginBtn" icon-class="qq" class="icon" /></span> QQ
+            </div>
+            <div class="sign-btn" @click="getGithubAuthorizeCode()">
+              <span class="qq-svg-container"><svg-icon  icon-class="github-fill" class="icon" /></span> github
             </div>
           </div>
 
@@ -123,6 +127,13 @@ import { getCodeId, confirmCode, emailSend, emailConfirm, registerUser } from '@
 import { Message } from 'element-ui'
 
 export default {
+  mounted(){
+        const oIframe = document.getElementById('show-iframe');
+        const deviceWidth = document.documentElement.clientWidth;
+        const deviceHeight = document.documentElement.clientHeight;
+        oIframe.style.width = deviceWidth + 'px';
+        oIframe.style.height = deviceHeight + 'px';
+    },
   name: 'LoginRegister',
   data() {
     const validateEmail = (rule, value, callback) => {
@@ -161,6 +172,7 @@ export default {
       }
     }
     return {
+      url_all:"1",
       src1: 'https://tva2.sinaimg.cn/large/9bd9b167gy1g2qkt9k952j21hc0u01kx.jpg',
       inputRegisterRules: { // 校验
 
@@ -229,6 +241,14 @@ export default {
   },
 
   methods: {
+     goBack(){
+            this.goBackState = false;
+            this.iframeState = false;
+        },
+        showIframe(){
+            this.goBackState = true;
+            this.iframeState = true;
+        },
     codeEmailIn(str) {
       const codeStr = str
       console.log('codeEmailIn', codeStr)
@@ -383,7 +403,19 @@ export default {
       })
     },
     wechatHandleClick(thirdpart) {
-      alert('ok')
+  
+                let baseUrl = "https://open.weixin.qq.com/connect/qrconnect"
+                let appid = "wxbdc5610cc59c1631"
+                let redictUrl = "https%3A%2F%2Fpassport.yhd.com%2Fwechat%2Fcallback.do"
+                let state = "3d6be0a4035d839573b04816624a415e"
+
+                let url = baseUrl + "?appid=" + appid + "&redirect_uri=" + redictUrl
+                    + "&response_type=code" + "&scope=snsapi_login" + "&state=" + state
+
+                window.location = url
+            
+
+      //alert('ok')
       // this.$store.commit('SET_AUTH_TYPE', thirdpart)
       // const appid = 'xxxxx'
       // const redirect_uri = encodeURIComponent('xxx/redirect?redirect=' + window.location.origin + '/auth-redirect')
@@ -392,12 +424,27 @@ export default {
     },
     // QQ 第三方登录
     tencentHandleClick(thirdpart) {
+      let baseUrl = "https://graph.qq.com/oauth2.0/authorize"
+      let appid = 101490224
+      let redictUrl = "http%3A%2F%2Flocalhost%3A3000%2Fproxy"
+      let state = "3d6be0a4035d839573b04816624a415e"
+      //let scope = "get_user_info,add_share,add_one_blog,list_album,upload_pic,add_album,list_photo,check_page_fans,get_info,add_t,del_t,add_pic_t,get_repost_list,get_other_info,get_fanslist,get_idollist,add_idol,del_idol,get_tenpay_addr"
+
+      let url = baseUrl + "?response_type=code&client_id=" + appid
+          + "&redirect_uri=" + redictUrl + "&state=" + state 
+          
+
+      window.location = url
+
+
+      /*
       // 直接弹出授权页面，授权过后跳转到回调页面进行登录处理
       QC.Login.showPopup({
+        //state : "3d6be0a4035d839573b04816624a415e",
         appId: '101490224',
-        redirectURI: 'http://localhost:3000/#/proxy' // 登录成功后会自动跳往该地址
+        redirectURI: 'http://localhost:3000/proxy' // 登录成功后会自动跳往该地址
       })
-
+      */
       // 法二
       // var _self = this;// 先将vue这个对象保存在_self对象中
       // _self.$store.commit('SET_AUTH_TYPE', thirdpart)
@@ -407,6 +454,25 @@ export default {
       // 打开QQ授权登录界面，授权成功后会重定向
       // openWindow(url, thirdpart, 540, 540);
     },
+    getGithubAuthorizeCode() {
+                let baseUrl = "https://github.com/login/oauth/authorize"
+                let clientId = "7e3bea0e68fb7135687c"
+                let redictUrl = "http://localhost:3000/githubLogin"
+                //redictUrl ="http://localhost:9745/#/githubLogin"
+                let state = "3d6be0a4035d839573b04816624a415e"
+                let scope = "read:user"
+
+                let url = baseUrl + "?client_id=" + clientId + "&redirect_uri=" + redictUrl
+                    + "&scope=" + scope + "&state=" + state
+
+                //window.location = url
+                this.url_all = url
+                //windows.parent.location.href=url
+                var mypage = window.open(url,'mypage','address=0,resizable=0,toolbar=0,location=0,status=0,menubar=0,fullscreen=0');
+                
+               //let a = window.open(url,"_top")
+              console.log("a:",mypage)
+            },
     register() { // 注册
       this.$refs.inputRegister.validate(valid => {
         console.log(valid)

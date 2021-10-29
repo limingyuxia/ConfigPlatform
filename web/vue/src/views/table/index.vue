@@ -35,6 +35,7 @@
             label="序号"
             type="index"
           />
+
           <template v-for="item,index in Header">
 
             <el-table-column
@@ -47,7 +48,6 @@
             <el-table-column
               v-if="item.type == 'tagArray'"
               :key="index"
-
               :label="item.label"
             >
 
@@ -686,9 +686,9 @@ export default {
       console.log('this.tableData_tmp:', this.tableData, this.currentPage, this.pageSize)
 
       getList(data).then(response => {
-        const tableDataList = response.ProjectList
+        const tableDataList = response.project_list
         const total = response.Total
-
+        
         console.log('tableData', response, total === 0)
         if (total === 0) {
           this.total = 0
@@ -735,6 +735,7 @@ export default {
     display:block;
     margin-bottom: 5px;
     margin-top: 5px;
+ 
 }
 .el-textarea .el-textarea__inner{
   resize: none;
