@@ -1,6 +1,6 @@
-DROP DATABASE IF EXISTS `config_plaform`;
-CREATE DATABASE `config_plaform`;
-USE `config_plaform`;
+DROP DATABASE IF EXISTS `config_platform`;
+CREATE DATABASE `config_platform`;
+USE `config_platform`;
 
 -- ----------------------------
 -- Table structure for project

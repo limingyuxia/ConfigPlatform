@@ -89,7 +89,7 @@ elif [ $BaseServer = "frontend" ]; then
     docker rm $container_id
 
     # -d 后台运行 --rm 如果有同名的容器，自动删除
-    docker run -d --rm -p $HttpPort:9528 -p $HttpsPort:9529 -v $(pwd)/../web/dist:/usr/share/nginx/html:ro \
+    docker run -d --rm -p 443:443 -p 80:80 -v $(pwd)/../web/dist:/usr/share/nginx/html:ro \
         --name config-web 18509518245/config-nginx:$ServerTag
 
 else 

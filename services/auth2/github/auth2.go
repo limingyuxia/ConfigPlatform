@@ -4,6 +4,7 @@ import (
 	"ConfigPlatform/services/auth2"
 	"context"
 	"encoding/json"
+	"io/ioutil"
 	"log"
 	"net/http"
 
@@ -25,8 +26,14 @@ type userInfo struct {
 func getAccessToken(ctx context.Context, authorizationCode string) (string, error) {
 	url := "https://github.com/login/oauth/access_token"
 	clientId := "7e3bea0e68fb7135687c"
-	clientSecret := "b661220c295ee5f8518ec6144e0678172c209eb1"
-	redirectUri := "http://localhost:8000/githubLogin"
+	redirectUri := "http://config-platform.top/#/githubLogin"
+
+	// 获取github app secret
+	clientSecret, err := ioutil.ReadFile("./conf/auth2Secret/github.secret")
+	if err != nil {
+		log.Print("read github secret faile! ", err)
+		return "", err
+	}
 
 	var reqHeader = map[string]string{
 		"Accept": "application/json",
@@ -34,7 +41,7 @@ func getAccessToken(ctx context.Context, authorizationCode string) (string, erro
 
 	var reqBody = map[string]string{
 		"client_id":     clientId,
-		"client_secret": clientSecret,
+		"client_secret": string(clientSecret),
 		"code":          authorizationCode,
 		"redirect_uri":  redirectUri,
 	}
@@ -112,8 +119,4 @@ func GithubLogin(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, userInfo)
-}
-
-func HomePage(c *gin.Context) {
-	c.JSON(http.StatusOK, "ok")
 }
