@@ -6,7 +6,7 @@
     <el-form-item label="Email">
       <el-input v-model.trim="user.email" />
     </el-form-item>
-    <el-form-item label="头像">
+    <el-form-item  label="头像">
       <!--:headers="headerObj"-->
       <el-upload
       ref="my-upload"
@@ -47,7 +47,8 @@ import { uploadAvatar} from '@/api/user'
 export default {
   data() {
       return {
-        imageUrl: '',
+        
+        imageUrl: "",
         upAvatarButton:true
       };
     },
@@ -66,6 +67,11 @@ export default {
         }
       }
     }
+  },  
+  created() {
+    console.log("created_1",this.user)
+    this.imageUrl = this.user.avatar
+    //this.upAvatarButton = true
   },
   methods: {
     loadIMG(e) {  // 图片加载出错
@@ -85,7 +91,9 @@ export default {
     handleChange(param){
       console.log("handleChange:",param.raw)
       let file = param.raw
-      const isJPG = file.type === 'image/jpeg';
+      const isJPG = /^image\/(jpeg|png|jpg|x-icon)$/.test(file.type)
+
+      //const isJPG = file.type === 'image/jpeg'; //x-icon
       const isLt2M = file.size / 1024 / 1024 < 2;
       
       if (!isJPG) {
@@ -129,7 +137,8 @@ export default {
         this.imageUrl = URL.createObjectURL(file.raw);
       },
       beforeAvatarUpload(file) {
-        const isJPG = file.type === 'image/jpeg';
+        //const isJPG = file.type === 'image/jpeg';
+        const isJPG = /^image\/(jpeg|png|jpg|x-icon)$/.test(file.type)
         const isLt2M = file.size / 1024 / 1024 < 2;
         console.log("123",isJPG)
         if (!isJPG) {

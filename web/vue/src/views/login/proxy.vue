@@ -26,7 +26,7 @@ export default {
   created() {
     console.log('初始化表格')
 
-    this.qqLogin()
+    //this.qqLogin()
   },
   methods: {
     // QQ第三方登录
