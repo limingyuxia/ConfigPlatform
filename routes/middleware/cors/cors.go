@@ -10,8 +10,23 @@ import (
 
 // 处理跨域
 func HandleCors(c *gin.Context) {
-	var httpsReq string = "https://" + conf.NginxSetting.Domain + ":" + strconv.Itoa(conf.NginxSetting.HttpsPort)
-	var httpReq string = "http://" + conf.NginxSetting.Domain + ":" + strconv.Itoa(conf.NginxSetting.HttpPort)
+	var httpReq string
+	var httpPort string = strconv.Itoa(conf.NginxSetting.HttpsPort)
+
+	var httpsReq string
+	var httpsPort string = strconv.Itoa(conf.NginxSetting.HttpPort)
+
+	if httpPort == "80" {
+		httpReq = "http://" + conf.NginxSetting.Domain
+	} else {
+		httpReq = "http://" + conf.NginxSetting.Domain + ":" + httpPort
+	}
+
+	if httpsPort == "443" {
+		httpsReq = "https://" + conf.NginxSetting.Domain
+	} else {
+		httpsReq = "https://" + conf.NginxSetting.Domain + httpsPort
+	}
 
 	if c.GetHeader("Origin") == httpsReq {
 		c.Header("Access-Control-Allow-Origin", httpsReq)
