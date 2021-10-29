@@ -7,13 +7,18 @@
     <div class="right-menu">
       <el-dropdown class="avatar-container" trigger="click">
         <div class="avatar-wrapper">
-          <img src="../../icons/svg/中国移动.png" class="user-avatar">
+          <img :src="avatar" class="user-avatar">
           <i class="el-icon-caret-bottom" />
         </div>
         <el-dropdown-menu slot="dropdown" class="user-dropdown">
           <router-link to="/">
             <el-dropdown-item>
               主页
+            </el-dropdown-item>
+          </router-link>
+          <router-link to="/profile">
+            <el-dropdown-item>
+              个人中心
             </el-dropdown-item>
           </router-link>
 
@@ -31,10 +36,14 @@ import { mapGetters } from 'vuex'
 import Breadcrumb from '@/components/Breadcrumb'
 import Hamburger from '@/components/Hamburger'
 
+//avatar
+
+
 export default {
   components: {
     Breadcrumb,
-    Hamburger
+    Hamburger,
+    
   },
   computed: {
     ...mapGetters([
@@ -43,7 +52,8 @@ export default {
     ])
   },
   methods: {
-    toggleSideBar() {
+    toggleSideBar(abc) {
+      console.log("abc",abc)
       this.$store.dispatch('app/toggleSideBar')
     },
     async logout() {

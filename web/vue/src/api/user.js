@@ -49,6 +49,15 @@ export function registerUser(params) {
   })
 }
 
+//上传头像
+export function uploadAvatar(params) {
+  return request({
+    url: '/user/avatar/update',
+    method: 'POST',
+    data: params
+  })
+}
+
 export function emailConfirm(params) {
   return request({
     url: '/email/confirm',

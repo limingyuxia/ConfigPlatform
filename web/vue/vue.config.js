@@ -30,6 +30,15 @@ module.exports = {
   lintOnSave: process.env.NODE_ENV === 'development',
   productionSourceMap: false,
   devServer: {
+    proxy: {
+      '/user': {
+          target: 'https://config-platform.top:8001',
+          changeOrigin: true,
+          pathRewrite: {
+              '/user': ''
+          }
+      }
+  },
     disableHostCheck: true,//内网穿透host
     port: port,
     open: true,
