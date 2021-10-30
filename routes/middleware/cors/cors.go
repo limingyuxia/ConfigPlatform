@@ -11,10 +11,10 @@ import (
 // 处理跨域
 func HandleCors(c *gin.Context) {
 	var httpReq string
-	var httpPort string = strconv.Itoa(conf.NginxSetting.HttpsPort)
+	var httpPort string = strconv.Itoa(conf.NginxSetting.HttpPort)
 
 	var httpsReq string
-	var httpsPort string = strconv.Itoa(conf.NginxSetting.HttpPort)
+	var httpsPort string = strconv.Itoa(conf.NginxSetting.HttpsPort)
 
 	if httpPort == "80" {
 		httpReq = "http://" + conf.NginxSetting.Domain
@@ -25,13 +25,13 @@ func HandleCors(c *gin.Context) {
 	if httpsPort == "443" {
 		httpsReq = "https://" + conf.NginxSetting.Domain
 	} else {
-		httpsReq = "https://" + conf.NginxSetting.Domain + httpsPort
+		httpsReq = "https://" + conf.NginxSetting.Domain + ":" + httpsPort
 	}
 
-	if c.GetHeader("Origin") == httpsReq {
-		c.Header("Access-Control-Allow-Origin", httpsReq)
-	} else if c.GetHeader("Origin") == httpReq {
+	if c.GetHeader("Origin") == httpReq {
 		c.Header("Access-Control-Allow-Origin", httpReq)
+	} else if c.GetHeader("Origin") == httpsReq {
+		c.Header("Access-Control-Allow-Origin", httpsReq)
 	}
 
 	c.Header("Access-Control-Allow-Methods", "GET, POST, PUT, PATCH, DELETE, OPTION")
