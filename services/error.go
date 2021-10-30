@@ -28,6 +28,8 @@ const (
 	FILE_UPLOAD_ERROR   RETCODE = 4020
 	TOKEN_FORMAT_ERROR  RETCODE = 4021
 	GET_USER_INFO_ERROR RETCODE = 4022
+	AVATAR_UPDATE_ERROR RETCODE = 4023
+	USER_AVATAR_ERROR   RETCODE = 4024
 )
 
 // 错误码和错误信息的关系
@@ -57,5 +59,7 @@ var (
 		4020: "文件保存失败",
 		4021: "token格式错误",
 		4022: "获取用户信息失败",
+		4023: "更新头像失败",
+		4024: "获取用户头像失败",
 	}
 )

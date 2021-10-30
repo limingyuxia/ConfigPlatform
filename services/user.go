@@ -5,20 +5,14 @@ import (
 	"ConfigPlatform/conf"
 	"ConfigPlatform/model"
 	"ConfigPlatform/routes/middleware/jwts"
-	"ConfigPlatform/services/weedo"
-	"bytes"
-	"encoding/base64"
-	"encoding/json"
+	"ConfigPlatform/services/auth2"
 	"io/ioutil"
 	"log"
 	"mime"
 	"mime/multipart"
-	"path"
 	"strconv"
-	"strings"
 
 	"github.com/gin-gonic/gin"
-	"github.com/google/uuid"
 )
 
 // @Tags 用户管理
@@ -97,32 +91,21 @@ func UpdateAvatar(c *gin.Context) {
 		fileName = part.FileName()
 	}
 
-	// 生成uuid
-	uuid := uuid.New()
-	key := uuid.String()
-
-	// 获取文件后缀
-	filesuffix := path.Ext(fileName)
-	// 生成新的文件名
-	fileNameUnique := fileName[0:len(fileName)-len(filesuffix)] + "_" + key + filesuffix
-
-	// 连接服务
-	seaweedfsServer := conf.SeaweedFsSetting.Domain + ":" + strconv.Itoa(conf.SeaweedFsSetting.ServerPort)
-	seaweedfsVolume := conf.SeaweedFsSetting.Domain + ":" + strconv.Itoa(conf.SeaweedFsSetting.VolumePort)
-
-	client := weedo.NewClient(seaweedfsServer, seaweedfsVolume)
-
-	bodyReader := bytes.NewBuffer(fileContent)
-	fid, _, err := client.AssignUpload(fileNameUnique, "text/plain", bodyReader)
+	// 获取token中的用户名
+	username, err := users.GetUserNameFromJwtToken(c, jwts.AuthMiddleware)
 	if err != nil {
-		log.Print("upload file error: ", err)
-		ResponseError(FILE_UPLOAD_ERROR, RETCODE_MSG[FILE_UPLOAD_ERROR], c)
+		ResponseError(TOKEN_FORMAT_ERROR, RETCODE_MSG[TOKEN_FORMAT_ERROR], c)
 		return
 	}
 
-	fid = strings.Replace(fid, ",", "/", 1)
+	// 更新用户头像
+	err = users.UpdateUserAvatar(c, username, fileName, fileContent)
+	if err != nil {
+		ResponseError(AVATAR_UPDATE_ERROR, RETCODE_MSG[AVATAR_UPDATE_ERROR], c)
+		return
+	}
 
-	ResponseData("http://"+seaweedfsVolume+"/"+fid, c)
+	ResponseData("更新成功", c)
 }
 
 // @Tags 用户管理
@@ -132,35 +115,37 @@ func UpdateAvatar(c *gin.Context) {
 // @Failure 400 {object} WebResponse
 // @Router /user/info [get]
 func GetUserInfo(c *gin.Context) {
-	authMiddleware := jwts.AuthMiddleware
-	// 中间层已经校验 err
-	token, _ := authMiddleware.ParseToken(c)
-
-	// 分割jwt token
-	tokenParts := strings.Split(token.Raw, ".")
-	// jwt 第二部分是自定义内容
-	jwtTokenContent, err := base64.RawStdEncoding.DecodeString(tokenParts[1])
+	// 获取token中的用户名
+	username, err := users.GetUserNameFromJwtToken(c, jwts.AuthMiddleware)
 	if err != nil {
-		log.Print("base decode jwt token failed: ", err)
-		ResponseError(TOKEN_FORMAT_ERROR, RETCODE_MSG[TOKEN_FORMAT_ERROR], c)
-		return
-	}
-
-	// 解析jwt token
-	var jwtToken model.JwtToken
-	err = json.Unmarshal(jwtTokenContent, &jwtToken)
-	if err != nil {
-		log.Print("parse jwt token error: ", err)
 		ResponseError(TOKEN_FORMAT_ERROR, RETCODE_MSG[TOKEN_FORMAT_ERROR], c)
 		return
 	}
 
 	// 获取用户信息
-	userInfo, err := users.GetUserInfo(c, jwtToken.UserName)
+	userInfo, err := users.GetUserInfo(c, username)
 	if err != nil {
 		ResponseError(GET_USER_INFO_ERROR, RETCODE_MSG[GET_USER_INFO_ERROR], c)
 		return
 	}
 
 	ResponseData(userInfo, c)
+}
+
+func GetUserAvatar(c *gin.Context) {
+	fid, err := users.GetUserAvatarFid(c, c.Request.URL.Path)
+	if err != nil {
+		ResponseError(GET_USER_INFO_ERROR, RETCODE_MSG[GET_USER_INFO_ERROR], c)
+		return
+	}
+
+	host := conf.SeaweedFsSetting.Domain + ":" + strconv.Itoa(conf.SeaweedFsSetting.VolumePort)
+
+	data, err := auth2.HttpGet(c, "http://"+host+"/"+fid, nil, nil)
+	if err != nil {
+		ResponseError(USER_AVATAR_ERROR, RETCODE_MSG[USER_AVATAR_ERROR], c)
+		return
+	}
+
+	c.Data(200, "string", []byte(data))
 }

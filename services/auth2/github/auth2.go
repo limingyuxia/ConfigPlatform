@@ -26,7 +26,7 @@ type userInfo struct {
 func getAccessToken(ctx context.Context, authorizationCode string) (string, error) {
 	url := "https://github.com/login/oauth/access_token"
 	clientId := "b0f4b22bfa884640f030"
-	redirectUri := "http://config-platform.top/#/githubLogin"
+	redirectUri := "http://config-platform.top:8000/githubLogin"
 
 	// 获取github app secret
 	clientSecret, err := ioutil.ReadFile("./conf/auth2Secret/github.secret")

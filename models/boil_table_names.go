@@ -4,9 +4,11 @@
 package models
 
 var TableNames = struct {
-	Project string
-	User    string
+	Project   string
+	Seaweedfs string
+	User      string
 }{
-	Project: "project",
-	User:    "user",
+	Project:   "project",
+	Seaweedfs: "seaweedfs",
+	User:      "user",
 }

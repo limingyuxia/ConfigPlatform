@@ -59,6 +59,9 @@ func InitRouter() {
 	// github登录回调地址
 	r.GET("/githubLogin", github.GithubLogin)
 
+	// 获取头像
+	r.GET("/user/avatar/get/:name", services.GetUserAvatar)
+
 	// api 接口
 	project := r.Group("/project")
 

@@ -45,4 +45,19 @@ CREATE TABLE `user` (
 ) ENGINE=InnoDB AUTO_INCREMENT=200 DEFAULT CHARSET=utf8;
 
 insert into user(`username`, `password`, `nickname`, `gender`, `region`, `phone`, `email`, `photo`)
-  values("superuser", "supertoken", "super", 1, "中国", "12306", "super@icloud.com", "https://baidu.com");
+  values("superuser", "supertoken", "super", 1, "中国", "12306", "super@icloud.com", "https://baidu.com", "");
+
+-- ----------------------------
+-- Table structure for seaweedfs
+-- ----------------------------
+DROP TABLE IF EXISTS `seaweedfs`;
+CREATE TABLE `seaweedfs` (
+  `id` int(11) NOT NULL AUTO_INCREMENT COMMENT '自增id',
+  `user_id` int(11) NOT NULL COMMENT '文件所属的用户',
+  `seaweedfs_url` varchar(128) NOT NULL COMMENT 'seaweedfs 文件路径',
+  `server_url` varchar(128) NOT NULL COMMENT '文件对外访问的路径',
+  `create_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  `update_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+  PRIMARY KEY (`id`),
+  UNIQUE KEY(`user_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=200 DEFAULT CHARSET=utf8;
