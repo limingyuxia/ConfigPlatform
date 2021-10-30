@@ -107,3 +107,24 @@ type ConfirmEmail struct {
 	EmailCode    string `json:"email_code" binding:"required"`    // 邮箱验证码
 	CaptchaToken string `json:"captcha_token" binding:"required"` // 图片验证码验证成功返回的token
 }
+
+type JwtToken struct {
+	Exp                 int64  `json:"exp"`                   // token 过期时间戳
+	OrigIat             int64  `json:"orig_iat"`              // token 开始有效时间戳
+	TokenRefeshValidity int64  `json:"token_refesh_validity"` // token 最后有效刷新时间
+	UserName            string `json:"username"`              // token 所属的用户名
+}
+
+type UserInfo struct {
+	UserName       string   `json:"username"`        // 用户名
+	Nickname       string   `json:"nickname"`        // 用户昵称
+	Gender         int      `json:"gender"`          // 性别 1 男 2 女
+	Region         string   `json:"region"`          // 地区
+	Phone          string   `json:"phone"`           // 电话号码
+	Email          string   `json:"email"`           // 邮箱
+	Photo          string   `json:"photo"`           // 头像
+	CreateTime     string   `json:"create_time"`     // 注册时间
+	CreateProject  []string `json:"create_project"`  // 创建的项目
+	ManageProject  []string `json:"manage_project"`  // 管理的项目
+	DevelopProject []string `json:"develop_project"` // 参与的项目
+}

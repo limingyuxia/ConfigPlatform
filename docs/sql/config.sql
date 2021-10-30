@@ -37,6 +37,7 @@ CREATE TABLE `user` (
   `phone` varchar(32) COMMENT '电话',
   `email` varchar(32) COMMENT '邮箱',
   `photo` varchar(128) COMMENT '头像',
+  `introduction` varchar(256) COMMENT '简介',
   `create_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '注册时间',
   `update_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
   PRIMARY KEY (`id`),

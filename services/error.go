@@ -26,6 +26,8 @@ const (
 	EMAIL_CODE_ERROR    RETCODE = 4018
 	FILE_UPLOAD_H_ERROR RETCODE = 4019
 	FILE_UPLOAD_ERROR   RETCODE = 4020
+	TOKEN_FORMAT_ERROR  RETCODE = 4021
+	GET_USER_INFO_ERROR RETCODE = 4022
 )
 
 // 错误码和错误信息的关系
@@ -53,5 +55,7 @@ var (
 		4018: "邮箱验证码错误或已过期",
 		4019: "上传文件的头部参数出错",
 		4020: "文件保存失败",
+		4021: "token格式错误",
+		4022: "获取用户信息失败",
 	}
 )

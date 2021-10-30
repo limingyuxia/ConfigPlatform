@@ -539,6 +539,31 @@ var doc = `{
                 }
             }
         },
+        "/user/info": {
+            "get": {
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "用户管理"
+                ],
+                "summary": "获取用户信息",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/model.UserInfo"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/services.WebResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/user/register": {
             "post": {
                 "consumes": [
@@ -855,6 +880,64 @@ var doc = `{
                 },
                 "email_address": {
                     "description": "邮箱地址",
+                    "type": "string"
+                }
+            }
+        },
+        "model.UserInfo": {
+            "type": "object",
+            "properties": {
+                "create_project": {
+                    "description": "创建的项目",
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "create_time": {
+                    "description": "注册时间",
+                    "type": "string"
+                },
+                "develop_project": {
+                    "description": "参与的项目",
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "email": {
+                    "description": "邮箱",
+                    "type": "string"
+                },
+                "gender": {
+                    "description": "性别 1 男 2 女",
+                    "type": "integer"
+                },
+                "manage_project": {
+                    "description": "管理的项目",
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "nickname": {
+                    "description": "用户昵称",
+                    "type": "string"
+                },
+                "phone": {
+                    "description": "电话号码",
+                    "type": "string"
+                },
+                "photo": {
+                    "description": "头像",
+                    "type": "string"
+                },
+                "region": {
+                    "description": "地区",
+                    "type": "string"
+                },
+                "username": {
+                    "description": "用户名",
                     "type": "string"
                 }
             }

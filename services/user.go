@@ -4,8 +4,11 @@ import (
 	"ConfigPlatform/api/users"
 	"ConfigPlatform/conf"
 	"ConfigPlatform/model"
+	"ConfigPlatform/routes/middleware/jwts"
 	"ConfigPlatform/services/weedo"
 	"bytes"
+	"encoding/base64"
+	"encoding/json"
 	"io/ioutil"
 	"log"
 	"mime"
@@ -120,4 +123,44 @@ func UpdateAvatar(c *gin.Context) {
 	fid = strings.Replace(fid, ",", "/", 1)
 
 	ResponseData("http://"+seaweedfsVolume+"/"+fid, c)
+}
+
+// @Tags 用户管理
+// @Summary 获取用户信息
+// @Produce  json
+// @Success 200 {object} model.UserInfo
+// @Failure 400 {object} WebResponse
+// @Router /user/info [get]
+func GetUserInfo(c *gin.Context) {
+	authMiddleware := jwts.AuthMiddleware
+	// 中间层已经校验 err
+	token, _ := authMiddleware.ParseToken(c)
+
+	// 分割jwt token
+	tokenParts := strings.Split(token.Raw, ".")
+	// jwt 第二部分是自定义内容
+	jwtTokenContent, err := base64.RawStdEncoding.DecodeString(tokenParts[1])
+	if err != nil {
+		log.Print("base decode jwt token failed: ", err)
+		ResponseError(TOKEN_FORMAT_ERROR, RETCODE_MSG[TOKEN_FORMAT_ERROR], c)
+		return
+	}
+
+	// 解析jwt token
+	var jwtToken model.JwtToken
+	err = json.Unmarshal(jwtTokenContent, &jwtToken)
+	if err != nil {
+		log.Print("parse jwt token error: ", err)
+		ResponseError(TOKEN_FORMAT_ERROR, RETCODE_MSG[TOKEN_FORMAT_ERROR], c)
+		return
+	}
+
+	// 获取用户信息
+	userInfo, err := users.GetUserInfo(c, jwtToken.UserName)
+	if err != nil {
+		ResponseError(GET_USER_INFO_ERROR, RETCODE_MSG[GET_USER_INFO_ERROR], c)
+		return
+	}
+
+	ResponseData(userInfo, c)
 }

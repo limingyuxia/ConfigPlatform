@@ -4,7 +4,6 @@ import (
 	"ConfigPlatform/api/users"
 	"ConfigPlatform/conf"
 	"ConfigPlatform/model"
-	"ConfigPlatform/services"
 	"log"
 	"time"
 
@@ -16,7 +15,9 @@ var identityKey = "username"
 var tokenValidity = 3 * time.Hour    // token有效期
 var tokenRefreshValidity = time.Hour // token过期后，刷新的有效期
 
-func JwtInit() *jwt.GinJWTMiddleware {
+var AuthMiddleware = jwtInit()
+
+func jwtInit() *jwt.GinJWTMiddleware {
 
 	authMiddleware, err := jwt.New(&jwt.GinJWTMiddleware{
 		Realm:       "test zone",
@@ -40,7 +41,6 @@ func JwtInit() *jwt.GinJWTMiddleware {
 					UserName: loginReq.Username,
 				}, nil
 			}
-			services.Login(c)
 
 			return nil, jwt.ErrFailedAuthentication
 		},
@@ -91,8 +91,6 @@ func JwtInit() *jwt.GinJWTMiddleware {
 
 		// 登出响应
 		LogoutResponse: func(c *gin.Context, code int) {
-			services.Logout(c)
-
 			c.JSON(code, gin.H{
 				"message": "登出成功",
 			})
@@ -100,8 +98,6 @@ func JwtInit() *jwt.GinJWTMiddleware {
 
 		// 刷新token响应
 		RefreshResponse: func(c *gin.Context, code int, token string, expire time.Time) {
-			services.RefeshToken(c)
-
 			c.JSON(code, model.LoginResp{
 				Token:  token,
 				Expire: expire.Format("2006-01-02 15:04:05"),

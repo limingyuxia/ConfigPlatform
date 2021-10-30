@@ -36,7 +36,7 @@ func InitRouter() {
 	// swagger文档
 	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 
-	authMiddleware := jwts.JwtInit()
+	authMiddleware := jwts.AuthMiddleware
 
 	// 登录
 	r.POST("/login", authMiddleware.LoginHandler)
@@ -74,7 +74,7 @@ func InitRouter() {
 
 	addEmailsRoute(emails)
 
-	addUsersRoute(users)
+	addUsersRoute(users, authMiddleware)
 
 	// 处理图片验证码
 	r.Use(captcha.RefeshCaptcha())
@@ -116,6 +116,11 @@ func addEmailsRoute(g *gin.RouterGroup) {
 	g.POST("/confirm", services.ConfirmEmailCode)
 }
 
-func addUsersRoute(g *gin.RouterGroup) {
-	g.POST("/avatar/update", services.UpdateAvatar)
+func addUsersRoute(g *gin.RouterGroup, authMiddleware *jwt.GinJWTMiddleware) {
+	g.Use(authMiddleware.MiddlewareFunc())
+	{
+		g.POST("/avatar/update", services.UpdateAvatar)
+
+		g.GET("/info", services.GetUserInfo)
+	}
 }
