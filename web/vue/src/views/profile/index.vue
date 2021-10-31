@@ -1,6 +1,7 @@
 <template>
-  <div class="app-container">
-    <div v-if="user">
+  <div class="app-container" v-loading="user.loadingAll">
+<el-button type="" @click="ceshi"></el-button>
+    <div v-if="user" >
       <el-row :gutter="20">
 
         <el-col :span="6" :xs="24">
@@ -20,7 +21,7 @@
               </el-tab-pane>
               -->
               <el-tab-pane label="账号信息" name="account">
-                <account :user="user" />
+                <account @changeUser = "changeUser" :user="user" />
               </el-tab-pane>
             </el-tabs>
           </el-card>
@@ -43,7 +44,10 @@ export default {
   components: { UserCard, Activity, Timeline, Account },
   data() {
     return {
-      user: {},
+     
+      user: {
+        loadingAll:false,
+      },
       activeTab: 'account'
     }
   },
@@ -51,30 +55,62 @@ export default {
     ...mapGetters([
       'name',
       'avatar',
-      'roles'
+      'roles',
+      'email'
     ])
   },
   created() {
     this.getUser()
   },
   watch: {
+    'user': function(newVal){
+            console.log("user:",newVal)
+   
+          },
           'avatar': function(newVal){
-            console.log("avatar_ch:",newVal)
-              this.user.avatar = newVal
+         
+             this.getUser()
+            //console.log("avatar_ch:",newVal)
+              //this.user.avatar = newVal
           },
 
       },
 
   methods: {
+    ceshi(){
+      this.user.avatar = this.user.avatar + 1
+      console.log("userInfo:",this.user)
+    },
+
+    changeUser(user){//触发加载
+      console.log("changeUser",user)
+
+
+      for(var key in user){
+
+　　　　console.log("key",key)
+        console.log("user",user[key])
+        this.user[key] = user[key]
+        
+　　}
+
+    },
     getUser() {
-      console.log("created",this.roles)
+      console.log("created",this.email)
+      
+      this.user.role = []
+      this.user.email = this.email
+      this.user.avatar = this.avatar
+      this.user.name = this.name
+      console.log("user_info",this.user)
+      /*
       this.user = {
         name: this.name,
         //role: this.roles.join(' | '),
         role: this.roles.join(' | '),
-        email: 'admin@test.com',
+        email: this.email,
         avatar: this.avatar
-      }
+      }*/
     }
   }
 }

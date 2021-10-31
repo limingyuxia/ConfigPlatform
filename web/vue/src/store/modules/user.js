@@ -1,4 +1,4 @@
-import { login, logout, getInfo, uploadAvatar} from '@/api/user'
+import { reCode,login, logout, getInfo, uploadAvatar} from '@/api/user'
 import { getToken, setToken, removeToken } from '@/utils/auth'
 import { resetRouter } from '@/router'
 import { Base64,encode, decode } from 'js-base64';
@@ -8,6 +8,7 @@ import { Base64,encode, decode } from 'js-base64';
 const getDefaultState = () => {
   return {
     token: getToken(),
+    email:"",
     name: '',
     avatar:  '../../icons/svg/中国移动.png',
     roles:[]
@@ -23,6 +24,9 @@ const mutations = {
   SET_TOKEN: (state, token) => {
     state.token = token
   },
+  SET_EMAIL: (state, email) => {
+    state.email = email
+  },
   SET_NAME: (state, name) => {
     state.name = name
   },
@@ -37,17 +41,34 @@ const mutations = {
 
 const actions = {
   // user login
-  upAvatar({ commit }, userInfo) {
-    // const { username, password, type } = userInfo
+   upAvatar({ commit }, userInfo) {
+    const that = this
+/*
+    var  avatarFile = ""
+    userInfo.forEach((value, key) => {
+      if(key == "file"){
+        avatarFile = value
+      }
+    })
+console.log("file",avatarFile)
+*/
+
+
+
+    
+
+    //store.dispatch('user/getInfo')
+    //this.getInfo()
+    //commit('SET_AVATAR', userInfo)
+
 
     return new Promise((resolve, reject) => {
-      uploadAvatar(userInfo).then(response => {
+      uploadAvatar(userInfo).then(async response => {
 
         // const { data } = response
-        console.log('WebData:', response)
+        console.log('WebData_SET_AVATAR:', response)
         
-        commit('SET_AVATAR', response)
- 
+        await that.dispatch('user/getInfo')
         resolve()
       }).catch(error => {
         // console.log('token保存失败', error)
@@ -64,6 +85,7 @@ const actions = {
       login(userInfo).then(response => {
         // const { data } = response
         console.log('WebData:', response)
+        /*
         let defaultAvatar = "https://tse1-mm.cn.bing.net/th/id/R-C.0e74e383596a31c27ea66aaa4933f3c2?rik=w0ORAUQtlQCGAw&riu=http%3a%2f%2fpic.22520.cn%2fup%2f200710%2f1594389918178495.jpeg&ehk=gSSynot63OE6DuCPuDZMOk%2flGpPCXJGzH02vx4DVeUg%3d&risl=&pid=ImgRaw&r=0"
         
         let tokenArry = response.token.split(".") 
@@ -77,10 +99,11 @@ const actions = {
         let userName = playload.username  || "Null"
         
         console.log("playload_3",userAvatar,userRoles,userName)
-
+       
         commit('SET_ROLES', userRoles)
         commit('SET_AVATAR', userAvatar)
         commit('SET_NAME', userName)
+*/
         commit('SET_TOKEN', response.token)
         setToken(response.token)
         resolve()
@@ -93,21 +116,29 @@ const actions = {
   // get user info
   getInfo({ commit, state }) {
     console.log('获取：', commit, state)
-    return 0
+    
 
     return new Promise((resolve, reject) => {
       getInfo(state.token).then(response => {
-        const { data } = response
+        //const { data } = response
+        let defaultAvatar = "https://tse1-mm.cn.bing.net/th/id/R-C.0e74e383596a31c27ea66aaa4933f3c2?rik=w0ORAUQtlQCGAw&riu=http%3a%2f%2fpic.22520.cn%2fup%2f200710%2f1594389918178495.jpeg&ehk=gSSynot63OE6DuCPuDZMOk%2flGpPCXJGzH02vx4DVeUg%3d&risl=&pid=ImgRaw&r=0"
 
-        if (!data) {
+        if (!response) {
           return reject('Verification failed, please Login again.')
         }
-
-        const { name, avatar } = data
-
-        commit('SET_NAME', name)
+        console.log("userInfo:",response)
+        const { username, photo ,email} = response
+        let avatar = photo || defaultAvatar
+        let userEmail = email || "Null"
+        if (avatar !== defaultAvatar){
+          avatar = 'http://' + process.env.VUE_APP_BASE_HTTP_API + avatar
+        }
+        console.log("avatar",avatar)
+        commit('SET_ROLES', [])
+        commit('SET_EMAIL', userEmail)
+        commit('SET_NAME', username)
         commit('SET_AVATAR', avatar)
-        resolve(data)
+        resolve(response)
       }).catch(error => {
         reject(error)
       })

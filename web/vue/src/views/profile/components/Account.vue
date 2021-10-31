@@ -1,6 +1,8 @@
-<template>
-  <el-form>
+<template >
+  <el-form  >
+     
     <el-form-item label="Name">
+
       <el-input v-model.trim="user.name" />
     </el-form-item>
     <el-form-item label="Email">
@@ -19,7 +21,7 @@
         list-type="picture"
 
         :on-change="handleChange"
-        :show-file-list="false"
+        :show-file-list="true"
         :on-success="handleAvatarSuccess"
         :before-upload="beforeAvatarUpload"
         :auto-upload="false">
@@ -47,23 +49,20 @@ import { uploadAvatar} from '@/api/user'
 export default {
   data() {
       return {
-        
         imageUrl: "",
+        my_loadingFalg:false,
         upAvatarButton:true
       };
     },
   props: {
     user: {
       type: Object,
+
       default: () => {
         return {
-          headerObj:{
-            //"enctype":"multipart/form-data" 
-           // "Origin": "https://config-platform.top:9528",
-           // "Access-Control-Allow-Origin" : "https://config-platform.top:9528"
-          },
           name: '',
-          email: ''
+          email: '',
+          avatar:''
         }
       }
     }
@@ -71,8 +70,11 @@ export default {
   created() {
     console.log("created_1",this.user)
     this.imageUrl = this.user.avatar
+    that.$refs['my-upload'].clearFiles();
     //this.upAvatarButton = true
   },
+
+
   methods: {
     loadIMG(e) {  // 图片加载出错
         console.log(e)
@@ -112,14 +114,30 @@ export default {
     },
     uploadImage(param){
       const that = this
-
+      this.$emit("changeUser", {"loadingAll":true});
+    console.log("uploadImage:",param)
       const formData = new FormData()
+      console.log("param",param)
       formData.append('file', param.file)
 
-      this.$store.dispatch('user/upAvatar', formData).then(() => {//上传图片
+      this.$store.dispatch('user/upAvatar', formData,param).then(() => {//上传图片
+
            console.log("11")
+            that.$refs['my-upload'].clearFiles();
+            
+             this.$message({
+                message: '头像更新成功',
+                type: 'success',
+                duration: 5 * 1000
+              })
+
+            this.$emit("changeUser", {"loadingAll":false});
+
            that.upAvatarButton=true
+           
           }).catch(() => {
+            that.$refs['my-upload'].clearFiles();
+            this.$emit("changeUser", {"loadingAll":false});
             that.upAvatarButton=true
           })
 /*
@@ -150,6 +168,12 @@ export default {
         return isJPG && isLt2M;
       },
     submit() {
+      this.name = "123456"
+      this.user.name = this.user.name + 1
+
+      this.$emit("changeUser", {"loadingAll":false});
+
+      //this.$emit("loadingFalg", !this.loadingFalg);
       this.$message({
         message: 'User information has been updated successfully',
         type: 'success',

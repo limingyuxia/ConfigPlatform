@@ -11,6 +11,7 @@ NProgress.configure({ showSpinner: false }) // NProgress Configuration
 const whiteList = ['/login', '/proxy',"/githubLogin"] // no redirect whitelist
 
 router.beforeEach(async(to, from, next) => {
+  console.log("总拦截")
   // start progress bar
   NProgress.start()
 
@@ -31,6 +32,7 @@ router.beforeEach(async(to, from, next) => {
         next()
       } else {
         try {
+          //console.log("总获取")
           // get user info
           await store.dispatch('user/getInfo')
 

@@ -456,22 +456,24 @@ export default {
     },
     getGithubAuthorizeCode() {
                 let baseUrl = "https://github.com/login/oauth/authorize"
-                let clientId = "7e3bea0e68fb7135687c"
-                let redictUrl = "http://localhost:3000/githubLogin"
+                let clientId = "b0f4b22bfa884640f030"
+                let redictUrl = "http://config-platform.top/githubLogin"
                 //redictUrl ="http://localhost:9745/#/githubLogin"
                 let state = "3d6be0a4035d839573b04816624a415e"
+             
                 let scope = "read:user"
 
                 let url = baseUrl + "?client_id=" + clientId + "&redirect_uri=" + redictUrl
                     + "&scope=" + scope + "&state=" + state
 
                 //window.location = url
-                this.url_all = url
+                //this.url_all = url
+                console.log("url_all",url)
                 //windows.parent.location.href=url
-                var mypage = window.open(url,'mypage','address=0,resizable=0,toolbar=0,location=0,status=0,menubar=0,fullscreen=0');
+                //var mypage = window.open(url,'mypage','address=0,resizable=0,toolbar=0,location=0,status=0,menubar=0,fullscreen=0');
                 
-               //let a = window.open(url,"_top")
-              console.log("a:",mypage)
+               let a = window.open(url,"_top")
+              console.log("a:",a)
             },
     register() { // 注册
       this.$refs.inputRegister.validate(valid => {
