@@ -128,3 +128,12 @@ type UserInfo struct {
 	ManageProject  []string `json:"manage_project"`  // 管理的项目
 	DevelopProject []string `json:"develop_project"` // 参与的项目
 }
+
+type Auth2User struct {
+	Type     string `json:"type"`      // 第三方应用类型: qq wechat weibo github
+	Nickname string `json:"nickname"`  // 第三方应用昵称
+	UserName string `json:"username"`  // 随机生成的平台用户名
+	UniqueId string `json:"unique_id"` // 第三方平台的唯一id
+	Password string `json:"password"`  // 随机生成的平台密码
+	Avatar   string `json:"avatar"`    // 第三方应用头像
+}

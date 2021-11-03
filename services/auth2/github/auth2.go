@@ -1,13 +1,20 @@
 package github
 
 import (
+	"ConfigPlatform/api/users"
+	"ConfigPlatform/model"
+	"ConfigPlatform/routes/middleware/jwts"
 	"ConfigPlatform/services/auth2"
 	"context"
+	"encoding/base64"
 	"encoding/json"
 	"io/ioutil"
 	"log"
 	"net/http"
+	"strconv"
+	"time"
 
+	jwt "github.com/dgrijalva/jwt-go"
 	"github.com/gin-gonic/gin"
 )
 
@@ -18,8 +25,18 @@ type accessToken struct {
 }
 
 type userInfo struct {
-	Login     string `json:"login"`      // 登录用户名
-	AvatarUrl string `json:"avatar_url"` // 用户头像
+	Login           string `json:"login"`            // 登录用户名
+	Id              int64  `json:"id"`               // 用户id
+	AvatarUrl       string `json:"avatar_url"`       // 用户头像
+	NodeId          string `json:"node_id"`          //
+	Gravatar        string `json:"gravatar_id"`      //
+	HtmlUrl         string `json:"html_url"`         // 用户主页
+	Company         string `json:"company"`          // 公司
+	Blog            string `json:"blog"`             // 博客
+	Location        string `json:"location"`         // 地址
+	Email           string `json:"email"`            // 邮箱
+	TwitterUsername string `json:"twitter_username"` // 推特用户名
+	PublicRepos     int    `json:"public_repos"`     // 公共代码仓库数量
 }
 
 // 获取accessToken
@@ -83,7 +100,6 @@ func getUserInfo(ctx context.Context, accessToken string) (*userInfo, error) {
 		log.Print("parse user info json data error: ", err)
 		return nil, err
 	}
-	log.Print(userInfo)
 
 	return &userInfo, nil
 }
@@ -118,5 +134,46 @@ func GithubLogin(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, userInfo)
+	// 手动注册用户
+	userName := "User" + "_" + time.Now().Format("2006-01-02 15:04:05")
+	passWord := base64.StdEncoding.EncodeToString([]byte(userName))
+
+	var auth2User = &model.Auth2User{
+		Type:     "github",
+		Nickname: userInfo.Login,
+		Avatar:   userInfo.AvatarUrl,
+		UniqueId: strconv.FormatInt(userInfo.Id, 10),
+		UserName: userName,
+		Password: passWord,
+	}
+
+	err = users.CreateUser(c, auth2User)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, "db error")
+		return
+	}
+
+	// 生成token
+	mw := jwts.AuthMiddleware
+	token := jwt.New(jwt.GetSigningMethod(mw.SigningAlgorithm))
+	claims := token.Claims.(jwt.MapClaims)
+
+	if mw.PayloadFunc != nil {
+		data := &model.JwtUser{
+			UserName: userName,
+		}
+		for key, value := range mw.PayloadFunc(data) {
+			claims[key] = value
+		}
+	}
+
+	expire := mw.TimeFunc().Add(mw.Timeout)
+	claims["exp"] = expire.Unix()
+	claims["orig_iat"] = mw.TimeFunc().Unix()
+	tokenString, err := token.SignedString(mw.Key)
+
+	c.JSON(http.StatusOK, model.LoginResp{
+		Token:  tokenString,
+		Expire: expire.Format("2006-01-02 15:04:05"),
+	})
 }

@@ -4,10 +4,12 @@
 package models
 
 var TableNames = struct {
+	Auth2     string
 	Project   string
 	Seaweedfs string
 	User      string
 }{
+	Auth2:     "auth2",
 	Project:   "project",
 	Seaweedfs: "seaweedfs",
 	User:      "user",

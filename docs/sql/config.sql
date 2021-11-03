@@ -16,7 +16,7 @@ CREATE TABLE `project` (
   `develop_user` varchar(128) COMMENT '项目的开发人员',
   `create_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
   `update_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
-  PRIMARY KEY (`id`, `project_user`),
+  PRIMARY KEY (`id`),
   UNIQUE KEY(`name`)
 ) ENGINE = InnoDB AUTO_INCREMENT=1000 DEFAULT CHARSET = utf8mb4 COMMENT = '项目信息';
 
@@ -60,4 +60,28 @@ CREATE TABLE `seaweedfs` (
   `update_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
   PRIMARY KEY (`id`),
   UNIQUE KEY(`user_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=200 DEFAULT CHARSET=utf8;
+
+-- ----------------------------
+-- Table structure for auth2
+-- ----------------------------
+DROP TABLE IF EXISTS `auth2`;
+CREATE TABLE `auth2` (
+  `id` int(11) NOT NULL AUTO_INCREMENT COMMENT '自增id',
+  `user_id` int(11) NOT NULL COMMENT '用户的auth2 app',
+  `qq_openid` varchar(64) COMMENT 'QQ用户的openid',
+  `qq_username` varchar(64) COMMENT 'QQ用户的昵称',
+  `qq_avatar` varchar(128) COMMENT 'QQ用户的头像',
+  `wechat_openid` varchar(64) COMMENT '微信用户的openid',
+  `wechat_username` varchar(64) COMMENT '微信用户的昵称',
+  `wechat_avatar` varchar(128) COMMENT '微信用户的头像',
+  `uid` varchar(64) COMMENT '微博用户的uid',
+  `weibo_username` varchar(64) COMMENT '微博用户的昵称',
+  `weibo_avatar` varchar(128) COMMENT '微博用户的头像',
+  `github_id` varchar(64) COMMENT 'github的用户id',
+  `github_username` varchar(64) COMMENT 'github用户的昵称',
+  `github_avatar` varchar(128) COMMENT 'github用户的头像',
+  `create_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  `update_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+  PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=200 DEFAULT CHARSET=utf8;

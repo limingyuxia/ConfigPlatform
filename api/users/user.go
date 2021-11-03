@@ -284,3 +284,46 @@ func GetUserAvatarFid(ctx context.Context, serverUrl string) (string, error) {
 
 	return seaweedfs.SeaweedfsURL, nil
 }
+
+func CreateUser(ctx context.Context, user *model.Auth2User) error {
+
+	var newUser = &models.User{
+		Username: user.UserName,
+		Password: user.Password,
+	}
+	err := newUser.Insert(ctx, mysql.Conn, boil.Infer())
+	if err != nil {
+		log.Print("create user failed: ", err)
+		return err
+	}
+
+	var newUserAuth = &models.Auth2{
+		UserID: newUser.ID,
+	}
+	switch user.Type {
+	case "qq":
+		newUserAuth.QQOpenid = null.StringFrom(user.UniqueId)
+		newUserAuth.QQUsername = null.StringFrom(user.Nickname)
+		newUserAuth.QQAvatar = null.StringFrom(user.Avatar)
+	case "wechat":
+		newUserAuth.WechatOpenid = null.StringFrom(user.UniqueId)
+		newUserAuth.WechatUsername = null.StringFrom(user.Nickname)
+		newUserAuth.WechatAvatar = null.StringFrom(user.Avatar)
+	case "weibo":
+		newUserAuth.UID = null.StringFrom(user.UniqueId)
+		newUserAuth.WeiboUsername = null.StringFrom(user.Nickname)
+		newUserAuth.WeiboAvatar = null.StringFrom(user.Avatar)
+	case "github":
+		newUserAuth.GithubID = null.StringFrom(user.UniqueId)
+		newUserAuth.GithubUsername = null.StringFrom(user.Nickname)
+		newUserAuth.GithubAvatar = null.StringFrom(user.Avatar)
+	}
+
+	err = newUserAuth.Insert(ctx, mysql.Conn, boil.Infer())
+	if err != nil {
+		log.Print("create user auth2 failed: ", err)
+		return err
+	}
+
+	return nil
+}
