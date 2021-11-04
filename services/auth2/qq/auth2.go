@@ -229,12 +229,14 @@ func QQLogin(c *gin.Context) {
 	authMe, err := getUserOpenid(c, accessToken)
 	if err != nil {
 		c.JSON(http.StatusUnauthorized, "get user openid failed")
+		return
 	}
 
 	// 获取用户信息
 	userInfo, err := getUserInfo(c, accessToken, authMe)
 	if err != nil {
 		c.JSON(http.StatusUnauthorized, "get user info failed")
+		return
 	}
 
 	// 生成用户名和密码
