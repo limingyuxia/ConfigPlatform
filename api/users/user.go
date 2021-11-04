@@ -285,45 +285,115 @@ func GetUserAvatarFid(ctx context.Context, serverUrl string) (string, error) {
 	return seaweedfs.SeaweedfsURL, nil
 }
 
-func CreateUser(ctx context.Context, user *model.Auth2User) error {
+// 用户是否是第一次用第三方平台登录
+func isAuth2UserRegister(ctx context.Context, user *model.Auth2User) (bool, *models.Auth2, error) {
+	queryMod := []qm.QueryMod{}
 
-	var newUser = &models.User{
-		Username: user.UserName,
-		Password: user.Password,
-	}
-	err := newUser.Insert(ctx, mysql.Conn, boil.Infer())
-	if err != nil {
-		log.Print("create user failed: ", err)
-		return err
-	}
-
-	var newUserAuth = &models.Auth2{
-		UserID: newUser.ID,
-	}
 	switch user.Type {
 	case "qq":
-		newUserAuth.QQOpenid = null.StringFrom(user.UniqueId)
-		newUserAuth.QQUsername = null.StringFrom(user.Nickname)
-		newUserAuth.QQAvatar = null.StringFrom(user.Avatar)
+		qqOpenId := null.StringFrom(user.UniqueId)
+		queryMod = append(queryMod, qm.Where("qq_openid = ?", qqOpenId))
 	case "wechat":
-		newUserAuth.WechatOpenid = null.StringFrom(user.UniqueId)
-		newUserAuth.WechatUsername = null.StringFrom(user.Nickname)
-		newUserAuth.WechatAvatar = null.StringFrom(user.Avatar)
+		wechatOpenid := null.StringFrom(user.UniqueId)
+		queryMod = append(queryMod, qm.Where("wechat_openid = ?", wechatOpenid))
 	case "weibo":
-		newUserAuth.UID = null.StringFrom(user.UniqueId)
-		newUserAuth.WeiboUsername = null.StringFrom(user.Nickname)
-		newUserAuth.WeiboAvatar = null.StringFrom(user.Avatar)
+		uId := null.StringFrom(user.UniqueId)
+		queryMod = append(queryMod, qm.Where("uid = ?", uId))
 	case "github":
-		newUserAuth.GithubID = null.StringFrom(user.UniqueId)
-		newUserAuth.GithubUsername = null.StringFrom(user.Nickname)
-		newUserAuth.GithubAvatar = null.StringFrom(user.Avatar)
+		githubId := null.StringFrom(user.UniqueId)
+		queryMod = append(queryMod, qm.Where("github_id = ?", githubId))
+	default:
+		return false, nil, errors.New("unknow type")
 	}
 
-	err = newUserAuth.Insert(ctx, mysql.Conn, boil.Infer())
+	auth2User, err := models.Auth2s(
+		queryMod...,
+	).All(ctx, mysql.Conn)
 	if err != nil {
-		log.Print("create user auth2 failed: ", err)
-		return err
+		log.Print("query auth2 user failed: ", err)
+		return false, nil, err
 	}
+
+	if len(auth2User) == 0 {
+		return false, nil, nil
+	} else {
+		return true, nil, nil
+	}
+}
+
+// 更新用户auth2信息
+func UpdateUserAuth2Info(auth2UserInfo *models.Auth2, auth2User *model.Auth2User) error {
+
+	// switch user.Type {
+	// case "qq":
+	// 	qqOpenId := null.StringFrom(user.UniqueId)
+	// 	queryMod = append(queryMod, qm.Where("qq_openid = ?", qqOpenId))
+	// case "wechat":
+	// 	wechatOpenid := null.StringFrom(user.UniqueId)
+	// 	queryMod = append(queryMod, qm.Where("wechat_openid = ?", wechatOpenid))
+	// case "weibo":
+	// 	uId := null.StringFrom(user.UniqueId)
+	// 	queryMod = append(queryMod, qm.Where("uid = ?", uId))
+	// case "github":
+	// 	githubId := null.StringFrom(user.UniqueId)
+	// 	queryMod = append(queryMod, qm.Where("github_id = ?", githubId))
+	// default:
+	// 	return false, nil, errors.New("unknow type")
+	// }
 
 	return nil
+}
+
+// 新增用户
+func CreateUser(ctx context.Context, user *model.Auth2User) (*models.Auth2, error) {
+
+	isRegister, auth2UserInfo, err := isAuth2UserRegister(ctx, user)
+	if err != nil {
+		return nil, err
+	}
+
+	// 第一次第三方登录
+	if !isRegister {
+		var newUser = &models.User{
+			Username: user.UserName,
+			Password: user.Password,
+		}
+
+		err := newUser.Insert(ctx, mysql.Conn, boil.Infer())
+		if err != nil {
+			log.Print("create user failed: ", err)
+			return nil, err
+		}
+
+		var newUserAuth = &models.Auth2{
+			UserID: newUser.ID,
+		}
+
+		switch user.Type {
+		case "qq":
+			newUserAuth.QQOpenid = null.StringFrom(user.UniqueId)
+			newUserAuth.QQUsername = null.StringFrom(user.Nickname)
+			newUserAuth.QQAvatar = null.StringFrom(user.Avatar)
+		case "wechat":
+			newUserAuth.WechatOpenid = null.StringFrom(user.UniqueId)
+			newUserAuth.WechatUsername = null.StringFrom(user.Nickname)
+			newUserAuth.WechatAvatar = null.StringFrom(user.Avatar)
+		case "weibo":
+			newUserAuth.UID = null.StringFrom(user.UniqueId)
+			newUserAuth.WeiboUsername = null.StringFrom(user.Nickname)
+			newUserAuth.WeiboAvatar = null.StringFrom(user.Avatar)
+		case "github":
+			newUserAuth.GithubID = null.StringFrom(user.UniqueId)
+			newUserAuth.GithubUsername = null.StringFrom(user.Nickname)
+			newUserAuth.GithubAvatar = null.StringFrom(user.Avatar)
+		}
+
+		err = newUserAuth.Insert(ctx, mysql.Conn, boil.Infer())
+		if err != nil {
+			log.Print("create user auth2 failed: ", err)
+			return nil, err
+		}
+	}
+
+	return auth2UserInfo, nil
 }

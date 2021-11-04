@@ -1,14 +1,22 @@
 package auth2
 
 import (
+	"ConfigPlatform/api/users"
+	"ConfigPlatform/model"
+	"ConfigPlatform/routes/middleware/jwts"
 	"bytes"
 	"context"
+	"encoding/base64"
 	"encoding/json"
 	"errors"
 	"io/ioutil"
 	"log"
 	"net/http"
 	"strconv"
+
+	"github.com/dgrijalva/jwt-go"
+	"github.com/gin-gonic/gin"
+	"github.com/google/uuid"
 )
 
 // 发送http get请求
@@ -109,4 +117,50 @@ func HttpPost(ctx context.Context, url string, reqBody map[string]string,
 	}
 
 	return string(respBody), nil
+}
+
+func GetJwtToken(c *gin.Context, auth2User *model.Auth2User) (*model.LoginResp, error) {
+	// 手动注册用户
+	auth2UserInfo, err := users.CreateUser(c, auth2User)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, "db error")
+		return nil, err
+	}
+
+	// 检查第三方登录信息是否改变
+	if err := users.UpdateUserAuth2Info(auth2UserInfo, auth2User); err != nil {
+		return nil, err
+	}
+
+	// 生成jwt token
+	mw := jwts.AuthMiddleware
+	token := jwt.New(jwt.GetSigningMethod(mw.SigningAlgorithm))
+	claims := token.Claims.(jwt.MapClaims)
+
+	if mw.PayloadFunc != nil {
+		data := &model.JwtUser{
+			UserName: auth2User.UserName,
+		}
+		for key, value := range mw.PayloadFunc(data) {
+			claims[key] = value
+		}
+	}
+
+	expire := mw.TimeFunc().Add(mw.Timeout)
+	claims["exp"] = expire.Unix()
+	claims["orig_iat"] = mw.TimeFunc().Unix()
+	tokenString, err := token.SignedString(mw.Key)
+
+	return &model.LoginResp{
+		Token:  tokenString,
+		Expire: expire.Format("2006-01-02 15:04:05"),
+	}, nil
+}
+
+// 生成用户名和密码
+func GenerateNamePwd() (string, string) {
+	userName := uuid.New().String()
+	passWord := base64.StdEncoding.EncodeToString([]byte(userName))
+
+	return userName, passWord
 }

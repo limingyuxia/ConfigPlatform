@@ -51,7 +51,7 @@ func InitRouter() {
 	r.POST("/register", services.Register)
 
 	// QQ登录的回调地址
-	r.GET("/proxy", qq.QQLogin)
+	r.GET("/qqLogin", qq.QQLogin)
 
 	// 微信登录回调地址
 	r.GET("/wechat/callback.do", wechat.WechatLogin)

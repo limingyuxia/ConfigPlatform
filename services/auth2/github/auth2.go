@@ -1,20 +1,15 @@
 package github
 
 import (
-	"ConfigPlatform/api/users"
 	"ConfigPlatform/model"
-	"ConfigPlatform/routes/middleware/jwts"
 	"ConfigPlatform/services/auth2"
 	"context"
-	"encoding/base64"
 	"encoding/json"
 	"io/ioutil"
 	"log"
 	"net/http"
 	"strconv"
-	"time"
 
-	jwt "github.com/dgrijalva/jwt-go"
 	"github.com/gin-gonic/gin"
 )
 
@@ -43,7 +38,7 @@ type userInfo struct {
 func getAccessToken(ctx context.Context, authorizationCode string) (string, error) {
 	url := "https://github.com/login/oauth/access_token"
 	clientId := "b0f4b22bfa884640f030"
-	redirectUri := "http://config-platform.top:8000/githubLogin"
+	redirectUri := "http://config-platform.top/githubLogin"
 
 	// 获取github app secret
 	clientSecret, err := ioutil.ReadFile("./conf/auth2Secret/github.secret")
@@ -122,58 +117,37 @@ func GithubLogin(c *gin.Context) {
 		return
 	}
 
+	// 获取access token
 	accessToken, err := getAccessToken(c, authorizationCode)
 	if err != nil {
 		c.JSON(http.StatusUnauthorized, "get access token failed")
 		return
 	}
 
+	// 获取用户信息
 	userInfo, err := getUserInfo(c, accessToken)
 	if err != nil {
 		c.JSON(http.StatusUnauthorized, "get user info failed")
 		return
 	}
 
-	// 手动注册用户
-	userName := "User" + "_" + time.Now().Format("2006-01-02 15:04:05")
-	passWord := base64.StdEncoding.EncodeToString([]byte(userName))
+	// 生成用户名和密码
+	userName, passWord := auth2.GenerateNamePwd()
 
 	var auth2User = &model.Auth2User{
 		Type:     "github",
-		Nickname: userInfo.Login,
-		Avatar:   userInfo.AvatarUrl,
-		UniqueId: strconv.FormatInt(userInfo.Id, 10),
-		UserName: userName,
-		Password: passWord,
+		Nickname: userInfo.Login,                     // github 昵称
+		Avatar:   userInfo.AvatarUrl,                 // github 头像
+		UniqueId: strconv.FormatInt(userInfo.Id, 10), // github 的唯一id
+		UserName: userName,                           // 生成的平台用户名
+		Password: passWord,                           // 生成的平台密码
 	}
 
-	err = users.CreateUser(c, auth2User)
+	jwtToke, err := auth2.GetJwtToken(c, auth2User)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, "db error")
+		c.JSON(http.StatusUnauthorized, "get jwt token failed")
 		return
 	}
 
-	// 生成token
-	mw := jwts.AuthMiddleware
-	token := jwt.New(jwt.GetSigningMethod(mw.SigningAlgorithm))
-	claims := token.Claims.(jwt.MapClaims)
-
-	if mw.PayloadFunc != nil {
-		data := &model.JwtUser{
-			UserName: userName,
-		}
-		for key, value := range mw.PayloadFunc(data) {
-			claims[key] = value
-		}
-	}
-
-	expire := mw.TimeFunc().Add(mw.Timeout)
-	claims["exp"] = expire.Unix()
-	claims["orig_iat"] = mw.TimeFunc().Unix()
-	tokenString, err := token.SignedString(mw.Key)
-
-	c.JSON(http.StatusOK, model.LoginResp{
-		Token:  tokenString,
-		Expire: expire.Format("2006-01-02 15:04:05"),
-	})
+	c.JSON(http.StatusOK, jwtToke)
 }

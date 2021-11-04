@@ -4,10 +4,13 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	"io/ioutil"
 	"log"
 	"net/http"
+	"strconv"
 	"strings"
 
+	"ConfigPlatform/model"
 	"ConfigPlatform/services/auth2"
 
 	"github.com/gin-gonic/gin"
@@ -44,7 +47,8 @@ type userInfo struct {
 type accessToken struct {
 	AccessToken      string `json:"access_token"`      // access token
 	ExpiresIn        int64  `json:"expires_in"`        // access token 过期时间，单位是秒
-	Error            int32  `json:"error"`             // 错误码
+	RefreshToken     string `json:"refresh_token"`     // refresh token
+	Error            int64  `json:"error"`             // 错误码
 	ErrorDescription string `json:"error_description"` // 错误信息
 }
 
@@ -61,18 +65,50 @@ func getRespJson(originResp string) string {
 	return ""
 }
 
+func getAccessTokenFromResp(originResp string) *accessToken {
+	tokenPart := strings.Split(originResp, "&")
+
+	var accessToken = &accessToken{}
+	for _, part := range tokenPart {
+		token := strings.Split(part, "=")
+
+		switch token[0] {
+		case "access_token":
+			accessToken.AccessToken = token[1]
+		case "expires_in":
+			expiresIn, _ := strconv.ParseInt(token[1], 10, 64)
+			accessToken.ExpiresIn = expiresIn
+		case "refresh_token":
+			accessToken.RefreshToken = token[1]
+		case "error":
+			errorCode, _ := strconv.ParseInt(token[1], 10, 64)
+			accessToken.Error = errorCode
+		case "error_description":
+			accessToken.ErrorDescription = token[1]
+		}
+	}
+
+	return accessToken
+}
+
 // 获取accessToken
 func getAccessToken(ctx context.Context, authorizationCode string) (string, error) {
 
 	var baseUrl = "https://graph.qq.com/oauth2.0/token"
-	var appId = "101490224"
-	var appSecret = ""
-	var redirectUri = "http%3A%2F%2Flocalhost%3A3000%2Fproxy"
+	var appId = "101981088"
+	var redirectUri = "http://config-platform.top/qqLogin"
+
+	// 获取qq app secret
+	appSecret, err := ioutil.ReadFile("./conf/auth2Secret/qq.secret")
+	if err != nil {
+		log.Print("read qq secret faile! ", err)
+		return "", err
+	}
 
 	var urlParam = map[string]string{
 		"grant_type":    "authorization_code",
 		"client_id":     appId,
-		"client_secret": appSecret,
+		"client_secret": string(appSecret),
 		"code":          authorizationCode, // 10分钟有效
 		"redirect_uri":  redirectUri,
 	}
@@ -83,22 +119,15 @@ func getAccessToken(ctx context.Context, authorizationCode string) (string, erro
 		return "", err
 	}
 
-	jsonResp := getRespJson(accessTokenResp)
-	if jsonResp == "" {
-		log.Print("origin data: ", accessTokenResp)
-		return "", err
-	}
-
-	var accessToken accessToken
-	err = json.Unmarshal([]byte(jsonResp), &accessToken)
-	if err != nil {
-		log.Print("parse qq access token json data error: ", err)
+	accessToken := getAccessTokenFromResp(accessTokenResp)
+	if accessToken == nil {
+		log.Print("parse qq access token data error.")
 		return "", err
 	}
 
 	if accessToken.Error != 0 {
 		log.Print(accessToken.ErrorDescription)
-		// return "", errors.New(accessToken.ErrorDescription)
+		return "", errors.New(accessToken.ErrorDescription)
 	}
 
 	return accessToken.AccessToken, nil
@@ -189,23 +218,42 @@ func QQLogin(c *gin.Context) {
 		return
 	}
 
-	_, err := getAccessToken(c, authorizationCode)
+	// 获取 access token
+	accessToken, err := getAccessToken(c, authorizationCode)
 	if err != nil {
 		c.JSON(http.StatusUnauthorized, "get access token failed")
 		return
 	}
 
-	// 这里先模拟token
-	accessToken := "14B954C46E3D0A66D0FEB572B9AACB8B"
+	// 获取openid
 	authMe, err := getUserOpenid(c, accessToken)
 	if err != nil {
 		c.JSON(http.StatusUnauthorized, "get user openid failed")
 	}
 
-	userinfo, err := getUserInfo(c, accessToken, authMe)
+	// 获取用户信息
+	userInfo, err := getUserInfo(c, accessToken, authMe)
 	if err != nil {
 		c.JSON(http.StatusUnauthorized, "get user info failed")
 	}
 
-	c.JSON(http.StatusOK, userinfo)
+	// 生成用户名和密码
+	userName, passWord := auth2.GenerateNamePwd()
+
+	var auth2User = &model.Auth2User{
+		Type:     "qq",
+		Nickname: userInfo.Nickname,     // qq 昵称
+		Avatar:   userInfo.FigureurlQq1, // qq 头像
+		UniqueId: authMe.Openid,         // qq 的唯一id
+		UserName: userName,              // 生成的平台用户名
+		Password: passWord,              // 生成的平台密码
+	}
+
+	jwtToke, err := auth2.GetJwtToken(c, auth2User)
+	if err != nil {
+		c.JSON(http.StatusUnauthorized, "get jwt token failed")
+		return
+	}
+
+	c.JSON(http.StatusOK, jwtToke)
 }
