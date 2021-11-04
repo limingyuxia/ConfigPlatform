@@ -1,12 +1,14 @@
-<template>
-  <el-form>
+<template >
+  <el-form  >
+     
     <el-form-item label="Name">
+
       <el-input v-model.trim="user.name" />
     </el-form-item>
     <el-form-item label="Email">
       <el-input v-model.trim="user.email" />
     </el-form-item>
-    <el-form-item label="头像">
+    <el-form-item  label="头像">
       <!--:headers="headerObj"-->
       <el-upload
       ref="my-upload"
@@ -19,7 +21,7 @@
         list-type="picture"
 
         :on-change="handleChange"
-        :show-file-list="false"
+        :show-file-list="true"
         :on-success="handleAvatarSuccess"
         :before-upload="beforeAvatarUpload"
         :auto-upload="false">
@@ -47,26 +49,32 @@ import { uploadAvatar} from '@/api/user'
 export default {
   data() {
       return {
-        imageUrl: '',
+        imageUrl: "",
+        my_loadingFalg:false,
         upAvatarButton:true
       };
     },
   props: {
     user: {
       type: Object,
+
       default: () => {
         return {
-          headerObj:{
-            //"enctype":"multipart/form-data" 
-           // "Origin": "https://config-platform.top:9528",
-           // "Access-Control-Allow-Origin" : "https://config-platform.top:9528"
-          },
           name: '',
-          email: ''
+          email: '',
+          avatar:''
         }
       }
     }
+  },  
+  created() {
+    console.log("created_1",this.user)
+    this.imageUrl = this.user.avatar
+    that.$refs['my-upload'].clearFiles();
+    //this.upAvatarButton = true
   },
+
+
   methods: {
     loadIMG(e) {  // 图片加载出错
         console.log(e)
@@ -85,7 +93,9 @@ export default {
     handleChange(param){
       console.log("handleChange:",param.raw)
       let file = param.raw
-      const isJPG = file.type === 'image/jpeg';
+      const isJPG = /^image\/(jpeg|png|jpg|x-icon)$/.test(file.type)
+
+      //const isJPG = file.type === 'image/jpeg'; //x-icon
       const isLt2M = file.size / 1024 / 1024 < 2;
       
       if (!isJPG) {
@@ -104,14 +114,30 @@ export default {
     },
     uploadImage(param){
       const that = this
-
+      this.$emit("changeUser", {"loadingAll":true});
+    console.log("uploadImage:",param)
       const formData = new FormData()
+      console.log("param",param)
       formData.append('file', param.file)
 
-      this.$store.dispatch('user/upAvatar', formData).then(() => {//上传图片
+      this.$store.dispatch('user/upAvatar', formData,param).then(() => {//上传图片
+
            console.log("11")
+            that.$refs['my-upload'].clearFiles();
+            
+             this.$message({
+                message: '头像更新成功',
+                type: 'success',
+                duration: 5 * 1000
+              })
+
+            this.$emit("changeUser", {"loadingAll":false});
+
            that.upAvatarButton=true
+           
           }).catch(() => {
+            that.$refs['my-upload'].clearFiles();
+            this.$emit("changeUser", {"loadingAll":false});
             that.upAvatarButton=true
           })
 /*
@@ -129,7 +155,8 @@ export default {
         this.imageUrl = URL.createObjectURL(file.raw);
       },
       beforeAvatarUpload(file) {
-        const isJPG = file.type === 'image/jpeg';
+        //const isJPG = file.type === 'image/jpeg';
+        const isJPG = /^image\/(jpeg|png|jpg|x-icon)$/.test(file.type)
         const isLt2M = file.size / 1024 / 1024 < 2;
         console.log("123",isJPG)
         if (!isJPG) {
@@ -141,6 +168,12 @@ export default {
         return isJPG && isLt2M;
       },
     submit() {
+      this.name = "123456"
+      this.user.name = this.user.name + 1
+
+      this.$emit("changeUser", {"loadingAll":false});
+
+      //this.$emit("loadingFalg", !this.loadingFalg);
       this.$message({
         message: 'User information has been updated successfully',
         type: 'success',

@@ -1,71 +1,64 @@
 <template>
-  <div class="login-container">
-    <!--    <span>github第三方登录 - 回调页面</span>-->
+  <div >
+
+    <div >
+    登录方式：
+    </div >
+    <div >
+    登录数据：{{search}}
+    </div >
+    <div >
+    验证结果：
+    </div >
+    <el-button type="">12</el-button>
+
   </div>
+
 </template>
 
 <script>
-import { Message } from 'element-ui'
+
 export default {
 
   name: 'Proxy',
   data() {
     return {
-      redirect: undefined
+      search:"ss",
+      
     }
   },
 
-  watch: {
-    $route: {
-      handler: function(route) {
-        this.redirect = route.query && route.query.redirect
-      },
-      immediate: true
-    }
-  },
+
   created() {
+
+    //let query = this.$route.query
     console.log('初始话github')
 
-    //this.qqLogin()
-  },
-  methods: {
-    // QQ第三方登录
-    qqLogin() {
-      // var that = this// 先将vue这个对象保存在_self对象中
 
-      console.log('QC.Login:', QC.Login)
-      // 检查是否登录
-      if (QC.Login.check()) {
-        // 该处的openId，accessToken就是后台需要的参数了，后台通过这些参数拿取临时登录凭证，然后就是自己的逻辑了
-        QC.Login.getMe(function(openId, accessToken) {
-          console.log('accessToken:', accessToken)
-          console.log('openId:', openId)
-          // 传参给后台进行登录验证
-          // that.$store.dispatch('LoginByUsername', {
-          //   username: '',
-          //   openId: openId,
-          //   accessToken: accessToken
-          // }).then(() => {
-          //   that.$router.push({ path: this.redirect || '/' })
-          // })
-          // 跳转路由 携带数据
-          Message({
-            message: accessToken,
-            type: 'success',
-            duration: 5 * 1000
-          })
-        })
-        console.log('已登录!')
-      } else {
-        Message({
-          message: '未登录',
-          type: 'success',
-          duration: 5 * 1000
-        })
-        console.log('未登录!')
-      }
-    }
+  },
+  mounted() {
+    console.log("mounted",window.location)
+    var myURL = new URL(window.location.href);
+    console.log("mounted_myURL",myURL);
+    this.search = window.location.search
+    // console.log(window.location.href.indexOf("code=") !==-1);判断是否否找到code=
+    if(window.location.href.indexOf("code=") == -1){
+      
+        }else{
+          var  str=window.location.href.substr(window.location.href.indexOf("code=")+5);
+          // console.log(str); 
+          var Code=str.substr();
+          console.log(Code);
+          //后端接口
+            
+
+        }
+        // return Code;
+  },
+
+  methods: {
+
   }
 }
 </script>
-<style rel="stylesheet/scss" lang="scss"></style>
+

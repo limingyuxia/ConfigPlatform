@@ -6,7 +6,7 @@
 
     <div class="user-profile">
       <div class="box-center">
-        <pan-thumb :image="user.avatar" :height="'100px'" :width="'100px'" :hoverable="false">
+        <pan-thumb :image="avatar" :height="'100px'" :width="'100px'" :hoverable="false">
           <div>Hello</div>
           {{ user.role }}
         </pan-thumb>
@@ -54,9 +54,14 @@
 
 <script>
 import PanThumb from '@/components/PanThumb'
-
+import { mapGetters } from 'vuex'
 export default {
   components: { PanThumb },
+   computed: {
+    ...mapGetters([
+      'avatar',
+    ])
+  },
   props: {
     user: {
       type: Object,
@@ -69,6 +74,16 @@ export default {
         }
       }
     }
+  },
+  created() {
+    console.log("user___avatar",this.avatar)
+  },
+    watch: {
+      user: {
+      handler(newValue, oldValue) {
+      　console.log("user___",newValue)
+      },
+      }
   }
 }
 </script>
