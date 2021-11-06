@@ -30,6 +30,8 @@ const (
 	GET_USER_INFO_ERROR RETCODE = 4022
 	AVATAR_UPDATE_ERROR RETCODE = 4023
 	USER_AVATAR_ERROR   RETCODE = 4024
+	GET_AUTH_INFO_ERROR RETCODE = 4025
+	UPDATE_USER_ERROR   RETCODE = 4026
 )
 
 // 错误码和错误信息的关系
@@ -61,5 +63,7 @@ var (
 		4022: "获取用户信息失败",
 		4023: "更新头像失败",
 		4024: "获取用户头像失败",
+		4025: "获取用户AUTH应用信息失败",
+		4026: "更新用户信息失败",
 	}
 )

@@ -127,5 +127,7 @@ func addUsersRoute(g *gin.RouterGroup, authMiddleware *jwt.GinJWTMiddleware) {
 		g.GET("/info", services.GetUserInfo)
 
 		g.GET("/auth2Info", services.GetUserAuth2Info)
+
+		g.POST("/update", services.UpdateUserInfo)
 	}
 }

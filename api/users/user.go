@@ -191,6 +191,39 @@ func GetUserAuth2Info(ctx context.Context, username string) (*model.Auth2UserInf
 	}, nil
 }
 
+func UpdateUserInfo(ctx context.Context, updateInfo model.UpdateUserInfo) error {
+
+	userId, err := models.Users(
+		qm.Select("id"),
+		qm.Where("username = ?", updateInfo.UserName),
+	).One(ctx, mysql.Conn)
+	if err != nil {
+		log.Print(ctx, "get user id failed: ", err)
+		return err
+	}
+
+	user, err := models.FindUser(ctx, mysql.Conn, userId.ID)
+	if err != nil {
+		log.Print(ctx, "get user failed: ", err)
+		return err
+	}
+
+	user.Username = updateInfo.UserName
+	user.Nickname = null.StringFrom(updateInfo.Nickname)
+	user.Gender = null.IntFrom(updateInfo.Gender)
+	user.Region = null.StringFrom(updateInfo.Region)
+	user.Phone = null.StringFrom(updateInfo.Phone)
+	user.Email = null.StringFrom(updateInfo.Email)
+
+	_, err = user.Update(ctx, mysql.Conn, boil.Infer())
+	if err != nil {
+		log.Print(ctx, "update user failed: ", err)
+		return err
+	}
+
+	return nil
+}
+
 func UpdateUserAvatar(ctx *gin.Context, username, fileName string, fileContent []byte) error {
 	// 获取user id
 	userId, err := models.Users(

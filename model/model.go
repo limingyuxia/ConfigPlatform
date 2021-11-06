@@ -148,3 +148,12 @@ type Auth2UserInfo struct {
 	GithubUsername string `json:"github_username"`  // github 昵称
 	GithubAvatar   string `json:"github_avatar" `   // github 头像
 }
+
+type UpdateUserInfo struct {
+	UserName string `json:"username"` // 用户名
+	Nickname string `json:"nickname"` // 用户昵称
+	Gender   int    `json:"gender"`   // 性别 1 男 2 女
+	Region   string `json:"region"`   // 地区
+	Phone    string `json:"phone"`    // 电话号码
+	Email    string `json:"email"`    // 邮箱
+}

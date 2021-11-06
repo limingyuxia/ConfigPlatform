@@ -135,13 +135,24 @@ func GetUserInfo(c *gin.Context) {
 func GetUserAvatar(c *gin.Context) {
 	fid, err := users.GetUserAvatarFid(c, c.Request.URL.Path)
 	if err != nil {
-		ResponseError(GET_USER_INFO_ERROR, RETCODE_MSG[GET_USER_INFO_ERROR], c)
+		ResponseError(USER_AVATAR_ERROR, RETCODE_MSG[USER_AVATAR_ERROR], c)
 		return
 	}
 
 	host := conf.SeaweedFsSetting.Domain + ":" + strconv.Itoa(conf.SeaweedFsSetting.VolumePort)
 
-	data, err := auth2.HttpGet(c, "http://"+host+"/"+fid, nil, nil)
+	var urlParam = map[string]string{}
+
+	width := c.Query("width")
+	height := c.Query("height")
+	if width != "" {
+		urlParam["width"] = width
+	}
+	if height != "" {
+		urlParam["height"] = height
+	}
+
+	data, err := auth2.HttpGet(c, "http://"+host+"/"+fid, urlParam, nil)
 	if err != nil {
 		ResponseError(USER_AVATAR_ERROR, RETCODE_MSG[USER_AVATAR_ERROR], c)
 		return
@@ -167,9 +178,34 @@ func GetUserAuth2Info(c *gin.Context) {
 	// 获取用户第三方应用信息
 	auth2Info, err := users.GetUserAuth2Info(c, username)
 	if err != nil {
-		ResponseError(GET_USER_INFO_ERROR, RETCODE_MSG[GET_USER_INFO_ERROR], c)
+		ResponseError(GET_AUTH_INFO_ERROR, RETCODE_MSG[GET_AUTH_INFO_ERROR], c)
 		return
 	}
 
 	ResponseData(auth2Info, c)
+}
+
+// @Tags 用户管理
+// @Summary 更新用户信息
+// @Produce  json
+// @Param UpdateUserInfo body model.UpdateUserInfo true "更新用户信息"
+// @Success 200 {string} string
+// @Failure 400 {object} WebResponse
+// @Router /user/update [post]
+func UpdateUserInfo(c *gin.Context) {
+	var updateUser model.UpdateUserInfo
+
+	if err := c.ShouldBindJSON(&updateUser); err == nil {
+		// 更新用户信息
+		err = users.UpdateUserInfo(c, updateUser)
+		if err != nil {
+			ResponseError(UPDATE_USER_ERROR, RETCODE_MSG[UPDATE_USER_ERROR], c)
+			return
+		}
+
+		ResponseData("成功", c)
+	} else {
+		log.Print("update user info param error: ", err)
+		ResponseError(PARAMS_ERROR, RETCODE_MSG[PARAMS_ERROR], c)
+	}
 }
