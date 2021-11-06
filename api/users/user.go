@@ -9,6 +9,7 @@ import (
 	"ConfigPlatform/services/weedo"
 	"bytes"
 	"context"
+	"database/sql"
 	"encoding/base64"
 	"encoding/json"
 	"errors"
@@ -286,8 +287,10 @@ func GetUserAvatarFid(ctx context.Context, serverUrl string) (string, error) {
 }
 
 // 用户是否是第一次用第三方平台登录
-func isAuth2UserRegister(ctx context.Context, user *model.Auth2User) (bool, *models.Auth2, error) {
-	queryMod := []qm.QueryMod{}
+func isAuth2UserRegister(ctx context.Context, user *model.Auth2User) (bool, error) {
+	queryMod := []qm.QueryMod{
+		qm.Select("id", "user_id"),
+	}
 
 	switch user.Type {
 	case "qq":
@@ -303,53 +306,96 @@ func isAuth2UserRegister(ctx context.Context, user *model.Auth2User) (bool, *mod
 		githubId := null.StringFrom(user.UniqueId)
 		queryMod = append(queryMod, qm.Where("github_id = ?", githubId))
 	default:
-		return false, nil, errors.New("unknow type")
+		return true, errors.New("unknow type")
 	}
 
 	auth2User, err := models.Auth2s(
 		queryMod...,
-	).All(ctx, mysql.Conn)
+	).One(ctx, mysql.Conn)
 	if err != nil {
-		log.Print("query auth2 user failed: ", err)
-		return false, nil, err
+		if err == sql.ErrNoRows {
+			return false, nil
+		}
+
+		return true, err
 	}
 
-	if len(auth2User) == 0 {
-		return false, nil, nil
-	} else {
-		return true, nil, nil
+	// 检查用户的auth2信息是否变更
+	err = UpdateUserAuth2Info(ctx, auth2User, user)
+	if err != nil {
+		return true, err
 	}
+
+	// 获取原来的用户名
+	userName, err := models.Users(
+		qm.Select("username"),
+		qm.Where("id = ?", auth2User.UserID),
+	).One(ctx, mysql.Conn)
+	if err != nil {
+		return true, err
+	}
+
+	user.UserName = userName.Username
+	return true, nil
 }
 
 // 更新用户auth2信息
-func UpdateUserAuth2Info(auth2UserInfo *models.Auth2, auth2User *model.Auth2User) error {
+func UpdateUserAuth2Info(ctx context.Context, auth2UserInfo *models.Auth2,
+	auth2User *model.Auth2User) error {
 
-	// switch user.Type {
-	// case "qq":
-	// 	qqOpenId := null.StringFrom(user.UniqueId)
-	// 	queryMod = append(queryMod, qm.Where("qq_openid = ?", qqOpenId))
-	// case "wechat":
-	// 	wechatOpenid := null.StringFrom(user.UniqueId)
-	// 	queryMod = append(queryMod, qm.Where("wechat_openid = ?", wechatOpenid))
-	// case "weibo":
-	// 	uId := null.StringFrom(user.UniqueId)
-	// 	queryMod = append(queryMod, qm.Where("uid = ?", uId))
-	// case "github":
-	// 	githubId := null.StringFrom(user.UniqueId)
-	// 	queryMod = append(queryMod, qm.Where("github_id = ?", githubId))
-	// default:
-	// 	return false, nil, errors.New("unknow type")
-	// }
+	updateAuth2Info, err := models.FindAuth2(ctx, mysql.Conn, auth2UserInfo.ID)
+	if err != nil {
+		return err
+	}
+
+	switch auth2User.Type {
+	case "qq":
+		if auth2UserInfo.QQUsername.String != auth2User.Nickname {
+			updateAuth2Info.QQUsername = null.StringFrom(auth2User.Nickname)
+		}
+		if auth2UserInfo.QQAvatar.String != auth2User.Avatar {
+			updateAuth2Info.QQAvatar = null.StringFrom(auth2User.Avatar)
+		}
+	case "wechat":
+		if auth2UserInfo.WechatUsername.String != auth2User.Nickname {
+			updateAuth2Info.WechatUsername = null.StringFrom(auth2User.Nickname)
+		}
+		if auth2UserInfo.WechatAvatar.String != auth2User.Avatar {
+			updateAuth2Info.WechatAvatar = null.StringFrom(auth2User.Avatar)
+		}
+	case "weibo":
+		if auth2UserInfo.WeiboUsername.String != auth2User.Nickname {
+			updateAuth2Info.WeiboUsername = null.StringFrom(auth2User.Nickname)
+		}
+		if auth2UserInfo.WeiboAvatar.String != auth2User.Avatar {
+			updateAuth2Info.WeiboAvatar = null.StringFrom(auth2User.Avatar)
+		}
+	case "github":
+		if auth2UserInfo.GithubUsername.String != auth2User.Nickname {
+			updateAuth2Info.GithubUsername = null.StringFrom(auth2User.Nickname)
+		}
+		if auth2UserInfo.GithubAvatar.String != auth2User.Avatar {
+			updateAuth2Info.GithubAvatar = null.StringFrom(auth2User.Avatar)
+		}
+	default:
+		return errors.New("unknow type")
+	}
+
+	_, err = updateAuth2Info.Update(ctx, mysql.Conn, boil.Infer())
+	if err != nil {
+		return err
+	}
 
 	return nil
 }
 
 // 新增用户
-func CreateUser(ctx context.Context, user *model.Auth2User) (*models.Auth2, error) {
+func CreateUser(ctx context.Context, user *model.Auth2User) error {
 
-	isRegister, auth2UserInfo, err := isAuth2UserRegister(ctx, user)
+	isRegister, err := isAuth2UserRegister(ctx, user)
 	if err != nil {
-		return nil, err
+		log.Print(ctx, "check user register failed: ", err)
+		return err
 	}
 
 	// 第一次第三方登录
@@ -362,7 +408,7 @@ func CreateUser(ctx context.Context, user *model.Auth2User) (*models.Auth2, erro
 		err := newUser.Insert(ctx, mysql.Conn, boil.Infer())
 		if err != nil {
 			log.Print("create user failed: ", err)
-			return nil, err
+			return err
 		}
 
 		var newUserAuth = &models.Auth2{
@@ -391,9 +437,9 @@ func CreateUser(ctx context.Context, user *model.Auth2User) (*models.Auth2, erro
 		err = newUserAuth.Insert(ctx, mysql.Conn, boil.Infer())
 		if err != nil {
 			log.Print("create user auth2 failed: ", err)
-			return nil, err
+			return err
 		}
 	}
 
-	return auth2UserInfo, nil
+	return nil
 }

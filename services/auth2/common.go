@@ -121,14 +121,8 @@ func HttpPost(ctx context.Context, url string, reqBody map[string]string,
 
 func GetJwtToken(c *gin.Context, auth2User *model.Auth2User) (*model.LoginResp, error) {
 	// 手动注册用户
-	auth2UserInfo, err := users.CreateUser(c, auth2User)
+	err := users.CreateUser(c, auth2User)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, "db error")
-		return nil, err
-	}
-
-	// 检查第三方登录信息是否改变
-	if err := users.UpdateUserAuth2Info(auth2UserInfo, auth2User); err != nil {
 		return nil, err
 	}
 
@@ -150,6 +144,9 @@ func GetJwtToken(c *gin.Context, auth2User *model.Auth2User) (*model.LoginResp, 
 	claims["exp"] = expire.Unix()
 	claims["orig_iat"] = mw.TimeFunc().Unix()
 	tokenString, err := token.SignedString(mw.Key)
+	if err != nil {
+		return nil, err
+	}
 
 	return &model.LoginResp{
 		Token:  tokenString,
