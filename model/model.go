@@ -137,3 +137,14 @@ type Auth2User struct {
 	Password string `json:"password"`  // 随机生成的平台密码
 	Avatar   string `json:"avatar"`    // 第三方应用头像
 }
+
+type Auth2UserInfo struct {
+	QQUsername     string `json:"qq_username" `     // qq 昵称
+	QQAvatar       string `json:"qq_avatar" `       // qq 头像
+	WechatUsername string `json:"wechat_username" ` // 微信昵称
+	WechatAvatar   string `json:"wechat_avatar" `   // 微信头像
+	WeiboUsername  string `json:"weibo_username" `  // 微博昵称
+	WeiboAvatar    string `json:"weibo_avatar" `    // 微博头像
+	GithubUsername string `json:"github_username"`  // github 昵称
+	GithubAvatar   string `json:"github_avatar" `   // github 头像
+}

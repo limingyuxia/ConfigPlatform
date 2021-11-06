@@ -484,6 +484,31 @@
                 }
             }
         },
+        "/user/auth2Info": {
+            "get": {
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "用户管理"
+                ],
+                "summary": "获取用户第三方应用信息",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/model.Auth2UserInfo"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/services.WebResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/user/avatar/update": {
             "post": {
                 "consumes": [
@@ -627,6 +652,43 @@
                 },
                 "project_user": {
                     "description": "项目创建者",
+                    "type": "string"
+                }
+            }
+        },
+        "model.Auth2UserInfo": {
+            "type": "object",
+            "properties": {
+                "github_avatar": {
+                    "description": "github 头像",
+                    "type": "string"
+                },
+                "github_username": {
+                    "description": "github 昵称",
+                    "type": "string"
+                },
+                "qq_avatar": {
+                    "description": "qq 头像",
+                    "type": "string"
+                },
+                "qq_username": {
+                    "description": "qq 昵称",
+                    "type": "string"
+                },
+                "wechat_avatar": {
+                    "description": "微信头像",
+                    "type": "string"
+                },
+                "wechat_username": {
+                    "description": "微信昵称",
+                    "type": "string"
+                },
+                "weibo_avatar": {
+                    "description": "微博头像",
+                    "type": "string"
+                },
+                "weibo_username": {
+                    "description": "微博昵称",
                     "type": "string"
                 }
             }

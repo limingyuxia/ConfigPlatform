@@ -163,6 +163,34 @@ func GetUserInfo(ctx context.Context, username string) (*model.UserInfo, error) 
 	return userInfos, nil
 }
 
+func GetUserAuth2Info(ctx context.Context, username string) (*model.Auth2UserInfo, error) {
+	auth2Info, err := models.Auth2s(
+		qm.Select("qq_username", "qq_avatar", "wechat_username", "wechat_avatar",
+			"weibo_username", "weibo_avatar", "github_username", "github_avatar"),
+		qm.InnerJoin("user on user.id = auth2.user_id"),
+		qm.Where("username = ?", username),
+	).One(ctx, mysql.Conn)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return &model.Auth2UserInfo{}, nil
+		}
+
+		log.Print("get user auth2 info failed: ", err)
+		return nil, err
+	}
+
+	return &model.Auth2UserInfo{
+		QQUsername:     auth2Info.QQUsername.String,
+		QQAvatar:       auth2Info.QQAvatar.String,
+		WechatUsername: auth2Info.WechatUsername.String,
+		WechatAvatar:   auth2Info.WechatAvatar.String,
+		WeiboUsername:  auth2Info.WeiboUsername.String,
+		WeiboAvatar:    auth2Info.WeiboAvatar.String,
+		GithubUsername: auth2Info.GithubUsername.String,
+		GithubAvatar:   auth2Info.GithubAvatar.String,
+	}, nil
+}
+
 func UpdateUserAvatar(ctx *gin.Context, username, fileName string, fileContent []byte) error {
 	// 获取user id
 	userId, err := models.Users(

@@ -149,3 +149,27 @@ func GetUserAvatar(c *gin.Context) {
 
 	c.Data(200, "string", []byte(data))
 }
+
+// @Tags 用户管理
+// @Summary 获取用户第三方应用信息
+// @Produce  json
+// @Success 200 {object} model.Auth2UserInfo
+// @Failure 400 {object} WebResponse
+// @Router /user/auth2Info [get]
+func GetUserAuth2Info(c *gin.Context) {
+	// 获取token中的用户名
+	username, err := users.GetUserNameFromJwtToken(c, jwts.AuthMiddleware)
+	if err != nil {
+		ResponseError(TOKEN_FORMAT_ERROR, RETCODE_MSG[TOKEN_FORMAT_ERROR], c)
+		return
+	}
+
+	// 获取用户第三方应用信息
+	auth2Info, err := users.GetUserAuth2Info(c, username)
+	if err != nil {
+		ResponseError(GET_USER_INFO_ERROR, RETCODE_MSG[GET_USER_INFO_ERROR], c)
+		return
+	}
+
+	ResponseData(auth2Info, c)
+}
