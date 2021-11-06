@@ -47,6 +47,9 @@
             <div class="sign-btn" @click="getGithubAuthorizeCode()">
               <span class="qq-svg-container"><svg-icon  icon-class="github-fill" class="icon" /></span> github
             </div>
+            <div class="sign-btn" @click="weiboHandleClick('tencent')">
+              <span class="qq-svg-container"><svg-icon id="wbLoginBtn" icon-class="weibo" class="icon" /></span> 微博
+            </div>
           </div>
 
         </el-form>
@@ -363,16 +366,16 @@ export default {
         var protocolStr = document.location.protocol
 
         if (protocolStr === 'http:') {
-          this.src1 = 'http://' + process.env.VUE_APP_BASE_HTTP_API + response.captcha_id + '.png'
+          this.src1 = 'http://' + process.env.VUE_APP_BASE_HTTP_API + "/captcha/" + response.captcha_id + '.png'
           // console.log('protocol = ' + protocolStr)
         } else if (protocolStr === 'https:') {
-          this.src1 = 'https://' + process.env.VUE_APP_BASE_HTTPS_API + response.captcha_id + '.png'
+          this.src1 = 'https://' + process.env.VUE_APP_BASE_HTTPS_API+ "/captcha/" + response.captcha_id + '.png'
           // console.log('protocol = ' + protocolStr)
         } else {
-          this.src1 = 'http://' + process.env.VUE_APP_BASE_HTTP_API + response.captcha_id + '.png'
+          this.src1 = 'http://' + process.env.VUE_APP_BASE_HTTP_API+ "/captcha/" + response.captcha_id + '.png'
           // console.log('other protocol')
         }
-
+      console.log("this.src1 :",this.src1 )
         this.reCodeLoading = false
         // this.formData = response
       }, reason => {
@@ -425,8 +428,8 @@ export default {
     // QQ 第三方登录
     tencentHandleClick(thirdpart) {
       let baseUrl = "https://graph.qq.com/oauth2.0/authorize"
-      let appid = 101490224
-      let redictUrl = "http%3A%2F%2Flocalhost%3A3000%2Fproxy"
+      let appid = 101981088
+      let redictUrl = "http://config-platform.top/qqLogin"
       let state = "3d6be0a4035d839573b04816624a415e"
       //let scope = "get_user_info,add_share,add_one_blog,list_album,upload_pic,add_album,list_photo,check_page_fans,get_info,add_t,del_t,add_pic_t,get_repost_list,get_other_info,get_fanslist,get_idollist,add_idol,del_idol,get_tenpay_addr"
 
