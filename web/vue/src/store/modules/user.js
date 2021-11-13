@@ -27,7 +27,6 @@ const getDefaultState = () => {
       gender: 0,
       nickname: 'Null',
       region: 'Null',
-      username: 'Null'
     }
 
   }
@@ -87,7 +86,7 @@ const actions = {
         "nickname": userInfo.data.nickname.model,
         "phone": this.getters.phone,
         "region": userInfo.data.region.model,
-        "username": userInfo.data.username.model
+        "username": this.getters.name
       }
      
 
