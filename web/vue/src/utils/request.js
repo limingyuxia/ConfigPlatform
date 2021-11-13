@@ -108,11 +108,13 @@ service.interceptors.response.use(
     }
 
     const statusCode = error.response.status
-    const res = error.response.data
 
+    const res = error.response.data.message
+    const code = error.response.data.code
+    console.log("webError",error.response)
     if (statusCode === 400 || statusCode === 401) {
       Message({
-        message: '[' + res.code + ']' + res.message || 'Error',
+        message: '[' + code + ']' + res || 'Error',
         type: 'error',
         duration: 5 * 1000
       })

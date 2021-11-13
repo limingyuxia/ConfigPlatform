@@ -1,17 +1,26 @@
-import { reCode,login, logout, getInfo, uploadAvatar} from '@/api/user'
+import { login, logout, getInfo, uploadAvatar, thirdLogin, resetToken,updata } from '@/api/user'
 import { getToken, setToken, removeToken } from '@/utils/auth'
 import { resetRouter } from '@/router'
-import { Base64,encode, decode } from 'js-base64';
+// import { Base64, encode, decode } from 'js-base64'
 
 // import cypher from '@/utils/cypher'
 
 const getDefaultState = () => {
   return {
     token: getToken(),
-    email:"",
+    email: '',
     name: '',
-    avatar:  '../../icons/svg/中国移动.png',
-    roles:[]
+    avatar: '../../icons/svg/中国移动.png',
+    roles: [],
+    phone:"",
+
+    basicInfo: {
+      gender: 0,
+      nickname: 'Null',
+      region: 'Null',
+      username: 'Null'
+    }
+
   }
 }
 
@@ -24,26 +33,101 @@ const mutations = {
   SET_TOKEN: (state, token) => {
     state.token = token
   },
+  
+  SET_PHONE: (state, phone) => {
+    state.phone = phone
+  },
   SET_EMAIL: (state, email) => {
     state.email = email
   },
   SET_NAME: (state, name) => {
     state.name = name
   },
-  
+
   SET_ROLES: (state, roles) => {
     state.roles = roles
   },
   SET_AVATAR: (state, avatar) => {
     state.avatar = avatar
+  },
+  SET_BASICINFO: (state, basicInfo) => {
+    state.basicInfo = basicInfo
   }
 }
 
 const actions = {
-  // user login
-   upAvatar({ commit }, userInfo) {
+  updata({ commit }, userInfo) {
+    console.log('更新数据', userInfo)
+    var that = this
+    //获取原始数据
+    if (userInfo.chType !== "basicInfo"){
+
+      return Promise.reject("修改类型错误[" + userInfo.chType + "]")
+      
+    }
+    this.dispatch('user/getInfo')
+    console.log("获取数据：",this.getters)
+    if (userInfo.chType === "basicInfo"){
+      //生成数据
+      var changeData = {
+        "email": this.getters.email,
+        "gender": userInfo.data.gender.model,
+        "nickname": userInfo.data.nickname.model,
+        "phone": this.getters.phone,
+        "region": userInfo.data.region.model,
+        "username": userInfo.data.username.model
+      }
+     
+
+    }
+    console.log("修改数据：",changeData)
+    
+    return new Promise((resolve, reject) => {
+      updata(changeData).then( async response => {
+        await that.dispatch('user/getInfo')
+
+        resolve()
+      }).catch(error => {
+        console.log('更新失败', error)
+        reject(error)
+      })
+    })
+
+
+    //await that.dispatch('user/getInfo')
+
+  },
+  // 第三方登录
+  thirdLogin({ commit }, loginInfo) {
     const that = this
-/*
+    console.log('第三方登录：', loginInfo.Code)
+    console.log('登录类型', loginInfo.typy)
+    let baseurl
+
+    if (loginInfo.typy === 'qq') {
+      baseurl = '/qqLogin' + loginInfo.Code
+    } else if (loginInfo.typy === 'github') {
+      baseurl = '/githubLogin' + loginInfo.Code
+    }
+    return new Promise((resolve, reject) => {
+      thirdLogin(loginInfo.Code, baseurl).then(response => {
+        // const { data } = response
+        console.log('登录:', response)
+
+        commit('SET_TOKEN', response.token)
+        setToken(response.token)
+        resolve()
+      }).catch(error => {
+        console.log('第三方登录失败', error)
+        reject(error)
+      })
+    })
+  },
+
+  // 上传头像
+  upAvatar({ commit }, userInfo) {
+    const that = this
+    /*
     var  avatarFile = ""
     userInfo.forEach((value, key) => {
       if(key == "file"){
@@ -53,25 +137,21 @@ const actions = {
 console.log("file",avatarFile)
 */
 
+    // store.dispatch('user/getInfo')
+    // this.getInfo()
+    // commit('SET_AVATAR', userInfo)
 
-
-    
-
-    //store.dispatch('user/getInfo')
-    //this.getInfo()
-    //commit('SET_AVATAR', userInfo)
-
+    console.log('上传头像：', userInfo)
 
     return new Promise((resolve, reject) => {
       uploadAvatar(userInfo).then(async response => {
-
         // const { data } = response
         console.log('WebData_SET_AVATAR:', response)
-        
+
         await that.dispatch('user/getInfo')
         resolve()
       }).catch(error => {
-        // console.log('token保存失败', error)
+        console.log('上传头像失败：', error)
         reject(error)
       })
     })
@@ -85,25 +165,7 @@ console.log("file",avatarFile)
       login(userInfo).then(response => {
         // const { data } = response
         console.log('WebData:', response)
-        /*
-        let defaultAvatar = "https://tse1-mm.cn.bing.net/th/id/R-C.0e74e383596a31c27ea66aaa4933f3c2?rik=w0ORAUQtlQCGAw&riu=http%3a%2f%2fpic.22520.cn%2fup%2f200710%2f1594389918178495.jpeg&ehk=gSSynot63OE6DuCPuDZMOk%2flGpPCXJGzH02vx4DVeUg%3d&risl=&pid=ImgRaw&r=0"
-        
-        let tokenArry = response.token.split(".") 
 
-        let playload = Base64.decode(tokenArry[1]); // 解码
-        console.log("playload_1",playload)
-
-        playload = JSON.parse(playload); 
-        let userAvatar = playload.userAvatar || defaultAvatar
-        let userRoles = playload.userRoles  || ["tmp"]
-        let userName = playload.username  || "Null"
-        
-        console.log("playload_3",userAvatar,userRoles,userName)
-       
-        commit('SET_ROLES', userRoles)
-        commit('SET_AVATAR', userAvatar)
-        commit('SET_NAME', userName)
-*/
         commit('SET_TOKEN', response.token)
         setToken(response.token)
         resolve()
@@ -116,28 +178,40 @@ console.log("file",avatarFile)
   // get user info
   getInfo({ commit, state }) {
     console.log('获取：', commit, state)
-    
 
     return new Promise((resolve, reject) => {
       getInfo(state.token).then(response => {
-        //const { data } = response
-        let defaultAvatar = "https://tse1-mm.cn.bing.net/th/id/R-C.0e74e383596a31c27ea66aaa4933f3c2?rik=w0ORAUQtlQCGAw&riu=http%3a%2f%2fpic.22520.cn%2fup%2f200710%2f1594389918178495.jpeg&ehk=gSSynot63OE6DuCPuDZMOk%2flGpPCXJGzH02vx4DVeUg%3d&risl=&pid=ImgRaw&r=0"
+        // const { data } = response
+        const defaultAvatar = 'https://tse1-mm.cn.bing.net/th/id/R-C.0e74e383596a31c27ea66aaa4933f3c2?rik=w0ORAUQtlQCGAw&riu=http%3a%2f%2fpic.22520.cn%2fup%2f200710%2f1594389918178495.jpeg&ehk=gSSynot63OE6DuCPuDZMOk%2flGpPCXJGzH02vx4DVeUg%3d&risl=&pid=ImgRaw&r=0'
 
         if (!response) {
           return reject('Verification failed, please Login again.')
         }
-        console.log("userInfo:",response)
-        const { username, photo ,email} = response
+        console.log('userInfo:', response)
+        const { username, photo, email,phone } = response
         let avatar = photo || defaultAvatar
-        let userEmail = email || "Null"
-        if (avatar !== defaultAvatar){
+        const userEmail = email || 'Null'
+        const userPhone = phone || 'Null'
+        if (avatar !== defaultAvatar) {
           avatar = 'http://' + process.env.VUE_APP_BASE_HTTP_API + avatar
         }
-        console.log("avatar",avatar)
+        console.log('avatar', avatar)
         commit('SET_ROLES', [])
+        
+        commit('SET_PHONE', userPhone)
         commit('SET_EMAIL', userEmail)
         commit('SET_NAME', username)
         commit('SET_AVATAR', avatar)
+        // 基本信息
+        var basicInfo = {
+          gender: response.gender || 0,
+          nickname: response.nickname || 'Null',
+          phone: response.phone || 'Null',
+          region: response.region || 'Null',
+          username: response.username || 'Null'
+        }
+
+        commit('SET_BASICINFO', basicInfo)
         resolve(response)
       }).catch(error => {
         reject(error)
@@ -169,7 +243,15 @@ console.log("file",avatarFile)
     return new Promise(resolve => {
       removeToken() // must remove  token  first
       commit('RESET_STATE')
-      resolve()
+      // 重置token
+      resetToken().then((response) => {
+        console.log('刷新token：', response)
+
+        commit('RESET_STATE')
+        resolve()
+      }).catch(error => {
+        reject(error)
+      })
     })
   }
 }

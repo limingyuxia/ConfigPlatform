@@ -1,59 +1,94 @@
-<template >
-  <el-form  >
-     
-    <el-form-item label="Name">
+<template>
+  <div>
+    <el-card v-for="(item,key) in basicInfoList" :key="item.path" class="box-card" shadow="hover">
 
-      <el-input v-model.trim="user.name" />
-    </el-form-item>
-    <el-form-item label="Email">
-      <el-input v-model.trim="user.email" />
-    </el-form-item>
-    <el-form-item  label="头像">
-      <!--:headers="headerObj"-->
-      <el-upload
-      ref="my-upload"
-        class="avatar-uploader"
-        action="tmp"
-        enctype="multipart/form-data" 
-        method="POST"
-        
-        :http-request="uploadImage"
-        list-type="picture"
+      <span slot="header" class="clearfix">{{ item.title }}</span>
 
-        :on-change="handleChange"
-        :show-file-list="true"
-        :on-success="handleAvatarSuccess"
-        :before-upload="beforeAvatarUpload"
-        :auto-upload="false">
-        <img v-if="imageUrl" :src="imageUrl" class="avatar" @error="loadIMG($event)"  >
+      <el-descriptions v-if="item.editFlag" class="information-title" :column="1" @click.native="item.editFlag = !item.editFlag">
+        <template v-for="(itemDe,keyDe) in item.dataList">
 
-         
-        <i v-else slot="trigger" class="el-icon-plus avatar-uploader-icon"></i>
+          <el-descriptions-item v-if="itemDe.type == 'text'" :key="keyDe" :label="itemDe.title">{{ itemDe.model }}</el-descriptions-item>
+          <el-descriptions-item v-if="itemDe.type == 'img'" :key="keyDe" :label="itemDe.title">
+            <el-avatar shape="square" :size="50" :src="imageUrl" />
+          </el-descriptions-item>
+          <el-descriptions-item v-if="itemDe.type == 'select'" :key="keyDe" v-model="itemDe.model" :label="itemDe.title">{{ itemDe.data[itemDe.model].label }}</el-descriptions-item>
 
-      </el-upload>
-      <el-button :disabled="upAvatarButton" @click="upAvatarfuc" size="small" type="primary">点击上传</el-button>
+        </template>
 
-    </el-form-item>
-    <el-form-item>
-      <el-button type="primary" @click="submit">Update</el-button>
-    </el-form-item>
-  </el-form>
+      </el-descriptions>
+
+      <el-form v-else style="vertical-align:middle; " :inline="true" label-width="70px" class="demo-form-inline">
+        <template v-for="(itemDe,key) in item.dataList">
+
+          <el-form-item v-if="itemDe.type == 'text'" :key="key" style="display:flex" :label="itemDe.title">
+            <el-input v-model.trim="itemDe.model" />
+          </el-form-item>
+
+          <el-form-item v-if="itemDe.type == 'select'" :key="key" style="display:flex" :label="itemDe.title">
+
+            <el-select v-model="itemDe.model" placeholder="请选择">
+              
+              <el-option
+                v-for="itemSe in itemDe.data"
+                :key="itemSe.value"
+                :label="itemSe.label"
+                :value="itemSe.value"
+              />
+            </el-select>
+
+          </el-form-item>
+
+          <el-form-item v-if="itemDe.type == 'img'" :key="itemDe.index" :label="itemDe.title">
+            <!--:headers="headerObj"-->
+            <el-upload
+              ref="my-upload"
+              class="avatar-uploader"
+              action="tmp"
+              method="POST"
+              :http-request="uploadImage"
+              list-type="picture"
+              :limit="2"
+              :on-change="handleChange"
+              :show-file-list="false"
+              :on-success="handleAvatarSuccess"
+              :before-upload="beforeAvatarUpload"
+              :auto-upload="false"
+            >
+              <img v-if="imageUrl" :src="imageUrl" class="avatar" @error="loadIMG($event)">
+
+              <i v-else slot="trigger" class="el-icon-plus avatar-uploader-icon" />
+
+            </el-upload>
+            <el-button style="margin-left:20px" :disabled="upAvatarButton" size="small" type="primary" @click="upAvatarfuc">点击上传</el-button>
+
+          </el-form-item>
+
+        </template>
+
+        <div class="buttonUp">
+          <el-button round @click="cancelFun(key)">取消</el-button>
+          <el-button type="danger" round @click="submitFun(item.dataList,key)">保存</el-button>
+        </div>
+      </el-form>
+
+    </el-card>
+
+  </div>
+
 </template>
-
-
 
 <script>
 
-import { uploadAvatar} from '@/api/user'
+import { uploadAvatar } from '@/api/user'
+import { mapGetters } from 'vuex'
 
 export default {
-  data() {
-      return {
-        imageUrl: "",
-        my_loadingFalg:false,
-        upAvatarButton:true
-      };
-    },
+  computed: {
+
+    ...mapGetters([
+      'basicInfo'
+    ])
+  },
   props: {
     user: {
       type: Object,
@@ -62,85 +97,164 @@ export default {
         return {
           name: '',
           email: '',
-          avatar:''
+          avatar: ''
         }
       }
     }
-  },  
-  created() {
-    console.log("created_1",this.user)
-    this.imageUrl = this.user.avatar
-    that.$refs['my-upload'].clearFiles();
-    //this.upAvatarButton = true
+  },
+  data() {
+    return {
+      basicInfoList: {
+        basicInfo: {
+          editFlag: true,
+          title: '基本信息',
+          dataList: {
+            nickname: { index: 0, type: 'text', title: '用户昵称', model: '123' },
+            username: { index: 0, type: 'text', title: '用户名', model: '123' },
+            arv: { index: 1, type: 'img', title: '头像', model: '123' },
+            region: { index: 0, type: 'text', title: '地区', model: '123' },
+            gender: { index: 2, type: 'select', title: '性别', model: '0', data: [{value: 0,label: '男'},{value: 1,label: '女'},{value: 2,label: '未知'}]}
+          }
+        }
+
+      },
+      imageUrl: '',
+      my_loadingFalg: false,
+      upAvatarButton: true
+    }
+  },
+  mounted() {
+    this.iniUserInfo()
+    // this.upAvatarButton = true
   },
 
-
   methods: {
-    loadIMG(e) {  // 图片加载出错
-        console.log(e)
-        this.$message.error('图片加载错误');
-        this.imageUrl = ""
-        this.$refs['my-upload'].clearFiles();
-        this.upAvatarButton=true
-    },
-      
+    iniUserInfo() {
+      console.log('created_1', this.user)
+      console.log('created_2', this.basicInfo)
 
-    upAvatarfuc(){
-      console.log("upAvatarfuc")
-      this.$refs['my-upload'].submit();
+      this.imageUrl = this.user.avatar
 
+      // 循环赋值
+      for (var key in this.basicInfoList.basicInfo.dataList) {
+        console.log('key', key)
+        console.log('data', this.basicInfoList)
+        if (this.basicInfoList.basicInfo.dataList[key].type === 'select') {
+          this.basicInfoList.basicInfo.dataList[key].model = this.basicInfo[key]
+        } else {
+          this.basicInfoList.basicInfo.dataList[key].model = this.basicInfo[key]
+        }
+      }
+      console.log('data_1', this.basicInfoList)
+
+      if (this.$refs['my-upload']) {
+        this.$refs['my-upload'][0].clearFiles()
+      }
     },
-    handleChange(param){
-      console.log("handleChange:",param.raw)
-      let file = param.raw
+    submitFun(data,key) {
+      console.log('submitFun:', data)
+      let upData = {
+        "chType":"basicInfo",
+        "data":data
+      }
+      this.$store.dispatch('user/updata', upData).then(() => { // 上传图片
+        this.$message({
+          message: '用户信息更新成功',
+          type: 'success',
+          duration: 5 * 1000
+        })
+        this.basicInfoList[key].editFlag = true
+        this.$emit('changeUser', { 'loadingAll': false })
+      }).catch((e) => {
+        this.$message({
+          message: e,
+          type:"error",
+          duration: 5 * 1000
+        })
+        this.$emit('changeUser', { 'loadingAll': false })
+      })
+    },
+    cancelFun(data) {
+      console.log('cancelFun:', data)
+      this.iniUserInfo()
+      this.basicInfoList[data].editFlag = true
+    },
+    cardClickFuc(index) {
+      console.log('点击卡片', index)
+    },
+    loadIMG(e) { // 图片加载出错
+      console.log(e)
+      this.$message.error('图片加载错误')
+      this.imageUrl = ''
+      this.$refs['my-upload'][0].clearFiles()
+      this.upAvatarButton = true
+    },
+
+    upAvatarfuc() {
+      console.log('upAvatarfuc')
+      this.$refs['my-upload'][0].submit()
+    },
+    /* handleExceed(param,fileList){
+console.log("param:",param)
+console.log("param0:",param[0])
+console.log("Filelist:",fileList)
+      this.upAvatarButton=false
+      this.imageUrl = URL.createObjectURL(param[0]);
+      fileList.splice(0, 1);
+    },*/
+    handleChange(param, fileList) {
+      if (fileList.length > 1) {
+        fileList.splice(0, 1)
+      }
+
+      console.log('handleChange:', param.raw)
+      const file = param.raw
       const isJPG = /^image\/(jpeg|png|jpg|x-icon)$/.test(file.type)
 
-      //const isJPG = file.type === 'image/jpeg'; //x-icon
-      const isLt2M = file.size / 1024 / 1024 < 2;
-      
+      // const isJPG = file.type === 'image/jpeg'; //x-icon
+      const isLt2M = file.size / 1024 / 1024 < 2
+
       if (!isJPG) {
-        this.$message.error('上传头像图片只能是 JPG 格式!');
-        this.$refs['my-upload'].clearFiles();
+        this.$message.error('上传头像图片只能是 JPG 格式!')
+        this.$refs['my-upload'][0].clearFiles()
         return
       }
       if (!isLt2M) {
-        this.$message.error('上传头像图片大小不能超过 2MB!');
-        this.$refs['my-upload'].clearFiles();
+        this.$message.error('上传头像图片大小不能超过 2MB!')
+        this.$refs['my-upload'][0].clearFiles()
         return
       }
-      this.upAvatarButton=false
-      this.imageUrl = URL.createObjectURL(file);
-
+      this.upAvatarButton = false
+      this.imageUrl = URL.createObjectURL(file)
     },
-    uploadImage(param){
+    uploadImage(param) {
       const that = this
-      this.$emit("changeUser", {"loadingAll":true});
-    console.log("uploadImage:",param)
+      this.$emit('changeUser', { 'loadingAll': true })
+      console.log('uploadImage:', param)
       const formData = new FormData()
-      console.log("param",param)
+      console.log('param', param.file)
       formData.append('file', param.file)
+      console.log('formData', formData)
 
-      this.$store.dispatch('user/upAvatar', formData,param).then(() => {//上传图片
+      this.$store.dispatch('user/upAvatar', formData, param).then(() => { // 上传图片
+        console.log('11')
+        that.$refs['my-upload'][0].clearFiles()
 
-           console.log("11")
-            that.$refs['my-upload'].clearFiles();
-            
-             this.$message({
-                message: '头像更新成功',
-                type: 'success',
-                duration: 5 * 1000
-              })
+        this.$message({
+          message: '头像更新成功',
+          type: 'success',
+          duration: 5 * 1000
+        })
 
-            this.$emit("changeUser", {"loadingAll":false});
+        this.$emit('changeUser', { 'loadingAll': false })
 
-           that.upAvatarButton=true
-           
-          }).catch(() => {
-            that.$refs['my-upload'].clearFiles();
-            this.$emit("changeUser", {"loadingAll":false});
-            that.upAvatarButton=true
-          })
-/*
+        that.upAvatarButton = true
+      }).catch(() => {
+        that.$refs['my-upload'][0].clearFiles()
+        this.$emit('changeUser', { 'loadingAll': false })
+        that.upAvatarButton = true
+      })
+      /*
       uploadAvatar(formData).then(response => {
         console.log('上传图片成功')
         this.form.picUrl = process.env.VUE_APP_BASE_API + response.imgUrl
@@ -149,31 +263,30 @@ export default {
         console.log('图片上传失败')
       })
 */
-
     },
-     handleAvatarSuccess(res, file) {
-        this.imageUrl = URL.createObjectURL(file.raw);
-      },
-      beforeAvatarUpload(file) {
-        //const isJPG = file.type === 'image/jpeg';
-        const isJPG = /^image\/(jpeg|png|jpg|x-icon)$/.test(file.type)
-        const isLt2M = file.size / 1024 / 1024 < 2;
-        console.log("123",isJPG)
-        if (!isJPG) {
-          this.$message.error('上传头像图片只能是 JPG 格式!');
-        }
-        if (!isLt2M) {
-          this.$message.error('上传头像图片大小不能超过 2MB!');
-        }
-        return isJPG && isLt2M;
-      },
+    handleAvatarSuccess(res, file) {
+      this.imageUrl = URL.createObjectURL(file.raw)
+    },
+    beforeAvatarUpload(file) {
+      // const isJPG = file.type === 'image/jpeg';
+      const isJPG = /^image\/(jpeg|png|jpg|x-icon)$/.test(file.type)
+      const isLt2M = file.size / 1024 / 1024 < 2
+      console.log('123', isJPG)
+      if (!isJPG) {
+        this.$message.error('上传头像图片只能是 JPG 格式!')
+      }
+      if (!isLt2M) {
+        this.$message.error('上传头像图片大小不能超过 2MB!')
+      }
+      return isJPG && isLt2M
+    },
     submit() {
-      this.name = "123456"
+      this.name = '123456'
       this.user.name = this.user.name + 1
 
-      this.$emit("changeUser", {"loadingAll":false});
+      this.$emit('changeUser', { 'loadingAll': false })
 
-      //this.$emit("loadingFalg", !this.loadingFalg);
+      // this.$emit("loadingFalg", !this.loadingFalg);
       this.$message({
         message: 'User information has been updated successfully',
         type: 'success',
@@ -185,16 +298,18 @@ export default {
 </script>
 <style>
   .avatar-uploader .el-upload {
-    border: 1px dashed #d9d9d9;
+    display:flex;
     border-radius: 6px;
     cursor: pointer;
     position: relative;
     overflow: hidden;
   }
   .avatar-uploader .el-upload:hover {
+     border: 1px dashed #d9d9d9;
     border-color: #409EFF;
   }
   .avatar-uploader-icon {
+    border: 1px dashed #d9d9d9;
     font-size: 28px;
     color: #8c939d;
     width: 178px;
@@ -203,8 +318,27 @@ export default {
     text-align: center;
   }
   .avatar {
+    border: 1px dashed #d9d9d9;
     width: 178px;
     height: 178px;
-    display: block;
+
   }
+   .box-card {
+    width: 98%;
+
+    margin-left:1%;
+  }
+  .information-title {
+  color: #19d3ea;
+  font-size: 18px;
+  cursor: pointer;  /*鼠标悬停变小手*/
+  width: 100%;
+}
+.buttonUp{
+
+position:absolute;
+left: 50%;
+transform: translate(-50%,-50%);
+
+}
 </style>

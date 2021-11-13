@@ -5,13 +5,14 @@ import NProgress from 'nprogress' // progress bar
 import 'nprogress/nprogress.css' // progress bar style
 import { getToken } from '@/utils/auth' // get token from cookie
 import getPageTitle from '@/utils/get-page-title'
+import { Base64, encode, decode } from 'js-base64'
 
 NProgress.configure({ showSpinner: false }) // NProgress Configuration
 
-const whiteList = ['/login', '/proxy',"/githubLogin"] // no redirect whitelist
+const whiteList = ['/login', '/proxy', '/githubLogin', '/qqLogin'] // no redirect whitelist
 
 router.beforeEach(async(to, from, next) => {
-  console.log("总拦截")
+  console.log('总拦截')
   // start progress bar
   NProgress.start()
 
@@ -27,12 +28,24 @@ router.beforeEach(async(to, from, next) => {
       next({ path: '/' })
       NProgress.done()
     } else {
+      // 获取有效期
       const hasGetUserInfo = store.getters.name
+      // hasToken
+
+      const tokenArry = hasToken.split('.')
+
+      let playload = Base64.decode(tokenArry[1]) // 解码
+      console.log('playload_1', playload)
+      playload = JSON.parse(playload)
+      // 计算时间间隔
+
+      // await store.dispatch('user/getInfo') //刷新token
+
       if (hasGetUserInfo) {
         next()
       } else {
         try {
-          //console.log("总获取")
+          // console.log("总获取")
           // get user info
           await store.dispatch('user/getInfo')
 
@@ -49,7 +62,7 @@ router.beforeEach(async(to, from, next) => {
   } else {
     /* has no token*/
 
-    if (whiteList.indexOf(to.path) !== -1 ) {
+    if (whiteList.indexOf(to.path) !== -1) {
       // in the free login whitelist, go directly
       next()
     } else {

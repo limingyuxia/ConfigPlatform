@@ -13,7 +13,7 @@
       </div>
       <div class="box-center">
         <div class="user-name text-center">{{ user.name }}</div>
-        <div class="user-role text-center text-muted">{{ user.role}}</div>
+        <div class="user-role text-center text-muted">{{ user.role }}</div>
       </div>
     </div>
 
@@ -57,9 +57,9 @@ import PanThumb from '@/components/PanThumb'
 import { mapGetters } from 'vuex'
 export default {
   components: { PanThumb },
-   computed: {
+  computed: {
     ...mapGetters([
-      'avatar',
+      'avatar'
     ])
   },
   props: {
@@ -75,15 +75,15 @@ export default {
       }
     }
   },
-  created() {
-    console.log("user___avatar",this.avatar)
-  },
-    watch: {
-      user: {
+  watch: {
+    user: {
       handler(newValue, oldValue) {
-      　console.log("user___",newValue)
-      },
+        console.log('user___', newValue)
       }
+    }
+  },
+  created() {
+    console.log('user___avatar', this.avatar)
   }
 }
 </script>

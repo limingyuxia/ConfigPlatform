@@ -38,7 +38,7 @@ export default {
     console.log('mounted_myURL', myURL)
     this.search = window.location.search
     // console.log(window.location.href.indexOf("code=") !==-1);判断是否否找到code=
-    if (window.location.href.indexOf('code=') === -1) {
+    if (window.location.href.indexOf('code=') == -1) {
 
     } else {
       var str = window.location.href.substr(window.location.href.indexOf('code=') + 5)
@@ -47,7 +47,7 @@ export default {
       console.log(Code)
       var upData = {
         'Code': window.location.search,
-        'typy': 'github'
+        'typy': 'qq'
       }
       // 后端接口
       this.$store.dispatch('user/thirdLogin', upData).then((webdata) => {
