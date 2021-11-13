@@ -1,4 +1,4 @@
-import { login, logout, getInfo, uploadAvatar, thirdLogin, resetToken,updata } from '@/api/user'
+import { login, logout, getInfo, uploadAvatar, thirdLogin,getAuthInfo, resetToken,updata } from '@/api/user'
 import { getToken, setToken, removeToken } from '@/utils/auth'
 import { resetRouter } from '@/router'
 // import { Base64, encode, decode } from 'js-base64'
@@ -13,7 +13,16 @@ const getDefaultState = () => {
     avatar: '../../icons/svg/中国移动.png',
     roles: [],
     phone:"",
-
+    authInfo:{
+      "github_avatar": "",
+      "github_username": "",
+      "qq_avatar": "",
+      "qq_username": "",
+      "wechat_avatar": "",
+      "wechat_username": "",
+      "weibo_avatar": "",
+      "weibo_username": ""
+    },
     basicInfo: {
       gender: 0,
       nickname: 'Null',
@@ -29,6 +38,9 @@ const state = getDefaultState()
 const mutations = {
   RESET_STATE: (state) => {
     Object.assign(state, getDefaultState())
+  },
+  SET_AUTHINFO: (state, authInfo) => {
+    state.authInfo = authInfo
   },
   SET_TOKEN: (state, token) => {
     state.token = token
@@ -175,6 +187,20 @@ console.log("file",avatarFile)
       })
     })
   },
+  getAuthInfo({ commit, state }) {
+    console.log("第三方信息_1：")
+    return new Promise((resolve, reject) => {
+      getAuthInfo(state.token).then(response => {
+          console.log("第三方信息：",response)
+
+          commit('SET_AUTHINFO', response)
+          resolve(response)
+      }).catch(error => {
+        console.log("第三方信息_error：",error)
+        reject(error)
+      })
+    })
+  },
   // get user info
   getInfo({ commit, state }) {
     console.log('获取：', commit, state)
@@ -190,8 +216,8 @@ console.log("file",avatarFile)
         console.log('userInfo:', response)
         const { username, photo, email,phone } = response
         let avatar = photo || defaultAvatar
-        const userEmail = email || 'Null'
-        const userPhone = phone || 'Null'
+        const userEmail = email 
+        const userPhone = phone 
         if (avatar !== defaultAvatar) {
           avatar = 'http://' + process.env.VUE_APP_BASE_HTTP_API + avatar
         }

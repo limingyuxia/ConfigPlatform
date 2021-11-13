@@ -4,17 +4,21 @@
 
       <span slot="header" class="clearfix">{{ item.title }}</span>
 
-      <div v-for="(itemDe) in item.dataList" :key="itemDe">
 
+      <div v-for="(itemDe) in item.dataList" :key="itemDe.index">
+        
         <el-row style="margin: auto;" type="flex" class="row-bg">
-          <el-col style="margin: auto;" :span="4"><p>{{ itemDe.title }}：</p></el-col>
-          <el-col style="margin: auto;text-align: right;word-break:break-all" :span="24 - 4 - 2">
-            <p>{{ itemDe.describe }}</p>
+         
+          <el-avatar v-if="itemDe.avatarUrl" style="margin: auto;" :size="30" :src="itemDe.avatarUrl"></el-avatar>
+          <el-col style="margin: auto; margin-left:5px;" :span="4"><p>{{ itemDe.title }}：</p></el-col>
+          <el-col style="margin: auto;word-break:break-all" :span="24 - 4 - 2">
+            <el-avatar v-if="false" style="margin: auto;" :size="30" :src="itemDe.avatarUrl"></el-avatar>
+            <div style="margin: auto;">{{itemDe.describe}}</div>
 
           </el-col>
-          <el-col style="margin: auto;text-align: right;" :span="2">
+          <el-col style="margin: auto" :span="2">
 
-            <el-button type="text" size="small">{{ itemDe.button }}</el-button>
+            <el-button  @click="showDialog('tencent')" type="text" size="small">{{ itemDe.button }}</el-button>
           </el-col>
         </el-row>
 
@@ -23,7 +27,16 @@
  
 
     </el-card>
+<el-dialog
+  title="提示"
+  :visible.sync="dialogVisible"
+  width="50%"
+  :before-close="handleClose">
+  <span>这是一段信息</span>
+  <span slot="footer" class="dialog-footer">
 
+ </span>
+</el-dialog>
   </div>
 
 </template>
@@ -31,8 +44,15 @@
 <script>
 
 // import { uploadAvatar } from '@/api/user'
-
+import { mapGetters } from 'vuex'
 export default {
+    computed: {
+
+    ...mapGetters([
+      'authInfo',
+      'email'
+    ])
+  },
   props: {
     user: {
       type: Object,
@@ -48,16 +68,27 @@ export default {
   },
   data() {
     return {
+      dialogVisible:false,
       basicInfoList: [
         {
           editFlag: true,
           title: '账号设置',
           dataList: {
-            nickname: { index: 0, describe: '', button: '设置密码', type: 'text', title: '用户昵称', model: '123' }
-
+            nickname: { index: 0, describe: '存在风险，请设置密码 ', button: '设置密码', type: 'text', title: '密码', model: '123' },
+            phone:{ index: 1, describe: ' ', button: '修改手机', type: 'text', title: '手机', model: '123' },
+            email:{ index: 2, describe: ' ', button: '修改邮箱', type: 'text', title: '邮箱', model: '123' },
+          }
+        }, 
+        {
+          editFlag: true,
+          title: '帐号关联',
+          dataList: {
+            wechat: { index: 0,avatarUrl:"https://open.weixin.qq.com/zh_CN/htmledition/res/assets/res-design-download/icon48_appwx_logo.png",desPicture:"", describe: '', button: '绑定', type: 'text', title: '微信', model: '123' },
+            qq: { index: 1,avatarUrl:"https://img.ixintu.com/upload/jpg/20210522/abb7b6902f2f6fe5a399809e97aeef6c_61793_800_800.jpg!con",desPicture:"", describe: '', button: '绑定', type: 'text', title: 'QQ', model: '123' },
+            github: { index: 2,avatarUrl:"http://bpic.588ku.com/element_pic/00/25/58/9656d059a2d139b.jpg",desPicture:"", describe: '', button: '绑定', type: 'text', title: 'GitHub', model: '123' },
+            weibo: { index: 3,avatarUrl:"https://img.ixintu.com/download/jpg/201912/f2b9e19eae370b85e0cf0c23fc18ec30.jpg!ys",desPicture:"", describe: '', button: '绑定', type: 'text', title: '新浪微博', model: '123' },
           }
         }
-
       ],
       imageUrl: '',
       my_loadingFalg: false,
@@ -65,114 +96,44 @@ export default {
     }
   },
   mounted() {
-    console.log('created_1', this.user)
-    this.imageUrl = this.user.avatar
-    this.$refs['my-upload'][0].clearFiles()
-    // this.upAvatarButton = true
+    console.log('created_17687', this.user)
+    this.iniUserInfo()
+
   },
 
   methods: {
+    async iniUserInfo(){
+     await this.$store.dispatch('user/getAuthInfo')
+
+      console.log('created_信息')
+      console.log('created_原始',this.basicInfoList[0].dataList)
+      
+      this.basicInfoList[0].dataList.email.describe = this.email
+
+      for (var key in this.authInfo) {//第三方信息
+        let myKey = key.split("_")[0]
+        let myType = key.split("_")[1]
+        if (myType === "username"){
+          this.basicInfoList[1].dataList[myKey].describe = this.authInfo[key]
+
+        }
+      }
+    },
     cardClickFuc(index) {
       console.log('点击卡片', index)
     },
-    loadIMG(e) { // 图片加载出错
-      console.log(e)
-      this.$message.error('图片加载错误')
-      this.imageUrl = ''
-      this.$refs['my-upload'][0].clearFiles()
-      this.upAvatarButton = true
+    showDialog(){
+      this.dialogVisible = true
+
     },
+    handleClose(done) {
+        this.$confirm('确认关闭？')
+          .then(_ => {
+            done();
+          })
+          .catch(_ => {});
+      },
 
-    upAvatarfuc() {
-      console.log('upAvatarfuc')
-      this.$refs['my-upload'][0].submit()
-    },
-    /* handleExceed(param,fileList){
-console.log("param:",param)
-console.log("param0:",param[0])
-console.log("Filelist:",fileList)
-      this.upAvatarButton=false
-      this.imageUrl = URL.createObjectURL(param[0]);
-      fileList.splice(0, 1);
-    },*/
-    handleChange(param, fileList) {
-      if (fileList.length > 1) {
-        fileList.splice(0, 1)
-      }
-
-      console.log('handleChange:', param.raw)
-      const file = param.raw
-      const isJPG = /^image\/(jpeg|png|jpg|x-icon)$/.test(file.type)
-
-      // const isJPG = file.type === 'image/jpeg'; //x-icon
-      const isLt2M = file.size / 1024 / 1024 < 2
-
-      if (!isJPG) {
-        this.$message.error('上传头像图片只能是 JPG 格式!')
-        this.$refs['my-upload'][0].clearFiles()
-        return
-      }
-      if (!isLt2M) {
-        this.$message.error('上传头像图片大小不能超过 2MB!')
-        this.$refs['my-upload'][0].clearFiles()
-        return
-      }
-      this.upAvatarButton = false
-      this.imageUrl = URL.createObjectURL(file)
-    },
-    uploadImage(param) {
-      const that = this
-      this.$emit('changeUser', { 'loadingAll': true })
-      console.log('uploadImage:', param)
-      const formData = new FormData()
-      console.log('param', param.file)
-      formData.append('file', param.file)
-      console.log('formData', formData)
-
-      this.$store.dispatch('user/upAvatar', formData, param).then(() => { // 上传图片
-        console.log('11')
-        that.$refs['my-upload'][0].clearFiles()
-
-        this.$message({
-          message: '头像更新成功',
-          type: 'success',
-          duration: 5 * 1000
-        })
-
-        this.$emit('changeUser', { 'loadingAll': false })
-
-        that.upAvatarButton = true
-      }).catch(() => {
-        that.$refs['my-upload'][0].clearFiles()
-        this.$emit('changeUser', { 'loadingAll': false })
-        that.upAvatarButton = true
-      })
-      /*
-      uploadAvatar(formData).then(response => {
-        console.log('上传图片成功')
-        this.form.picUrl = process.env.VUE_APP_BASE_API + response.imgUrl
-
-      }).catch(response => {
-        console.log('图片上传失败')
-      })
-*/
-    },
-    handleAvatarSuccess(res, file) {
-      this.imageUrl = URL.createObjectURL(file.raw)
-    },
-    beforeAvatarUpload(file) {
-      // const isJPG = file.type === 'image/jpeg';
-      const isJPG = /^image\/(jpeg|png|jpg|x-icon)$/.test(file.type)
-      const isLt2M = file.size / 1024 / 1024 < 2
-      console.log('123', isJPG)
-      if (!isJPG) {
-        this.$message.error('上传头像图片只能是 JPG 格式!')
-      }
-      if (!isLt2M) {
-        this.$message.error('上传头像图片大小不能超过 2MB!')
-      }
-      return isJPG && isLt2M
-    },
     submit() {
       this.name = '123456'
       this.user.name = this.user.name + 1
@@ -218,7 +179,7 @@ console.log("Filelist:",fileList)
   }
    .box-card {
     width: 98%;
-
+    margin-top:15px;
     margin-left:1%;
   }
   .information-title {

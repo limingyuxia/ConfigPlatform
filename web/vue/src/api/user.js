@@ -13,7 +13,14 @@ export function updata(params) {
     url: '/user/update',
     method: 'post',
     data: params
-    // headers: params.header
+
+  })
+}
+export function getAuthInfo(params) {
+  return request({
+    url: '/user/auth2Info',
+    method: 'get',
+
   })
 }
 

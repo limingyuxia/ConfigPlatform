@@ -110,10 +110,10 @@ export default {
           title: '基本信息',
           dataList: {
             nickname: { index: 0, type: 'text', title: '用户昵称', model: '123' },
-            username: { index: 0, type: 'text', title: '用户名', model: '123' },
-            arv: { index: 1, type: 'img', title: '头像', model: '123' },
-            region: { index: 0, type: 'text', title: '地区', model: '123' },
-            gender: { index: 2, type: 'select', title: '性别', model: '0', data: [{value: 0,label: '男'},{value: 1,label: '女'},{value: 2,label: '未知'}]}
+            username: { index: 1, type: 'text', title: '用户名', model: '123' },
+            arv: { index: 2, type: 'img', title: '头像', model: '123' },
+            region: { index: 3, type: 'text', title: '地区', model: '123' },
+            gender: { index: 4, type: 'select', title: '性别', model: '0', data: [{value: 0,label: '男'},{value: 1,label: '女'},{value: 2,label: '未知'}]}
           }
         }
 
@@ -129,7 +129,7 @@ export default {
   },
 
   methods: {
-    iniUserInfo() {
+     iniUserInfo () {
       console.log('created_1', this.user)
       console.log('created_2', this.basicInfo)
 
@@ -137,8 +137,7 @@ export default {
 
       // 循环赋值
       for (var key in this.basicInfoList.basicInfo.dataList) {
-        console.log('key', key)
-        console.log('data', this.basicInfoList)
+
         if (this.basicInfoList.basicInfo.dataList[key].type === 'select') {
           this.basicInfoList.basicInfo.dataList[key].model = this.basicInfo[key]
         } else {
