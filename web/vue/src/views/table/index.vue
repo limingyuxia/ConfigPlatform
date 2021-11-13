@@ -283,11 +283,17 @@
 <script>
 import { getList, getDetailList, addProject, deleteProject, editProject } from '@/api/project'
 import { Message } from 'element-ui'
-
+import { mapGetters } from 'vuex'
 export default {
+        computed: {
 
+    ...mapGetters([
+      'name'
+    ])
+  },
   data() {
     return {
+
       formInline: [
         { 'label': '项目名称', 'value': '', 'model': 'name', 'placeholder': '请输入' },
         { 'label': '项目id', 'value': '', 'model': 'id', 'placeholder': '请输入' },
@@ -370,13 +376,13 @@ export default {
     }
   },
   created() {
-    console.log('初始化表格')
+    console.log('初始化表格',this)
     var data = {
       'page_index': 1,
       'page_size': 20,
-      'project_user': 'superuser'// 用户名 必须
+      'project_user': this.name// 用户名 必须
     }
-    this.queryData(data)
+    //this.queryData(data)
   },
 
   methods: {
@@ -386,7 +392,7 @@ export default {
       var data = {
         'page_index': this.currentPage,
         'page_size': this.pageSize,
-        'project_user': 'superuser'// 用户名 必须
+        'project_user': this.name// 用户名 必须
       }
 
       for (let index = 0; index < formInline.length; index++) {
@@ -464,7 +470,7 @@ export default {
           'description': this.formData.description,
           'develop_user': this.formData.develop_user,
           'name': this.formData.name,
-          'project_user': 'superuser'
+          'project_user': this.name
         }
         console.log('upData:', upData)
         this.dialogFormLoading = true
@@ -480,7 +486,7 @@ export default {
           var data = {
             'page_index': this.currentPage,
             'page_size': this.pageSize,
-            'project_user': 'superuser'// 用户名 必须
+            'project_user': this.name// 用户名 必须
           }
           this.queryData(data)
           // this.formData = response
@@ -513,7 +519,7 @@ export default {
           var data = {
             'page_index': this.currentPage,
             'page_size': this.pageSize,
-            'project_user': 'superuser'// 用户名 必须
+            'project_user': this.name// 用户名 必须
           }
           this.queryData(data)
           // this.formData = response
@@ -584,7 +590,7 @@ export default {
         'develop_user': [],
         'id': '',
         'name': '',
-        'project_user': 'superuser'
+        'project_user': this.name
       }
       this.dialogformDisabled = false
       this.formData = data
@@ -623,7 +629,7 @@ export default {
           var data = {
             'page_index': this.currentPage,
             'page_size': this.pageSize,
-            'project_user': 'superuser'// 用户名 必须
+            'project_user': this.name// 用户名 必须
           }
           this.queryData(data)
         }, reason => {
@@ -646,7 +652,7 @@ export default {
       var data = {
         'page_index': this.currentPage,
         'page_size': pageSize,
-        'project_user': 'superuser'// 用户名 必须
+        'project_user': this.name// 用户名 必须
       }
       this.queryData(data)
     },
@@ -655,7 +661,7 @@ export default {
       var data = {
         'page_index': currentPage,
         'page_size': this.pageSize,
-        'project_user': 'superuser'// 用户名 必须
+        'project_user': this.name// 用户名 必须
       }
       this.queryData(data)
 
@@ -669,7 +675,7 @@ export default {
       var data = {
         'page_index': currentPage,
         'page_size': this.pageSize,
-        'project_user': 'superuser'// 用户名 必须
+        'project_user': this.name// 用户名 必须
       }
       */
       console.log('upData:', data)

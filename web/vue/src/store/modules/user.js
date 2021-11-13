@@ -231,10 +231,9 @@ console.log("file",avatarFile)
         // 基本信息
         var basicInfo = {
           gender: response.gender || 0,
-          nickname: response.nickname || 'Null',
-          phone: response.phone || 'Null',
-          region: response.region || 'Null',
-          username: response.username || 'Null'
+          nickname: response.nickname ,
+          phone: response.phone,
+          region: response.region ,
         }
 
         commit('SET_BASICINFO', basicInfo)

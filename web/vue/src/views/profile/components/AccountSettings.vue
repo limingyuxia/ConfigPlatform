@@ -18,7 +18,7 @@
           </el-col>
           <el-col style="margin: auto" :span="2">
 
-            <el-button  @click="showDialog('tencent')" type="text" size="small">{{ itemDe.button }}</el-button>
+            <el-button  @click="showDialog(itemDe)" type="text" size="small">{{ itemDe.button }}</el-button>
           </el-col>
         </el-row>
 
@@ -50,7 +50,8 @@ export default {
 
     ...mapGetters([
       'authInfo',
-      'email'
+      'email',
+      'phone'
     ])
   },
   props: {
@@ -109,7 +110,7 @@ export default {
       console.log('created_原始',this.basicInfoList[0].dataList)
       
       this.basicInfoList[0].dataList.email.describe = this.email
-
+      this.basicInfoList[0].dataList.phone.describe = this.phone
       for (var key in this.authInfo) {//第三方信息
         let myKey = key.split("_")[0]
         let myType = key.split("_")[1]

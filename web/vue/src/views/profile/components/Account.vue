@@ -110,7 +110,7 @@ export default {
           title: '基本信息',
           dataList: {
             nickname: { index: 0, type: 'text', title: '用户昵称', model: '123' },
-            username: { index: 1, type: 'text', title: '用户名', model: '123' },
+            //username: { index: 1, type: 'text', title: '用户名', model: '123' },
             arv: { index: 2, type: 'img', title: '头像', model: '123' },
             region: { index: 3, type: 'text', title: '地区', model: '123' },
             gender: { index: 4, type: 'select', title: '性别', model: '0', data: [{value: 0,label: '男'},{value: 1,label: '女'},{value: 2,label: '未知'}]}
