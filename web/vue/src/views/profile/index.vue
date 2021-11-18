@@ -52,7 +52,7 @@ export default {
       user: {
         loadingAll: false
       },
-      activeTab: 'account'
+      activeTab: 'AccountSettings'
     }
   },
   computed: {

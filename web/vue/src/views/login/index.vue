@@ -362,7 +362,9 @@ export default {
       this.reCodeLoading = true
       getCodeId().then(response => {
         console.log('response:', response)
+
         this.captcha_id = response.captcha_id
+        
         var protocolStr = document.location.protocol
 
         if (protocolStr === 'http:') {

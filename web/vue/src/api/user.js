@@ -58,13 +58,7 @@ export function confirmCode(params) {
   })
 }
 
-export function getCodeId() {
-  return request({
-    url: '/captcha/get',
-    method: 'GET'
 
-  })
-}
 
 export function emailSend(params) {
   return request({

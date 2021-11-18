@@ -88,8 +88,6 @@ const actions = {
         "region": userInfo.data.region.model,
         "username": this.getters.name
       }
-     
-
     }
     console.log("修改数据：",changeData)
     

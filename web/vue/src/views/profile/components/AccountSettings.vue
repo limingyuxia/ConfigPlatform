@@ -28,14 +28,51 @@
 
     </el-card>
 <el-dialog
-  title="提示"
+
+
+
   :visible.sync="dialogVisible"
   width="50%"
-  :before-close="handleClose">
-  <span>这是一段信息</span>
-  <span slot="footer" class="dialog-footer">
+  :before-close="handleClose"
 
+  center>
+<el-steps align-center :active="dialogData.active" finish-status="success">
+  <el-step title="验证原手机"></el-step>
+  <el-step title="设置新手机"></el-step>
+  <el-step title="完成"></el-step>
+</el-steps>
+
+    <el-form
+      v-loading="dialogData.loading"
+      :model="dialogData.formData"
+      label-position="right"
+      label-width="20%"
+    >
+
+  <template v-for="(itemDe,key) in dialogData.formInline[dialogData.active]">
+    <el-form-item style="text-align:'center';width: 80%;"  v-if="itemDe.type == 'sendCode'" :key="itemDe.key" label="">
+      <el-input :placeholder="itemDe.placeholder" v-model="itemDe.model"> <el-button :disabled="itemDe.disabled" type="text" @click="getCode(key)" slot="suffix">{{itemDe.label}}</el-button></el-input>
+    </el-form-item>
+
+    <el-form-item  style="text-align:'center';margin:auto;width: 60%;" v-if="itemDe.type == 'text'" :key="itemDe.key"  :label="itemDe.label">
+      <span style="margin:auto" class="demonstration">{{key}},{{itemDe.placeholder}}</span>
+    </el-form-item>
+    
+    <el-form-item v-if="itemDe.type == 'code'" style=" width: 80%;" prop="codeNum" :key="itemDe.key">
+      <el-input v-model="itemDe.model" type="text" title="请输入图形验证码" placeholder="请输入图形验证码"><el-button slot="append" v-loading="itemDe.Loading" @click="reCodefuc(key)"><img onerror="default" style="width: 130px;height: 40px;" :src="itemDe.value"></el-button></el-input>
+    </el-form-item>
+
+    <el-form-item v-if="itemDe.type == 'input'" style=" width: 80%;" prop="codeNum" :key="itemDe.key">
+      <el-input v-model="itemDe.model" type="text" :title="itemDe.title" :placeholder="itemDe.placeholder"></el-input>
+    </el-form-item>
+
+  </template>
+
+    </el-form>
+     <span  slot="footer" class="dialog-footer">
+    <el-button v-if="dialogData.steps[dialogData.active].nextButtonLabel" :disabled="dialogData.loading" type="danger" @click="nextStep(dialogData.active)" round>{{dialogData.steps[dialogData.active].nextButtonLabel}}</el-button>
  </span>
+
 </el-dialog>
   </div>
 
@@ -43,8 +80,10 @@
 
 <script>
 
-// import { uploadAvatar } from '@/api/user'
+
+import { getCodeId } from '@/api/user'
 import { mapGetters } from 'vuex'
+import { Message } from 'element-ui'
 export default {
     computed: {
 
@@ -69,7 +108,34 @@ export default {
   },
   data() {
     return {
+      timer:"",
+      
       dialogVisible:false,
+      dialogData:{
+        active: 0,
+        title:"123",
+        formData:{},
+        steps:[
+          {'nextButtonLabel': '点击验证'},
+          {'nextButtonLabel': '点击绑定'},
+          {'nextButtonLabel': ''},
+          
+        ],
+        //isLogin
+        loading:false,
+        formInline: [
+          [
+            { "type":"text", 'value': '', 'model': '', 'placeholder': "验证码将发送到邮箱\n(1160201372@qq.com)" },
+            { "type":"code",'label': '', 'value': '',"captcha_id":"", 'model': '','placeholder': '请输入' },
+            { "type":"sendCode","disabled":false,"captcha_token":"","codeType":"email",'label': '获取验证码', 'value': '', 'model': '', 'placeholder': '请输入',"account":"1160201372@qq.com" },
+          ],
+          [
+            { "type":"input", 'value': '', 'model': '', 'placeholder': "请输入新邮箱" },
+            { "type":"code",'label': '', 'value': '',"captcha_id":"", 'model': '','placeholder': '请输入' },
+            { "type":"sendCode","disabled":false,"codeType":"email",'label': '获取验证码', 'value': '', 'model': '', 'placeholder': '请输入',"account":"1160201372@qq.com" },
+          ]
+        ],
+      },
       basicInfoList: [
         {
           editFlag: true,
@@ -103,6 +169,115 @@ export default {
   },
 
   methods: {
+    nextStep(key){
+      console.log("下一步",key)
+      var formInline = this.dialogData.formInline[this.dialogData.active]
+      var active = this.dialogData.active
+      //this.dialogData.active = this.dialogData.active + 1
+      var storeData={
+        codeType:formInline[2].codeType,
+        captcha_token: formInline[2].captcha_token,
+        email_code: formInline[2].model
+      }
+      //confirmCode
+      if(active === 0){//验证
+        this.$store.dispatch('verify/confirmCode',storeData ).then((redirect) => {
+          console.log("confirmCode")
+          this.dialogData.active = this.dialogData.active + 1
+          this.reCodefuc(1)
+        }).catch((e) => {
+          console.log('error,',e)
+        })
+      }
+
+
+    },
+    getCode(key){
+
+      var formInline = this.dialogData.formInline[this.dialogData.active][key]
+      var formInline_last = this.dialogData.formInline[this.dialogData.active][key-1]
+
+       let storeData = {
+          codeType:formInline.codeType,
+          account:formInline.account,
+          captcha_id:formInline_last.captcha_id,
+          captcha_num:formInline_last.model,
+          
+       }
+       this.$store.dispatch('verify/sendCode',storeData ).then((redirect) => {
+        console.log("sendCode",redirect)
+        console.log("formInline",formInline)
+        formInline.captcha_token = redirect.captcha_token
+        Message({
+          message: '验证码发送成功，请及时输入验证码',
+          type: 'success',
+          duration: 5 * 1000
+        })
+
+        //倒计时
+        formInline.disabled = true;
+        let i = 60;     //倒计时时间
+        formInline.label = i + "s";
+        this.timer = setInterval(() => {
+        formInline.label = i + "s";
+        i--;
+        if (i < 0) {
+          formInline.disabled = false;
+          formInline.label  = "获取验证码";
+          clearInterval(this.timer);
+        }
+      }, 1000);
+
+
+      }).catch((e) => {
+        console.log('error,',e)
+      })
+
+    },
+     reCodefuc(key) {
+      var formInline = this.dialogData.formInline[this.dialogData.active][key]
+      var formInline_last = this.dialogData.formInline[this.dialogData.active][key-1]
+
+      this.$store.dispatch('verify/getPictureCode').then((redirect) => {
+        console.log('data:',redirect)
+        
+        formInline.captcha_id = redirect.captcha_id
+        formInline.value = redirect.captcha_url
+      }).catch((e) => {
+        console.log('error,',e)
+      })
+
+       return
+      console.log('reCodefuc:',key)
+      if (this.reCodeLoading === true) {
+        return 0
+      }
+      this.reCodeLoading = true
+      getCodeId().then(response => {
+        console.log('response:', response)
+        this.captcha_id = response.captcha_id
+        var protocolStr = document.location.protocol
+
+        if (protocolStr === 'http:') {
+          this.src1 = 'http://' + process.env.VUE_APP_BASE_HTTP_API + '/captcha/' + response.captcha_id + '.png'
+          // console.log('protocol = ' + protocolStr)
+        } else if (protocolStr === 'https:') {
+          this.src1 = 'https://' + process.env.VUE_APP_BASE_HTTPS_API + '/captcha/' + response.captcha_id + '.png'
+          // console.log('protocol = ' + protocolStr)
+        } else {
+          this.src1 = 'http://' + process.env.VUE_APP_BASE_HTTP_API + '/captcha/' + response.captcha_id + '.png'
+          // console.log('other protocol')
+        }
+        console.log('this.src1 :', this.src1)
+        this.dialogData.formInline[key].value = this.src1
+        this.reCodeLoading = false
+        // this.formData = response
+      }, reason => {
+        this.reCodeLoading = false
+        console.error(reason) // 出错了！
+      })
+    },
+
     async iniUserInfo(){
      await this.$store.dispatch('user/getAuthInfo')
 
@@ -122,14 +297,16 @@ export default {
     },
     cardClickFuc(index) {
       console.log('点击卡片', index)
+
     },
     showDialog(){
       this.dialogVisible = true
-
+      this.reCodefuc(1)
     },
     handleClose(done) {
         this.$confirm('确认关闭？')
           .then(_ => {
+            clearInterval(this.timer);
             done();
           })
           .catch(_ => {});
