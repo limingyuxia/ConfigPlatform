@@ -27,7 +27,7 @@
           <el-form-item v-if="itemDe.type == 'select'" :key="key" style="display:flex" :label="itemDe.title">
 
             <el-select v-model="itemDe.model" placeholder="请选择">
-              
+
               <el-option
                 v-for="itemSe in itemDe.data"
                 :key="itemSe.value"
@@ -110,10 +110,10 @@ export default {
           title: '基本信息',
           dataList: {
             nickname: { index: 0, type: 'text', title: '用户昵称', model: '123' },
-            //username: { index: 1, type: 'text', title: '用户名', model: '123' },
+            // username: { index: 1, type: 'text', title: '用户名', model: '123' },
             arv: { index: 2, type: 'img', title: '头像', model: '123' },
             region: { index: 3, type: 'text', title: '地区', model: '123' },
-            gender: { index: 4, type: 'select', title: '性别', model: '0', data: [{value: 0,label: '男'},{value: 1,label: '女'},{value: 2,label: '未知'}]}
+            gender: { index: 4, type: 'select', title: '性别', model: '0', data: [{ value: 0, label: '男' }, { value: 1, label: '女' }, { value: 2, label: '未知' }] }
           }
         }
 
@@ -129,7 +129,7 @@ export default {
   },
 
   methods: {
-     iniUserInfo () {
+    iniUserInfo() {
       console.log('created_1', this.user)
       console.log('created_2', this.basicInfo)
 
@@ -137,7 +137,6 @@ export default {
 
       // 循环赋值
       for (var key in this.basicInfoList.basicInfo.dataList) {
-
         if (this.basicInfoList.basicInfo.dataList[key].type === 'select') {
           this.basicInfoList.basicInfo.dataList[key].model = this.basicInfo[key]
         } else {
@@ -150,11 +149,11 @@ export default {
         this.$refs['my-upload'][0].clearFiles()
       }
     },
-    submitFun(data,key) {
+    submitFun(data, key) {
       console.log('submitFun:', data)
-      let upData = {
-        "chType":"basicInfo",
-        "data":data
+      const upData = {
+        'chType': 'basicInfo',
+        'data': data
       }
       this.$store.dispatch('user/updata', upData).then(() => { // 上传图片
         this.$message({
@@ -167,7 +166,7 @@ export default {
       }).catch((e) => {
         this.$message({
           message: e,
-          type:"error",
+          type: 'error',
           duration: 5 * 1000
         })
         this.$emit('changeUser', { 'loadingAll': false })

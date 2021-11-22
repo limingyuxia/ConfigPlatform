@@ -285,7 +285,7 @@ import { getList, getDetailList, addProject, deleteProject, editProject } from '
 import { Message } from 'element-ui'
 import { mapGetters } from 'vuex'
 export default {
-        computed: {
+  computed: {
 
     ...mapGetters([
       'name'
@@ -376,13 +376,13 @@ export default {
     }
   },
   created() {
-    console.log('初始化表格',this)
+    console.log('初始化表格', this)
     var data = {
       'page_index': 1,
       'page_size': 20,
       'project_user': this.name// 用户名 必须
     }
-    //this.queryData(data)
+    // this.queryData(data)
   },
 
   methods: {

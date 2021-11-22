@@ -96,7 +96,7 @@ service.interceptors.response.use(
     }
   },
   error => {
-    // console.log("errorData",error)
+    console.log('errorData', error)
 
     if (typeof (error.response) === 'undefined') {
       Message({
@@ -109,9 +109,9 @@ service.interceptors.response.use(
 
     const statusCode = error.response.status
 
-    const res = error.response.data.message
-    const code = error.response.data.code
-    console.log("webError",error.response)
+    const res = error.response.data.errmsg
+    const code = error.response.data.errcode
+    console.log('webError', error.response)
     if (statusCode === 400 || statusCode === 401) {
       Message({
         message: '[' + code + ']' + res || 'Error',

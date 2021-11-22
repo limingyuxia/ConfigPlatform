@@ -4,94 +4,101 @@
 
       <span slot="header" class="clearfix">{{ item.title }}</span>
 
-
       <div v-for="(itemDe) in item.dataList" :key="itemDe.index">
-        
+
         <el-row style="margin: auto;" type="flex" class="row-bg">
-         
-          <el-avatar v-if="itemDe.avatarUrl" style="margin: auto;" :size="30" :src="itemDe.avatarUrl"></el-avatar>
+
+          <el-avatar v-if="itemDe.avatarUrl" style="margin: auto;" :size="30" :src="itemDe.avatarUrl" />
           <el-col style="margin: auto; margin-left:5px;" :span="4"><p>{{ itemDe.title }}：</p></el-col>
           <el-col style="margin: auto;word-break:break-all" :span="24 - 4 - 2">
-            <el-avatar v-if="false" style="margin: auto;" :size="30" :src="itemDe.avatarUrl"></el-avatar>
-            <div style="margin: auto;">{{itemDe.describe}}</div>
+            <el-avatar v-if="false" style="margin: auto;" :size="30" :src="itemDe.avatarUrl" />
+            <div style="margin: auto;">{{ itemDe.describe }}</div>
 
           </el-col>
           <el-col style="margin: auto" :span="2">
 
-            <el-button  @click="showDialog(itemDe)" type="text" size="small">{{ itemDe.button }}</el-button>
+            <el-button type="text" size="small" @click="showDialog(itemDe)">{{ itemDe.button }}</el-button>
           </el-col>
         </el-row>
 
       </div>
 
- 
-
     </el-card>
-<el-dialog
+    <el-dialog
 
-
-
-  :visible.sync="dialogVisible"
-  width="50%"
-  :before-close="handleClose"
-
-  center>
-<el-steps align-center :active="dialogData.active" finish-status="success">
-  <el-step title="验证原手机"></el-step>
-  <el-step title="设置新手机"></el-step>
-  <el-step title="完成"></el-step>
-</el-steps>
-
-    <el-form
-      v-loading="dialogData.loading"
-      :model="dialogData.formData"
-      label-position="right"
-      label-width="20%"
+      :visible.sync="dialogVisible"
+      width="50%"
+      :before-close="handleClose"
+      :title="dialogData.title"
+      center
     >
+      <el-steps align-center :active="dialogData.active" finish-status="success">
+        <el-step v-for="(itemSteps,key) in dialogData.steps" :key="key" :title="itemSteps.title" />
 
-  <template v-for="(itemDe,key) in dialogData.formInline[dialogData.active]">
-    <el-form-item style="text-align:'center';width: 80%;"  v-if="itemDe.type == 'sendCode'" :key="itemDe.key" label="">
-      <el-input :placeholder="itemDe.placeholder" v-model="itemDe.model"> <el-button :disabled="itemDe.disabled" type="text" @click="getCode(key)" slot="suffix">{{itemDe.label}}</el-button></el-input>
-    </el-form-item>
+      </el-steps>
 
-    <el-form-item  style="text-align:'center';margin:auto;width: 60%;" v-if="itemDe.type == 'text'" :key="itemDe.key"  :label="itemDe.label">
-      <span style="margin:auto" class="demonstration">{{key}},{{itemDe.placeholder}}</span>
-    </el-form-item>
-    
-    <el-form-item v-if="itemDe.type == 'code'" style=" width: 80%;" prop="codeNum" :key="itemDe.key">
-      <el-input v-model="itemDe.model" type="text" title="请输入图形验证码" placeholder="请输入图形验证码"><el-button slot="append" v-loading="itemDe.Loading" @click="reCodefuc(key)"><img onerror="default" style="width: 130px;height: 40px;" :src="itemDe.value"></el-button></el-input>
-    </el-form-item>
+      <el-result v-if="dialogData.active == 2" icon="success" title="修改成功" sub-title="请点击下方按钮">
+        <template slot="extra">
+          <el-button dialog-visible="false" type="primary" size="medium" @click="dialogVisible = false">返回</el-button>
+        </template>
+      </el-result>
 
-    <el-form-item v-if="itemDe.type == 'input'" style=" width: 80%;" prop="codeNum" :key="itemDe.key">
-      <el-input v-model="itemDe.model" type="text" :title="itemDe.title" :placeholder="itemDe.placeholder"></el-input>
-    </el-form-item>
+      <el-form
+        v-loading="dialogData.loading"
+        :model="dialogData.formData"
+        label-position="right"
+        label-width="20%"
+      >
 
-  </template>
+        <template v-for="(itemDe,key) in dialogData.formInline[dialogData.active]">
+          <el-form-item v-if="itemDe.type == 'sendCode'" :key="itemDe.key" style="text-align:'center';width: 80%;" label="">
+            <el-input v-model="itemDe.model" :placeholder="itemDe.placeholder"> <el-button slot="suffix" :disabled="itemDe.disabled" type="text" @click="getCode(key)">{{ itemDe.label }}</el-button></el-input>
+          </el-form-item>
 
-    </el-form>
-     <span  slot="footer" class="dialog-footer">
-    <el-button v-if="dialogData.steps[dialogData.active].nextButtonLabel" :disabled="dialogData.loading" type="danger" @click="nextStep(dialogData.active)" round>{{dialogData.steps[dialogData.active].nextButtonLabel}}</el-button>
- </span>
+          <el-form-item v-if="itemDe.type == 'text'" :key="itemDe.key" style="text-align:'center';margin:auto;width: 60%;" :label="itemDe.label">
+            <span style="margin:auto" class="demonstration">{{ itemDe.placeholder }}</span>
+          </el-form-item>
 
-</el-dialog>
+          <el-form-item v-if="itemDe.type == 'code'" :key="itemDe.key" style=" width: 80%;" prop="codeNum">
+            <el-input v-model="itemDe.model" type="text" title="请输入图形验证码" placeholder="请输入图形验证码"><el-button slot="append" v-loading="itemDe.Loading" @click="reCodefuc(key)"><img onerror="default" style="width: 130px;height: 40px;" :src="itemDe.value"></el-button></el-input>
+          </el-form-item>
+
+          <el-form-item v-if="itemDe.type == 'input'" :key="itemDe.key" style=" width: 80%;" prop="codeNum">
+            <el-input v-model="itemDe.model" type="text" :title="itemDe.title" :placeholder="itemDe.placeholder" />
+          </el-form-item>
+
+        </template>
+
+      </el-form>
+      <span slot="footer" class="dialog-footer">
+        <el-button v-if="dialogData.steps[dialogData.active].nextButtonLabel" :disabled="dialogData.steps[dialogData.active].disabled" type="danger" round @click="nextStep(dialogData.active)">{{ dialogData.steps[dialogData.active].nextButtonLabel }}</el-button>
+      </span>
+
+    </el-dialog>
   </div>
 
 </template>
 
 <script>
 
-
 import { getCodeId } from '@/api/user'
 import { mapGetters } from 'vuex'
 import { Message } from 'element-ui'
 export default {
-    computed: {
+  computed: {
 
     ...mapGetters([
       'authInfo',
       'email',
       'phone'
     ])
+  },
+  watch: {
+    'email': function(newVal) {
+      console.log('email_数据:', newVal)
+      this.basicInfoList[0].dataList.email.describe = newVal
+    }
+
   },
   props: {
     user: {
@@ -108,33 +115,33 @@ export default {
   },
   data() {
     return {
-      timer:"",
-      
-      dialogVisible:false,
-      dialogData:{
-        active: 0,
-        title:"123",
-        formData:{},
-        steps:[
-          {'nextButtonLabel': '点击验证'},
-          {'nextButtonLabel': '点击绑定'},
-          {'nextButtonLabel': ''},
-          
+      timer: '',
+
+      dialogVisible: false,
+      dialogData: {
+        active: 1,
+        title: '修改邮箱',
+        formData: {},
+        steps: [
+          { 'nextButtonLabel': '点击验证' },
+          { 'nextButtonLabel': '点击绑定' },
+          { 'nextButtonLabel': '' }
+
         ],
-        //isLogin
-        loading:false,
+        // isLogin
+        loading: false,
         formInline: [
           [
-            { "type":"text", 'value': '', 'model': '', 'placeholder': "验证码将发送到邮箱\n(1160201372@qq.com)" },
-            { "type":"code",'label': '', 'value': '',"captcha_id":"", 'model': '','placeholder': '请输入' },
-            { "type":"sendCode","disabled":false,"captcha_token":"","codeType":"email",'label': '获取验证码', 'value': '', 'model': '', 'placeholder': '请输入',"account":"1160201372@qq.com" },
+            { 'type': 'text', 'value': '', 'model': '1160201372@qq.com', 'placeholder': '验证码将发送到邮箱\n(1160201372@qq.com)' },
+            { 'type': 'code', 'label': '', 'value': '', 'captcha_id': '', 'model': '', 'placeholder': '请输入' },
+            { 'type': 'sendCode', 'disabled': false, 'captcha_token': '', 'codeType': 'email', 'label': '获取验证码', 'value': '', 'model': '', 'placeholder': '请输入', 'account': '1160201372@qq.com' }
           ],
           [
-            { "type":"input", 'value': '', 'model': '', 'placeholder': "请输入新邮箱" },
-            { "type":"code",'label': '', 'value': '',"captcha_id":"", 'model': '','placeholder': '请输入' },
-            { "type":"sendCode","disabled":false,"codeType":"email",'label': '获取验证码', 'value': '', 'model': '', 'placeholder': '请输入',"account":"1160201372@qq.com" },
+            { 'type': 'input', 'value': '', 'model': '', 'placeholder': '请输入新邮箱' },
+            { 'type': 'code', 'label': '', 'value': '', 'captcha_id': '', 'model': '', 'placeholder': '请输入' },
+            { 'type': 'sendCode', 'disabled': false, 'codeType': 'email', 'label': '获取验证码', 'value': '', 'model': '', 'placeholder': '请输入', 'account': '1160201372@qq.com' }
           ]
-        ],
+        ]
       },
       basicInfoList: [
         {
@@ -142,18 +149,18 @@ export default {
           title: '账号设置',
           dataList: {
             nickname: { index: 0, describe: '存在风险，请设置密码 ', button: '设置密码', type: 'text', title: '密码', model: '123' },
-            phone:{ index: 1, describe: ' ', button: '修改手机', type: 'text', title: '手机', model: '123' },
-            email:{ index: 2, describe: ' ', button: '修改邮箱', type: 'text', title: '邮箱', model: '123' },
+            phone: { index: 1, describe: ' ', button: '修改手机', type: 'text', title: '手机', model: '123' },
+            email: { index: 2, describe: ' ', button: '修改邮箱', type: 'text', title: '邮箱', model: '123', 'showType': 'email' }
           }
-        }, 
+        },
         {
           editFlag: true,
           title: '帐号关联',
           dataList: {
-            wechat: { index: 0,avatarUrl:"https://open.weixin.qq.com/zh_CN/htmledition/res/assets/res-design-download/icon48_appwx_logo.png",desPicture:"", describe: '', button: '绑定', type: 'text', title: '微信', model: '123' },
-            qq: { index: 1,avatarUrl:"https://img.ixintu.com/upload/jpg/20210522/abb7b6902f2f6fe5a399809e97aeef6c_61793_800_800.jpg!con",desPicture:"", describe: '', button: '绑定', type: 'text', title: 'QQ', model: '123' },
-            github: { index: 2,avatarUrl:"http://bpic.588ku.com/element_pic/00/25/58/9656d059a2d139b.jpg",desPicture:"", describe: '', button: '绑定', type: 'text', title: 'GitHub', model: '123' },
-            weibo: { index: 3,avatarUrl:"https://img.ixintu.com/download/jpg/201912/f2b9e19eae370b85e0cf0c23fc18ec30.jpg!ys",desPicture:"", describe: '', button: '绑定', type: 'text', title: '新浪微博', model: '123' },
+            wechat: { index: 0, avatarUrl: 'https://open.weixin.qq.com/zh_CN/htmledition/res/assets/res-design-download/icon48_appwx_logo.png', desPicture: '', describe: '', button: '绑定', type: 'text', title: '微信', model: '123' },
+            qq: { index: 1, avatarUrl: 'https://img.ixintu.com/upload/jpg/20210522/abb7b6902f2f6fe5a399809e97aeef6c_61793_800_800.jpg!con', desPicture: '', describe: '', button: '绑定', type: 'text', title: 'QQ', model: '123' },
+            github: { index: 2, avatarUrl: 'http://bpic.588ku.com/element_pic/00/25/58/9656d059a2d139b.jpg', desPicture: '', describe: '', button: '绑定', type: 'text', title: 'GitHub', model: '123' },
+            weibo: { index: 3, avatarUrl: 'https://img.ixintu.com/download/jpg/201912/f2b9e19eae370b85e0cf0c23fc18ec30.jpg!ys', desPicture: '', describe: '', button: '绑定', type: 'text', title: '新浪微博', model: '123' }
           }
         }
       ],
@@ -165,152 +172,174 @@ export default {
   mounted() {
     console.log('created_17687', this.user)
     this.iniUserInfo()
-
   },
 
   methods: {
-    nextStep(key){
-      console.log("下一步",key)
+    nextStep(key) {
+      console.log('下一步', key)
       var formInline = this.dialogData.formInline[this.dialogData.active]
       var active = this.dialogData.active
-      //this.dialogData.active = this.dialogData.active + 1
-      var storeData={
-        codeType:formInline[2].codeType,
+      // this.dialogData.active = this.dialogData.active + 1
+
+      // 验证数据
+      var storeData = {
+        codeType: formInline[2].codeType,
         captcha_token: formInline[2].captcha_token,
-        email_code: formInline[2].model
+        email_code: formInline[2].model,
+        account: formInline[0].model
       }
-      //confirmCode
-      if(active === 0){//验证
-        this.$store.dispatch('verify/confirmCode',storeData ).then((redirect) => {
-          console.log("confirmCode")
+      // confirmCode
+      if (active === 0) { // 验证
+        this.dialogData.loading = true
+        this.$store.dispatch('verify/confirmCode', storeData).then((redirect) => {
+          console.log('confirmCode')
+          this.dialogData.loading = false
           this.dialogData.active = this.dialogData.active + 1
           this.reCodefuc(1)
         }).catch((e) => {
-          console.log('error,',e)
+          console.log('error,', e)
+        })
+      } else if (active === 1) { // 更新用户数据
+        console.log('第二步骤', storeData)
+        this.dialogData.loading = true
+        this.$store.dispatch('verify/confirmCode', storeData).then(async(redirect) => {
+          console.log('confirmCode')
+          // 提交数据
+          const upData = {
+            'chType': 'email',
+            'data': storeData
+          }
+          await this.$store.dispatch('user/updata', upData)
+          this.dialogData.loading = false
+          this.dialogData.active = this.dialogData.active + 1
+        }).catch((e) => {
+          console.log('error,', e)
         })
       }
-
-
     },
-    getCode(key){
-
+    getCode(key) {
+      this.dialogData.loading = true
       var formInline = this.dialogData.formInline[this.dialogData.active][key]
-      var formInline_last = this.dialogData.formInline[this.dialogData.active][key-1]
+      var formInline_last = this.dialogData.formInline[this.dialogData.active][key - 1]
+      var formInline_farst = this.dialogData.formInline[this.dialogData.active][key - 2]
 
-       let storeData = {
-          codeType:formInline.codeType,
-          account:formInline.account,
-          captcha_id:formInline_last.captcha_id,
-          captcha_num:formInline_last.model,
-          
-       }
-       this.$store.dispatch('verify/sendCode',storeData ).then((redirect) => {
-        console.log("sendCode",redirect)
-        console.log("formInline",formInline)
+      const storeData = {
+        codeType: formInline.codeType,
+        account: formInline_farst.model,
+        captcha_id: formInline_last.captcha_id,
+        captcha_num: formInline_last.model
+
+      }
+      this.$store.dispatch('verify/sendCode', storeData).then((redirect) => {
+        console.log('sendCode', redirect)
+        console.log('formInline', formInline)
         formInline.captcha_token = redirect.captcha_token
+        this.dialogData.loading = false
         Message({
           message: '验证码发送成功，请及时输入验证码',
           type: 'success',
           duration: 5 * 1000
         })
-
-        //倒计时
-        formInline.disabled = true;
-        let i = 60;     //倒计时时间
-        formInline.label = i + "s";
+        this.dialogData.steps[this.dialogData.active].disabled = false
+        // 倒计时
+        formInline.disabled = true
+        let i = 60 // 倒计时时间
+        formInline.label = i + 's'
         this.timer = setInterval(() => {
-        formInline.label = i + "s";
-        i--;
-        if (i < 0) {
-          formInline.disabled = false;
-          formInline.label  = "获取验证码";
-          clearInterval(this.timer);
-        }
-      }, 1000);
-
-
+          formInline.label = i + 's'
+          i--
+          if (i < 0) {
+            formInline.disabled = false
+            formInline.label = '获取验证码'
+            clearInterval(this.timer)
+          }
+        }, 1000)
       }).catch((e) => {
-        console.log('error,',e)
+        console.log('error,', e)
+        this.reCodefuc(1)
+        this.dialogData.loading = false
       })
-
     },
-     reCodefuc(key) {
+    reCodefuc(key) {
       var formInline = this.dialogData.formInline[this.dialogData.active][key]
-      var formInline_last = this.dialogData.formInline[this.dialogData.active][key-1]
+      var formInline_last = this.dialogData.formInline[this.dialogData.active][key - 1]
 
       this.$store.dispatch('verify/getPictureCode').then((redirect) => {
-        console.log('data:',redirect)
-        
+        console.log('data:', redirect)
+
         formInline.captcha_id = redirect.captcha_id
         formInline.value = redirect.captcha_url
       }).catch((e) => {
-        console.log('error,',e)
-      })
-
-       return
-      console.log('reCodefuc:',key)
-      if (this.reCodeLoading === true) {
-        return 0
-      }
-      this.reCodeLoading = true
-      getCodeId().then(response => {
-        console.log('response:', response)
-        this.captcha_id = response.captcha_id
-        var protocolStr = document.location.protocol
-
-        if (protocolStr === 'http:') {
-          this.src1 = 'http://' + process.env.VUE_APP_BASE_HTTP_API + '/captcha/' + response.captcha_id + '.png'
-          // console.log('protocol = ' + protocolStr)
-        } else if (protocolStr === 'https:') {
-          this.src1 = 'https://' + process.env.VUE_APP_BASE_HTTPS_API + '/captcha/' + response.captcha_id + '.png'
-          // console.log('protocol = ' + protocolStr)
-        } else {
-          this.src1 = 'http://' + process.env.VUE_APP_BASE_HTTP_API + '/captcha/' + response.captcha_id + '.png'
-          // console.log('other protocol')
-        }
-        console.log('this.src1 :', this.src1)
-        this.dialogData.formInline[key].value = this.src1
-        this.reCodeLoading = false
-        // this.formData = response
-      }, reason => {
-        this.reCodeLoading = false
-        console.error(reason) // 出错了！
+        console.log('error,', e)
       })
     },
 
-    async iniUserInfo(){
-     await this.$store.dispatch('user/getAuthInfo')
+    async iniUserInfo() {
+      await this.$store.dispatch('user/getAuthInfo')
 
       console.log('created_信息')
-      console.log('created_原始',this.basicInfoList[0].dataList)
-      
+      console.log('created_原始', this.basicInfoList[0].dataList)
+
       this.basicInfoList[0].dataList.email.describe = this.email
       this.basicInfoList[0].dataList.phone.describe = this.phone
-      for (var key in this.authInfo) {//第三方信息
-        let myKey = key.split("_")[0]
-        let myType = key.split("_")[1]
-        if (myType === "username"){
+      for (var key in this.authInfo) { // 第三方信息
+        const myKey = key.split('_')[0]
+        const myType = key.split('_')[1]
+        if (myType === 'username') {
           this.basicInfoList[1].dataList[myKey].describe = this.authInfo[key]
-
         }
       }
     },
     cardClickFuc(index) {
       console.log('点击卡片', index)
-
     },
-    showDialog(){
-      this.dialogVisible = true
-      this.reCodefuc(1)
+    showDialog(itemDe) {
+      console.log('显示类型', itemDe)
+      if (itemDe.showType === 'email') {
+        // 弹窗赋值
+        this.dialogData = {
+          active: 0,
+          title: '修改邮箱',
+          steps: [
+            { 'title': '验证原有邮箱', 'disabled': true, 'nextButtonLabel': '点击验证' },
+            { 'title': '修改邮箱', 'disabled': true, 'nextButtonLabel': '点击绑定' },
+            { 'title': '完成', 'disabled': true, 'nextButtonLabel': '' }
+
+          ],
+          // isLogin
+          loading: false,
+          formInline: [
+            [
+              { 'type': 'text', 'value': '', 'model': this.email, 'placeholder': '验证码将发送到邮箱\n(' + this.email + ')' },
+              { 'type': 'code', 'label': '', 'value': '', 'captcha_id': '', 'model': '', 'placeholder': '请输入' },
+              { 'type': 'sendCode', 'disabled': false, 'captcha_token': '', 'codeType': 'email', 'label': '获取验证码', 'value': '', 'model': '', 'placeholder': '请输入', 'account': '1160201372@qq.com' }
+            ],
+            [
+              { 'type': 'input', 'value': '', 'model': '', 'placeholder': '请输入新邮箱' },
+              { 'type': 'code', 'label': '', 'value': '', 'captcha_id': '', 'model': '', 'placeholder': '请输入' },
+              { 'type': 'sendCode', 'disabled': false, 'codeType': 'email', 'label': '获取验证码', 'value': '', 'model': '', 'placeholder': '请输入', 'account': '1160201372@qq.com' }
+            ]
+          ]
+
+        }
+        if (this.email.length == 0) {
+          this.dialogData.active = 1
+        }
+
+        this.reCodefuc(1)
+        this.dialogVisible = true
+      }
+      // this.dialogVisible = true
+      // this.reCodefuc(1)
     },
     handleClose(done) {
-        this.$confirm('确认关闭？')
-          .then(_ => {
-            clearInterval(this.timer);
-            done();
-          })
-          .catch(_ => {});
-      },
+      this.$confirm('确认关闭？')
+        .then(_ => {
+          clearInterval(this.timer)
+          done()
+        })
+        .catch(_ => {})
+    },
 
     submit() {
       this.name = '123456'

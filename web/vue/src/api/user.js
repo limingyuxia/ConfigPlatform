@@ -19,7 +19,7 @@ export function updata(params) {
 export function getAuthInfo(params) {
   return request({
     url: '/user/auth2Info',
-    method: 'get',
+    method: 'get'
 
   })
 }
@@ -57,8 +57,6 @@ export function confirmCode(params) {
     data: params
   })
 }
-
-
 
 export function emailSend(params) {
   return request({
