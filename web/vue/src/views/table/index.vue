@@ -382,7 +382,7 @@ export default {
       'page_size': 20,
       'project_user': this.name// 用户名 必须
     }
-    // this.queryData(data)
+    this.queryData(data)
   },
 
   methods: {

@@ -1,6 +1,19 @@
 <template>
 
+  
   <el-container>
+       <el-dialog
+
+      :visible="false"
+      width="50%"
+
+      title="dialogData.title"
+      center
+    >
+      <showD  />
+    </el-dialog>
+  
+    
     <el-header :inline="true" class="demo-form-inline">
 
       <span style="margin-right: 10px;" type="info">项目</span>
@@ -58,6 +71,8 @@
 
         <el-header style=" font-size: 12px">
           <span style="font-size:18px ;font-family: Microsoft Yahei;"> {{ projectConfList.title }}</span>
+          
+
         </el-header>
 
         <el-main>
@@ -70,6 +85,7 @@
             width="700"
             :header-cell-style="{'border': '1px solid #EEEEEE',background:'#F7F7F7',color:'#606266','text-align':'center'}"
           >
+
             <el-table-column
               label="序号"
               type="index"
@@ -127,11 +143,15 @@
 
   </el-container>
 
+
 </template>
 
 <script>
 
+import showD from './components/showD'
+
 export default {
+  components: { showD },
   data() {
     return {
       projectConfHeader: [// 表头配置
@@ -182,6 +202,8 @@ export default {
         search: '',
         list: [{
           name: '王小虎'
+        },{
+          name: '密钥'
         }]
       },
       envList: { // 环境列表
