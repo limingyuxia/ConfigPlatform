@@ -48,7 +48,7 @@
               <span class="qq-svg-container"><svg-icon icon-class="github-fill" class="icon" /></span> github
             </div>
             <div class="sign-btn" @click="weiboHandleClick('tencent')">
-              <span class="qq-svg-container"><svg-icon id="wbLoginBtn" icon-class="weibo" class="icon" /></span> 微博
+              <span class="weibo-svg-container"><svg-icon id="wbLoginBtn" icon-class="weibo" class="icon" /></span> 微博
             </div>
           </div>
 
@@ -667,7 +667,8 @@ export default {
   }
 
   .wx-svg-container,
-  .qq-svg-container {
+  .qq-svg-container,
+  .weibo-svg-container {
     display: inline-block;
     width: 40px;
     height: 40px;
@@ -682,7 +683,10 @@ export default {
   .wx-svg-container {
     background-color: #24da70;
   }
-
+.weibo-svg-container{
+   background-color: #f72e2e;
+   margin-left: 50px;
+}
   .qq-svg-container {
     background-color: #6BA2D6;
     margin-left: 50px;

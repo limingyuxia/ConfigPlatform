@@ -226,8 +226,12 @@ export default {
 
   mounted() {
     this.dragControllerDiv()
+    this.iniData()
   },
   methods: {
+    iniData(){
+      console.log("初始化数据")
+    },
     handleConfGroupChange(val) {
       console.log('handleConfGroupChange:', val)
       this.projectConfList.title = val.name
