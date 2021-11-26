@@ -3,10 +3,8 @@
   
   <el-container>
        <el-dialog
-
       :visible="false"
       width="50%"
-
       title="dialogData.title"
       center
     >
@@ -17,6 +15,7 @@
     <el-header :inline="true" class="demo-form-inline">
 
       <span style="margin-right: 10px;" type="info">项目</span>
+      
       <el-select v-model="projectList.value" filterable placeholder="请选择">
         <el-option
           v-for="item in projectList.list"
@@ -51,7 +50,7 @@
 
         <el-table
           :show-header="false"
-          max-height="500"
+          max-height="300px"
           :border="true"
           :data="confGroupList.list.filter(data => !confGroupList.search || data.name.toLowerCase().includes(confGroupList.search.toLowerCase()))"
           @current-change="handleConfGroupChange"
@@ -71,24 +70,32 @@
 
         <el-header style=" font-size: 12px">
           <span style="font-size:18px ;font-family: Microsoft Yahei;"> {{ projectConfList.title }}</span>
-          
-
         </el-header>
 
         <el-main>
-          <el-table
+          <!--
+            <el-input placeholder="请输入" v-model="input3" class="input-with-select">
+              <el-select v-model="select" slot="prepend" placeholder="类型">
+                <el-option label="状态" value="1"></el-option>
+                <el-option label="key" value="2"></el-option>
+              </el-select>
+              <el-button slot="append" icon="el-icon-search"></el-button>
+            </el-input>
+            -->
 
+          <el-table
             :data="projectConfList.list"
             empty-text="暂无数据"
             style="width: 100% height: 100%;"
-            height="497"
-            width="700"
-            :header-cell-style="{'border': '1px solid #EEEEEE',background:'#F7F7F7',color:'#606266','text-align':'center'}"
+
+            :header-cell-style="{'border': '1px solid #EEEEEE',background:'#F7F7F7',color:'#606266','text-align':'center','height': '1px'}"
           >
 
             <el-table-column
               label="序号"
               type="index"
+              width="70px"
+              align="center"
             />
             <template v-for="item,index in projectConfHeader">
 
@@ -106,6 +113,9 @@
                 align="center"
                 :label="item.label"
                 :width="item.width"
+                :filters="[{ text: '开发中', value: '开发中' },{ text: '运行中', value: '运行中' }]"
+                :filter-method="filterTag"
+                
               >
 
                 <template slot-scope="scope">
@@ -115,7 +125,7 @@
                       :key="index1"
                       style="margin-left: 5px;margin-right: 5px;"
                       size="medium"
-                    >{{ item1 }}</el-tag>
+                    >{{scope.row.department[index1]}}</el-tag>
                   </template>
                 </template>
 
@@ -150,6 +160,8 @@
 
 import showD from './components/showD'
 
+import { getList} from '@/api/project'
+
 export default {
   components: { showD },
   data() {
@@ -164,7 +176,8 @@ export default {
           name: '王小虎',
           department: ['开发中']
         }, {
-          name: '王小虎'
+          name: '王小虎',
+          department: ['开发中']
         }, {
           name: '王小虎'
         }, {
@@ -229,8 +242,57 @@ export default {
     this.iniData()
   },
   methods: {
+     filterTag(value, row,column) { // 删选标签
+  
+        if(row.department === undefined){
+            return false
+        }
+
+        let index = row.department.indexOf(value);
+        if(index === -1){
+          return false
+        }
+        return true
+      },
     iniData(){
       console.log("初始化数据")
+      this.projectList.list = []
+      let data = {
+        page_index: 1,
+        page_size: 5,
+        project_user: "0d6c063a-22b3-435c-8843-1ed598231d44",
+      }
+       getList(data).then(response => {
+        const tableDataList = response.project_list
+        const total = response.Total
+
+        console.log('tableData', response, total === 0)
+        if (total === 0) {
+
+          return 0
+        }
+
+        if (tableDataList === null) {
+        
+          return 0
+        }
+        
+         for (let index = 0; index < tableDataList.length; index++) {
+          const element = tableDataList[index]
+          const dataJson = {
+              value: element.id,
+              label: element.name
+            }
+
+          this.projectList.list.push(dataJson)
+        }
+
+
+      }, reason => {
+ 
+        console.error(reason) // 出错了！
+      })
+
     },
     handleConfGroupChange(val) {
       console.log('handleConfGroupChange:', val)
@@ -282,6 +344,12 @@ export default {
 </style>
 
 <style>
+  .el-select .el-input {
+    width: 130px;
+  }
+  .input-with-select .el-input-group__prepend {
+    background-color: #fff;
+  }
   .el-header{
     background-color: #d1d1d1;
 
