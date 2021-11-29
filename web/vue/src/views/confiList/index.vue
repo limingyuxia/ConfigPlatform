@@ -161,9 +161,16 @@
 import showD from './components/showD'
 
 import { getList} from '@/api/project'
-
+import { mapGetters } from 'vuex'
 export default {
+  
   components: { showD },
+    computed: {
+
+    ...mapGetters([
+      'name'
+    ])
+  },
   data() {
     return {
       projectConfHeader: [// 表头配置
@@ -260,7 +267,7 @@ export default {
       let data = {
         page_index: 1,
         page_size: 5,
-        project_user: "0d6c063a-22b3-435c-8843-1ed598231d44",
+        project_user: this.name,
       }
        getList(data).then(response => {
         const tableDataList = response.project_list
