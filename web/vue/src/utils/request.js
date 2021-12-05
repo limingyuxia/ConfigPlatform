@@ -2,6 +2,7 @@ import axios from 'axios'
 import { MessageBox, Message } from 'element-ui'
 import store from '@/store'
 import { getToken } from '@/utils/auth'
+import { Base64, encode, decode } from 'js-base64'
 
 // create an axios instance
 const service = axios.create({
@@ -10,9 +11,9 @@ const service = axios.create({
   timeout: 5000 // request timeout
 })
 
-// request interceptor
-service.interceptors.request.use(
-  config => {
+// request interceptor async router.beforeEach(async(to, from, next) => {
+service.interceptors.request.use( 
+  async config => {
     // do something before request is sent
 
     // 配置http
@@ -34,9 +35,26 @@ service.interceptors.request.use(
       // let each request carry token
       // ['X-Token'] is a custom headers key
       // please modify it according to the actual situation
-      config.headers['Authorization'] = 'Bearer ' + getToken()
+      var hasToken = getToken() || store.getters.token
+      config.headers['Authorization'] = 'Bearer ' + hasToken
       // config.headers['Authorization'] = getToken()
     }
+
+    if (config.url != "/login" && store.getters.token && config.url != "/auth/refreshToken"){
+      // hasToken
+      var hasToken = store.getters.token
+      const tokenArry = hasToken.split('.')
+      let playload = Base64.decode(tokenArry[1]) // 解码
+      playload = JSON.parse(playload)
+
+      // 计算时间间隔
+      var timestamp = Date.parse(new Date())/1000;
+      var interval = playload["exp"] - timestamp
+      if (interval < 1800){
+         await store.dispatch('user/resetToken') //刷新token
+      }
+    }
+
     return config
   },
   error => {

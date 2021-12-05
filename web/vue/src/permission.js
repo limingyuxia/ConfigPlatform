@@ -5,7 +5,7 @@ import NProgress from 'nprogress' // progress bar
 import 'nprogress/nprogress.css' // progress bar style
 import { getToken } from '@/utils/auth' // get token from cookie
 import getPageTitle from '@/utils/get-page-title'
-import { Base64, encode, decode } from 'js-base64'
+
 
 NProgress.configure({ showSpinner: false }) // NProgress Configuration
 
@@ -30,14 +30,6 @@ router.beforeEach(async(to, from, next) => {
     } else {
       // 获取有效期
       const hasGetUserInfo = store.getters.name
-      // hasToken
-
-      const tokenArry = hasToken.split('.')
-
-      let playload = Base64.decode(tokenArry[1]) // 解码
-      console.log('playload_1', playload)
-      playload = JSON.parse(playload)
-      // 计算时间间隔
 
       // await store.dispatch('user/getInfo') //刷新token
 
@@ -52,7 +44,7 @@ router.beforeEach(async(to, from, next) => {
           next()
         } catch (error) {
           // remove token and go to login page to re-login
-          await store.dispatch('user/resetToken')
+          await store.dispatch('user/logout')
           Message.error(error || 'Has Error')
           next(`/login?redirect=${to.path}`)
           NProgress.done()

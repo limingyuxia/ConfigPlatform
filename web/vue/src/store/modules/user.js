@@ -266,14 +266,13 @@ console.log("file",avatarFile)
 
   // remove token
   resetToken({ commit }) {
-    return new Promise(resolve => {
-      removeToken() // must remove  token  first
-      commit('RESET_STATE')
+    return new Promise((resolve, reject) => {
       // 重置token
       resetToken().then((response) => {
+        removeToken() // must remove  token  first
         console.log('刷新token：', response)
-
-        commit('RESET_STATE')
+        commit('SET_TOKEN', response.token)
+        setToken(response.token)
         resolve()
       }).catch(error => {
         reject(error)

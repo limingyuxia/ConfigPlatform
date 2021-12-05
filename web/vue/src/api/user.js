@@ -27,7 +27,7 @@ export function getAuthInfo(params) {
 export function resetToken() {
   return request({
     url: '/auth/refreshToken',
-    method: 'post'
+    method: 'get'
 
     // headers: params.header
   })
