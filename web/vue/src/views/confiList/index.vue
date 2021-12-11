@@ -1,21 +1,19 @@
 <template>
 
-  
   <el-container>
-       <el-dialog
-      :visible="false"
+    <el-dialog
+      :visible.sync="dialogData.Visible"
       width="50%"
-      title="dialogData.title"
+      :title="dialogData.title"
       center
     >
-      <showD  />
+      <showD :form="showData" />
     </el-dialog>
-  
-    
+
     <el-header :inline="true" class="demo-form-inline">
 
       <span style="margin-right: 10px;" type="info">项目</span>
-      
+
       <el-select v-model="projectList.value" filterable placeholder="请选择">
         <el-option
           v-for="item in projectList.list"
@@ -74,14 +72,13 @@
 
         <el-main>
           <!--
-            <el-input placeholder="请输入" v-model="input3" class="input-with-select">
+            <el-input placeholder="请输入关键字搜索key" v-model="input3" class="input-with-select">
               <el-select v-model="select" slot="prepend" placeholder="类型">
-                <el-option label="状态" value="1"></el-option>
-                <el-option label="key" value="2"></el-option>
+                <el-option label="key" value="1"></el-option>
               </el-select>
               <el-button slot="append" icon="el-icon-search"></el-button>
             </el-input>
-            -->
+          -->
 
           <el-table
             :data="projectConfList.list"
@@ -107,6 +104,34 @@
                 :width="item.width"
                 align="center"
               />
+
+              <el-table-column
+                v-if="item.type == 'value'"
+                :key="index"
+                :prop="item.valueStr"
+                :label="item.label"
+                :width="item.width"
+                align="center"
+              >
+
+                <template
+                  slot-scope="scope"
+                  style="width:400px;
+                  height:40px;
+                  border:1px solid red;"
+                >
+                  <p
+                    style="overflow: hidden;
+                    text-overflow: ellipsis;
+                    display: -webkit-box;
+                    -webkit-box-orient: vertical;
+                    -webkit-line-clamp: 2;
+                    "
+                  >
+                    {{ scope.row.Value }}
+                  </p>
+                </template>
+              </el-table-column>
               <el-table-column
                 v-if="item.type == 'tagArray'"
                 :key="index"
@@ -115,7 +140,6 @@
                 :width="item.width"
                 :filters="[{ text: '开发中', value: '开发中' },{ text: '运行中', value: '运行中' }]"
                 :filter-method="filterTag"
-                
               >
 
                 <template slot-scope="scope">
@@ -125,7 +149,7 @@
                       :key="index1"
                       style="margin-left: 5px;margin-right: 5px;"
                       size="medium"
-                    >{{scope.row.department[index1]}}</el-tag>
+                    >{{ scope.row.department[index1] }}</el-tag>
                   </template>
                 </template>
 
@@ -153,19 +177,18 @@
 
   </el-container>
 
-
 </template>
 
 <script>
 
 import showD from './components/showD'
 
-import { getList} from '@/api/project'
+import { getList } from '@/api/project'
 import { mapGetters } from 'vuex'
 export default {
-  
+
   components: { showD },
-    computed: {
+  computed: {
 
     ...mapGetters([
       'name'
@@ -173,14 +196,32 @@ export default {
   },
   data() {
     return {
+      input3: '',
+      select: '',
+      showData: {
+        group: 'sdasd',
+        key: '',
+        type: 'application/json',
+        value: ''
+      },
+      dialogData: {
+        'Visible': false,
+        'title': '123'
+
+      },
       projectConfHeader: [// 表头配置
+        { 'label': 'Key', 'valueStr': 'name', 'type': 'text' },
+        { 'label': 'Value', 'valueStr': 'Value', 'type': 'value' },
+        { 'label': '备注', 'valueStr': 'name', 'type': 'text' },
         { 'label': '状态', 'valueStr': 'department', 'type': 'tagArray', 'width': '140' },
-        { 'label': 'Key', 'valueStr': 'name', 'type': 'text' }
+        { 'label': '类型', 'valueStr': 'name', 'type': 'text' }
+
       ],
       projectConfList: { // 项目配置列表
         title: '临时',
         list: [{
-          name: '王小虎',
+          Value: { 'adasd': '4561654984ada4561654984adasda4561654984adasdasda4561654984ada4561654984adasda4561654984adasdasda' },
+          name: '王小虎3',
           department: ['开发中']
         }, {
           name: '王小虎',
@@ -222,7 +263,7 @@ export default {
         search: '',
         list: [{
           name: '王小虎'
-        },{
+        }, {
           name: '密钥'
         }]
       },
@@ -249,57 +290,61 @@ export default {
     this.iniData()
   },
   methods: {
-     filterTag(value, row,column) { // 删选标签
-  
-        if(row.department === undefined){
-            return false
-        }
-
-        let index = row.department.indexOf(value);
-        if(index === -1){
-          return false
-        }
-        return true
+    getDetail(value, row, column) {
+      console.log('编辑变量', value)
+      this.showData = {
+        group: '分组',
+        key: 'key',
+        type: 'application/json',
+        value: '变量33'
       },
-    iniData(){
-      console.log("初始化数据")
+
+      this.dialogData.Visible = true
+    },
+    filterTag(value, row, column) { // 删选标签
+      if (row.department === undefined) {
+        return false
+      }
+
+      const index = row.department.indexOf(value)
+      if (index === -1) {
+        return false
+      }
+      return true
+    },
+    iniData() {
+      console.log('初始化数据')
       this.projectList.list = []
-      let data = {
+      const data = {
         page_index: 1,
         page_size: 5,
-        project_user: this.name,
+        project_user: this.name
       }
-       getList(data).then(response => {
+      getList(data).then(response => {
         const tableDataList = response.project_list
         const total = response.Total
 
         console.log('tableData', response, total === 0)
         if (total === 0) {
-
           return 0
         }
 
         if (tableDataList === null) {
-        
           return 0
         }
-        
-         for (let index = 0; index < tableDataList.length; index++) {
+
+        for (let index = 0; index < tableDataList.length; index++) {
           const element = tableDataList[index]
           const dataJson = {
-              value: element.id,
-              label: element.name
-            }
+            value: element.id,
+            label: element.name
+          }
 
           this.projectList.list.push(dataJson)
         }
-
-
       }, reason => {
- 
         console.error(reason) // 出错了！
       })
-
     },
     handleConfGroupChange(val) {
       console.log('handleConfGroupChange:', val)
@@ -423,4 +468,14 @@ export default {
     overflow: hidden;
     background: #ffc5c1;
   }
+  .value_class{
+
+    display: -webkit-box;/*作为弹性伸缩盒子模型显示*/
+    -webkit-line-clamp: 1; /*显示的行数；如果要设置2行加...则设置为2*/
+    overflow: hidden; /*超出的文本隐藏*/
+    text-overflow: ellipsis; /* 溢出用省略号*/
+    -webkit-box-orient: vertical;/*伸缩盒子的子元素排列：从上到下*/
+
+  }
+
 </style>

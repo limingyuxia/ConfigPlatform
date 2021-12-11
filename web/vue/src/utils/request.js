@@ -12,7 +12,7 @@ const service = axios.create({
 })
 
 // request interceptor async router.beforeEach(async(to, from, next) => {
-service.interceptors.request.use( 
+service.interceptors.request.use(
   async config => {
     // do something before request is sent
 
@@ -40,7 +40,7 @@ service.interceptors.request.use(
       // config.headers['Authorization'] = getToken()
     }
 
-    if (config.url != "/login" && store.getters.token && config.url != "/auth/refreshToken"){
+    if (config.url != '/login' && store.getters.token && config.url != '/auth/refreshToken') {
       // hasToken
       var hasToken = store.getters.token
       const tokenArry = hasToken.split('.')
@@ -48,10 +48,10 @@ service.interceptors.request.use(
       playload = JSON.parse(playload)
 
       // 计算时间间隔
-      var timestamp = Date.parse(new Date())/1000;
-      var interval = playload["exp"] - timestamp
-      if (interval < 1800){
-         await store.dispatch('user/resetToken') //刷新token
+      var timestamp = Date.parse(new Date()) / 1000
+      var interval = playload['exp'] - timestamp
+      if (interval < 3600) {
+        await store.dispatch('user/resetToken') // 刷新token
       }
     }
 
