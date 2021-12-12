@@ -24,3 +24,4 @@ email.conf
 
 resource
 auth2Secret
+sms.go

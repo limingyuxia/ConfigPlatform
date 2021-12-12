@@ -393,6 +393,10 @@ github.com/swaggo/gin-swagger v1.3.2/go.mod h1:8GN8KIlwgjawtEvE+B8sx3q9SPJuX/ZPx
 github.com/swaggo/swag v1.5.1/go.mod h1:1Bl9F/ZBpVWh22nY0zmYyASPO1lI/zIwRDrpZU+tv8Y=
 github.com/swaggo/swag v1.7.3 h1:ucB7irEdRrhjmW+Z1Ss4GjO68oPKQFjSgOR8BCAvcbU=
 github.com/swaggo/swag v1.7.3/go.mod h1:zD8h6h4SPv7t3l+4BKdRquqW1ASWjKZgT6Qv9z3kNqI=
+github.com/tencentcloud/tencentcloud-sdk-go/tencentcloud/common v1.0.302 h1:x7PevMds8gV8FwxKwF0m1ntA4CN8jGdEOmXLxsBHPiU=
+github.com/tencentcloud/tencentcloud-sdk-go/tencentcloud/common v1.0.302/go.mod h1:7sCQWVkxcsR38nffDW057DRGk8mUjK1Ing/EFOK8s8Y=
+github.com/tencentcloud/tencentcloud-sdk-go/tencentcloud/sms v1.0.302 h1:xJnG6kI3eF6mseEyoGvoD5b4hZOecSsrJ7JwrKV34Is=
+github.com/tencentcloud/tencentcloud-sdk-go/tencentcloud/sms v1.0.302/go.mod h1:zW5ecXUX55GaUA558VrM+iP7uagfDDHhXWlymeCyj48=
 github.com/tidwall/gjson v1.6.0 h1:9VEQWz6LLMUsUl6PueE49ir4Ka6CzLymOAZDxpFsTDc=
 github.com/tidwall/gjson v1.6.0/go.mod h1:P256ACg0Mn+j1RXIDXoss50DeIABTYK1PULOJHhxOls=
 github.com/tidwall/match v1.0.1 h1:PnKP62LPNxHKTwvHHZZzdOAOCtsJTjo6dZLCwpKm5xc=
