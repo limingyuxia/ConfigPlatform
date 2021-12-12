@@ -71,6 +71,7 @@
         </el-header>
 
         <el-main>
+          <myTable :projectConfList="projectConfList.list" :projectConfHeader="projectConfHeader" @getDetail="getDetail" />
           <!--
             <el-input placeholder="请输入关键字搜索key" v-model="input3" class="input-with-select">
               <el-select v-model="select" slot="prepend" placeholder="类型">
@@ -78,10 +79,12 @@
               </el-select>
               <el-button slot="append" icon="el-icon-search"></el-button>
             </el-input>
-          -->
+          
+          
 
           <el-table
-            :data="projectConfList.list"
+            
+            :data="projectConfList.list1"
             empty-text="暂无数据"
             style="width: 100% height: 100%;"
 
@@ -125,11 +128,12 @@
                     text-overflow: ellipsis;
                     display: -webkit-box;
                     -webkit-box-orient: vertical;
-                    -webkit-line-clamp: 2;
+                    -webkit-line-clamp: 1;
                     "
                   >
                     {{ scope.row.Value }}
                   </p>
+                  
                 </template>
               </el-table-column>
               <el-table-column
@@ -149,7 +153,7 @@
                       :key="index1"
                       style="margin-left: 5px;margin-right: 5px;"
                       size="medium"
-                    >{{ scope.row.department[index1] }}</el-tag>
+                    >{{ scope.row.department[index1] }} </el-tag>
                   </template>
                 </template>
 
@@ -165,11 +169,12 @@
               <template slot-scope="scope">
                 <el-button type="text" size="small" @click="getDetail(scope.row,'view')">编辑</el-button>
                 <el-button type="text" size="small" @click="getDetail(scope.row,'edit')">删除</el-button>
-                <el-button type="text" size="small" @click="deleteClick(scope.row)">历史版本</el-button>
+                <el-button type="text" size="small" @click="historyClick(scope.row)">历史版本</el-button>
               </template>
             </el-table-column>
 
           </el-table>
+          -->
         </el-main>
 
       </el-container>
@@ -182,12 +187,13 @@
 <script>
 
 import showD from './components/showD'
+import myTable from '@/components/myTable'
 
 import { getList } from '@/api/project'
 import { mapGetters } from 'vuex'
 export default {
 
-  components: { showD },
+  components: { showD,myTable },
   computed: {
 
     ...mapGetters([
@@ -211,10 +217,13 @@ export default {
       },
       projectConfHeader: [// 表头配置
         { 'label': 'Key', 'valueStr': 'name', 'type': 'text' },
-        { 'label': 'Value', 'valueStr': 'Value', 'type': 'value' },
+        { 'label': 'Value', 'valueStr': 'Value', 'type': 'desc' },
         { 'label': '备注', 'valueStr': 'name', 'type': 'text' },
         { 'label': '状态', 'valueStr': 'department', 'type': 'tagArray', 'width': '140' },
-        { 'label': '类型', 'valueStr': 'name', 'type': 'text' }
+        { 'label': '类型', 'valueStr': 'name', 'type': 'text' },
+        { 'label': '类型', 'valueStr': 'name', 'type': 'button',"data":[
+        {"buttonType":"text","buttonText":"编辑","buttonValue":"edit1"},{"buttonType":"text","buttonText":"编辑","buttonValue":"edit2"},{"buttonType":"text","buttonText":"编辑","buttonValue":"edit3"}] 
+          }
 
       ],
       projectConfList: { // 项目配置列表
@@ -290,8 +299,31 @@ export default {
     this.iniData()
   },
   methods: {
+    historyClick(row){
+      console.log('历史版本', row)
+      this.projectConfList.title="历史"
+
+      this.projectConfList.list = [{
+          Value: { 'adasd': '4561654984ada4561654984adasda4561654984adasdasda4561654984ada4561654984adasda4561654984adasdasda' },
+          name: '王小虎3',
+          department: ['开发中']
+        }]
+
+      this.projectConfHeader =  [// 表头配置
+        { 'label': '版本名', 'valueStr': 'name', 'type': 'text' },
+        { 'label': 'Key', 'valueStr': 'name', 'type': 'text' },
+        { 'label': 'Value', 'valueStr': 'Value', 'type': 'value' },
+        { 'label': '修改时间', 'valueStr': 'name', 'type': 'text' },
+        { 'label': '修改人', 'valueStr': 'name', 'type': 'text' },
+        { 'label': '备注', 'valueStr': 'name', 'type': 'text' },
+
+      ]
+
+    },
     getDetail(value, row, column) {
       console.log('编辑变量', value)
+      console.log('编辑变量row', row)
+      
       this.showData = {
         group: '分组',
         key: 'key',
