@@ -222,9 +222,8 @@ export default {
         { 'label': '状态', 'valueStr': 'department', 'type': 'tagArray', 'width': '140' },
         { 'label': '类型', 'valueStr': 'name', 'type': 'text' },
         { 'label': '类型', 'valueStr': 'name', 'type': 'button',"data":[
-        {"buttonType":"text","buttonText":"编辑","buttonValue":"edit1"},{"buttonType":"text","buttonText":"编辑","buttonValue":"edit2"},{"buttonType":"text","buttonText":"编辑","buttonValue":"edit3"}] 
+        {"buttonType":"text","buttonText":"编辑","buttonValue":"edit1"},{"buttonType":"text","buttonText":"删除","buttonValue":"delete"},{"buttonType":"text","buttonText":"历史版本","buttonValue":"history"}] 
           }
-
       ],
       projectConfList: { // 项目配置列表
         title: '临时',
