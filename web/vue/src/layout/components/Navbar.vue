@@ -3,11 +3,11 @@
     <hamburger :is-active="sidebar.opened" class="hamburger-container" @toggleClick="toggleSideBar" />
 
     <breadcrumb class="breadcrumb-container" />
-
+    <!--?width=100&height=100-->
     <div class="right-menu">
       <el-dropdown class="avatar-container" trigger="click">
         <div class="avatar-wrapper">
-          <img :src="avatar" class="user-avatar">
+          <img :src="avatarURl" class="user-avatar">
           <i class="el-icon-caret-bottom" />
         </div>
         <el-dropdown-menu slot="dropdown" class="user-dropdown">
@@ -36,16 +36,22 @@ import { mapGetters } from 'vuex'
 import Breadcrumb from '@/components/Breadcrumb'
 import Hamburger from '@/components/Hamburger'
 
-//avatar
-
+// avatar
 
 export default {
   components: {
     Breadcrumb,
-    Hamburger,
-    
+    Hamburger
+
+  },
+  created() {
+    // let query = this.$route.query
+
+    this.avatarURl = this.avatar + '?width=100&height=100'
+    console.log('初始化头像', this.avatarURl)
   },
   computed: {
+
     ...mapGetters([
       'sidebar',
       'avatar'
@@ -53,7 +59,7 @@ export default {
   },
   methods: {
     toggleSideBar(abc) {
-      console.log("abc",abc)
+      console.log('abc', abc)
       this.$store.dispatch('app/toggleSideBar')
     },
     async logout() {

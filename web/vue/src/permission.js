@@ -8,10 +8,10 @@ import getPageTitle from '@/utils/get-page-title'
 
 NProgress.configure({ showSpinner: false }) // NProgress Configuration
 
-const whiteList = ['/login', '/proxy',"/githubLogin"] // no redirect whitelist
+const whiteList = ['/login', '/proxy', '/githubLogin', '/qqLogin'] // no redirect whitelist
 
 router.beforeEach(async(to, from, next) => {
-  console.log("总拦截")
+  console.log('总拦截')
   // start progress bar
   NProgress.start()
 
@@ -27,19 +27,23 @@ router.beforeEach(async(to, from, next) => {
       next({ path: '/' })
       NProgress.done()
     } else {
+      // 获取有效期
       const hasGetUserInfo = store.getters.name
+
+      // await store.dispatch('user/getInfo') //刷新token
+
       if (hasGetUserInfo) {
         next()
       } else {
         try {
-          //console.log("总获取")
+          // console.log("总获取")
           // get user info
           await store.dispatch('user/getInfo')
 
           next()
         } catch (error) {
           // remove token and go to login page to re-login
-          await store.dispatch('user/resetToken')
+          await store.dispatch('user/logout')
           Message.error(error || 'Has Error')
           next(`/login?redirect=${to.path}`)
           NProgress.done()
@@ -49,7 +53,7 @@ router.beforeEach(async(to, from, next) => {
   } else {
     /* has no token*/
 
-    if (whiteList.indexOf(to.path) !== -1 ) {
+    if (whiteList.indexOf(to.path) !== -1) {
       // in the free login whitelist, go directly
       next()
     } else {

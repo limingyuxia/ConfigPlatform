@@ -12,90 +12,19 @@
     <el-card v-loading="listLoading" class="box-card">
 
       <div slot="header" class="clearfix">
-
         <el-button style="float: right; padding: 3px 0" type="text" @click="queryDataFuc()">查询</el-button>
         <div style="width: 30px;text-align: center; float: right; padding: 3px 0">  |  </div>
-
         <el-button style="float: right; padding: 3px 0" type="text" @click="dialogShow([],'add')">添加</el-button>
 
       </div>
 
-      <el-scrollbar>
+          <myTable  @pagination-size-change="handleSizeChange" 
+                  @pagination-current-change="handleCurrentChange" 
+                  :projectConfList="tableData" 
+                  :projectConfHeader="Header" 
+                  :pagination="paginationData" 
+                  @getDetail="getDetail" />
 
-        <el-table
-          border
-          :data="tableData.slice((currentPage-1)*pageSize,currentPage*pageSize)"
-          empty-text="暂无数据"
-          style="width: 100% height: 100%;"
-          height="500"
-          width="700"
-        >
-
-          <el-table-column
-            label="序号"
-            type="index"
-          />
-
-          <template v-for="item,index in Header">
-
-            <el-table-column
-              v-if="item.type == 'text'"
-              :key="index"
-              :prop="item.valueStr"
-              :label="item.label"
-              :width="item.width"
-            />
-            <el-table-column
-              v-if="item.type == 'tagArray'"
-              :key="index"
-              :label="item.label"
-            >
-
-              <template slot-scope="scope">
-                <template v-for="item1,index1 in scope.row.department">
-                  <el-tag
-                    v-if="item1 !== ''"
-                    :key="index1"
-                    size="medium"
-                  >{{ item1 }}</el-tag>
-                </template>
-              </template>
-
-            </el-table-column>
-
-          </template>
-
-          <el-table-column
-            fixed="right"
-            label="操作"
-            width="150"
-          >
-            <template slot-scope="scope">
-              <el-button type="text" size="small" @click="getDetail(scope.row,'view')">查看</el-button>
-              <el-button type="text" size="small" @click="getDetail(scope.row,'edit')">编辑</el-button>
-              <el-button type="text" size="small" @click="deleteClick(scope.row)">删除</el-button>
-            </template>
-          </el-table-column>
-
-        </el-table>
-      </el-scrollbar>
-
-      <div
-        class="block"
-        style="margin-bottom:15px;"
-      >
-        <el-pagination
-
-          :current-page="currentPage"
-          :page-sizes="[5,10,20]"
-          :page-size="pageSize"
-          :total="total"
-          align="center"
-          layout="total, sizes, prev, pager, next, jumper"
-          @size-change="handleSizeChange"
-          @current-change="handleCurrentChange"
-        />
-      </div>
     </el-card>
 
     <el-dialog v-loading="dialogFormLoading" :visible.sync="dialogFormVisible" v-bind="$attrs" title="项目详情">
@@ -283,11 +212,20 @@
 <script>
 import { getList, getDetailList, addProject, deleteProject, editProject } from '@/api/project'
 import { Message } from 'element-ui'
+import { mapGetters } from 'vuex'
+import myTable from '@/components/myTable'
 
 export default {
+  components: { myTable },
+  computed: {
 
+    ...mapGetters([
+      'name'
+    ])
+  },
   data() {
     return {
+
       formInline: [
         { 'label': '项目名称', 'value': '', 'model': 'name', 'placeholder': '请输入' },
         { 'label': '项目id', 'value': '', 'model': 'id', 'placeholder': '请输入' },
@@ -345,6 +283,7 @@ export default {
         'name': 'aa',
         'region': ''
       },
+
       Header: [
 
         // { 'label': '项目id', 'valueStr': 'id' ,'type':'text'},
@@ -353,15 +292,23 @@ export default {
         { 'label': '项目所属的部门', 'valueStr': 'department', 'type': 'tagArray' },
         // { 'label': '管理员', 'valueStr': 'admin' ,'type':'text'},
         { 'label': '创建时间', 'valueStr': 'create_time', 'type': 'text', 'width': 180 },
-        { 'label': '更新时间', 'valueStr': 'update_time', 'type': 'text', 'width': 180 }
-
+        { 'label': '更新时间', 'valueStr': 'update_time', 'type': 'text', 'width': 180 },
+      { 'label': '类型', 'valueStr': 'name', 'type': 'button',"data":[
+        {"buttonType":"text","buttonText":"查看","buttonValue":"view"},{"buttonType":"text","buttonText":"编辑","buttonValue":"edit"},{"buttonType":"text","buttonText":"删除","buttonValue":"delete"}] 
+          }
       ],
-
+      paginationData:{
+        "currentPage":1,// 当前页码
+        "total":20,// 总条数
+        "pageSize":20
+      
+      },
       tableData: [], // 表格数据
+      /*
       currentPage: 1, // 当前页码
-      total: 0, // 总条数
+      total: 20, // 总条数
       pageSize: 20, // 每页的数据条数
-
+*/
       dialogFormVisible: false,
       dialogVisible: false,
       dialogformDisabled: false,
@@ -370,11 +317,11 @@ export default {
     }
   },
   created() {
-    console.log('初始化表格')
+    console.log('初始化表格', this)
     var data = {
       'page_index': 1,
       'page_size': 20,
-      'project_user': 'superuser'// 用户名 必须
+      'project_user': this.name// 用户名 必须
     }
     this.queryData(data)
   },
@@ -384,9 +331,9 @@ export default {
       console.log('queryDataFuc:')
       const formInline = this.formInline
       var data = {
-        'page_index': this.currentPage,
-        'page_size': this.pageSize,
-        'project_user': 'superuser'// 用户名 必须
+        'page_index': this.paginationData.currentPage,
+        'page_size': this.paginationData.pageSize,
+        'project_user': this.name// 用户名 必须
       }
 
       for (let index = 0; index < formInline.length; index++) {
@@ -464,7 +411,7 @@ export default {
           'description': this.formData.description,
           'develop_user': this.formData.develop_user,
           'name': this.formData.name,
-          'project_user': 'superuser'
+          'project_user': this.name
         }
         console.log('upData:', upData)
         this.dialogFormLoading = true
@@ -478,9 +425,9 @@ export default {
           this.dialogFormLoading = false
           this.dialogFormVisible = false
           var data = {
-            'page_index': this.currentPage,
-            'page_size': this.pageSize,
-            'project_user': 'superuser'// 用户名 必须
+            'page_index': this.paginationData.currentPage,
+            'page_size': this.paginationData.pageSize,
+            'project_user': this.name// 用户名 必须
           }
           this.queryData(data)
           // this.formData = response
@@ -511,9 +458,9 @@ export default {
           this.dialogFormVisible = false
 
           var data = {
-            'page_index': this.currentPage,
-            'page_size': this.pageSize,
-            'project_user': 'superuser'// 用户名 必须
+            'page_index': this.paginationData.currentPage,
+            'page_size': this.paginationData.pageSize,
+            'project_user': this.name// 用户名 必须
           }
           this.queryData(data)
           // this.formData = response
@@ -527,6 +474,7 @@ export default {
     getDetail(data, type) { // 弹窗的
       console.log('dialogShow:', data, type)
       var updata = {}
+
       if (type === 'view') { // 查看
       // 获取详情
         updata = {
@@ -570,6 +518,9 @@ export default {
       } else if (type === 'add') { // 异常
         console.log('onthon')
       }
+      else if(type === 'delete'){//删除项目
+        this._deleteClick(data)
+      }
       // dialogformDisabled
     },
 
@@ -584,7 +535,7 @@ export default {
         'develop_user': [],
         'id': '',
         'name': '',
-        'project_user': 'superuser'
+        'project_user': this.name
       }
       this.dialogformDisabled = false
       this.formData = data
@@ -593,7 +544,7 @@ export default {
       // 获取详情数据
     },
 
-    deleteClick(data) { // 删除项目
+    _deleteClick(data) { // 删除项目
       console.log('delete:', data)
       this.$confirm('此操作将永久删除该项目, 是否继续?', '提示', {
         confirmButtonText: '确定',
@@ -616,14 +567,14 @@ export default {
             duration: 5 * 1000
           })
           // 取余数
-          const remainder = this.total % this.pageSize
-          if (remainder === 1 && this.currentPage > 1) {
-            this.currentPage = this.currentPage - 1
+          const remainder = this.paginationData.total % this.paginationData.pageSize
+          if (remainder === 1 && this.paginationData.currentPage > 1) {
+            this.paginationData.currentPage = this.paginationData.currentPage - 1
           }
           var data = {
-            'page_index': this.currentPage,
-            'page_size': this.pageSize,
-            'project_user': 'superuser'// 用户名 必须
+            'page_index': this.paginationData.currentPage,
+            'page_size': this.paginationData.pageSize,
+            'project_user': this.name// 用户名 必须
           }
           this.queryData(data)
         }, reason => {
@@ -641,12 +592,12 @@ export default {
     },
     handleSizeChange(pageSize) {
       console.log('pageSize!', pageSize)
-      this.pageSize = pageSize
+      this.paginationData.pageSize = pageSize
 
       var data = {
-        'page_index': this.currentPage,
+        'page_index': this.paginationData.currentPage,
         'page_size': pageSize,
-        'project_user': 'superuser'// 用户名 必须
+        'project_user': this.name// 用户名 必须
       }
       this.queryData(data)
     },
@@ -654,12 +605,12 @@ export default {
       console.log('currentPage!', currentPage)
       var data = {
         'page_index': currentPage,
-        'page_size': this.pageSize,
-        'project_user': 'superuser'// 用户名 必须
+        'page_size': this.paginationData.pageSize,
+        'project_user': this.name// 用户名 必须
       }
       this.queryData(data)
 
-      this.currentPage = currentPage
+      this.paginationData.currentPage = currentPage
     },
 
     queryData(data) {
@@ -668,8 +619,8 @@ export default {
       /*
       var data = {
         'page_index': currentPage,
-        'page_size': this.pageSize,
-        'project_user': 'superuser'// 用户名 必须
+        'page_size': this.paginationData.pageSize,
+        'project_user': this.name// 用户名 必须
       }
       */
       console.log('upData:', data)
@@ -679,43 +630,41 @@ export default {
       total: 0, // 总条数
       pageSize: 20, // 每页的数据条数
 */
+/*
       for (let index = 0; index < (data.page_index - 1) * data.page_size; index++) {
         this.tableData.push(index)
       }
-
-      console.log('this.tableData_tmp:', this.tableData, this.currentPage, this.pageSize)
+*/
+      console.log('this.tableData_tmp:', this.tableData, this.paginationData.currentPage, this.paginationData.pageSize,this.paginationData)
 
       getList(data).then(response => {
         const tableDataList = response.project_list
-        const total = response.Total
-        
-        console.log('tableData', response, total === 0)
+        const total = response.total
+
+        console.log('tableData', response, total)
         if (total === 0) {
-          this.total = 0
+          this.paginationData.total = 0
           this.tableData = []
           this.listLoading = false
           return 0
         }
 
         if (tableDataList === null) {
-          this.total = total
+          this.paginationData.total = total
           this.tableData = []
           this.listLoading = false
           return 0
         }
+        
 
-        for (let index = 0; index < tableDataList.length; index++) {
-          const element = tableDataList[index]
+        this.tableData = tableDataList
 
-          this.tableData.push(element)
-        }
+        console.log('this.tableData:', this.tableData, this.paginationData.currentPage, this.paginationData.pageSize,total)
 
-        console.log('this.tableData:', this.tableData, this.currentPage, this.pageSize)
-
-        this.total = total
+        this.paginationData.total = total
         this.listLoading = false
       }, reason => {
-        this.total = 0
+        this.paginationData.total = 0
         this.tableData = []
         this.listLoading = false
         console.error(reason) // 出错了！
@@ -735,7 +684,7 @@ export default {
     display:block;
     margin-bottom: 5px;
     margin-top: 5px;
- 
+
 }
 .el-textarea .el-textarea__inner{
   resize: none;

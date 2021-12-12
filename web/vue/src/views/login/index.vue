@@ -45,10 +45,10 @@
               <span class="qq-svg-container"><svg-icon id="qqLoginBtn" icon-class="qq" class="icon" /></span> QQ
             </div>
             <div class="sign-btn" @click="getGithubAuthorizeCode()">
-              <span class="qq-svg-container"><svg-icon  icon-class="github-fill" class="icon" /></span> github
+              <span class="qq-svg-container"><svg-icon icon-class="github-fill" class="icon" /></span> github
             </div>
             <div class="sign-btn" @click="weiboHandleClick('tencent')">
-              <span class="qq-svg-container"><svg-icon id="wbLoginBtn" icon-class="weibo" class="icon" /></span> 微博
+              <span class="weibo-svg-container"><svg-icon id="wbLoginBtn" icon-class="weibo" class="icon" /></span> 微博
             </div>
           </div>
 
@@ -130,13 +130,6 @@ import { getCodeId, confirmCode, emailSend, emailConfirm, registerUser } from '@
 import { Message } from 'element-ui'
 
 export default {
-  mounted(){
-        const oIframe = document.getElementById('show-iframe');
-        const deviceWidth = document.documentElement.clientWidth;
-        const deviceHeight = document.documentElement.clientHeight;
-        oIframe.style.width = deviceWidth + 'px';
-        oIframe.style.height = deviceHeight + 'px';
-    },
   name: 'LoginRegister',
   data() {
     const validateEmail = (rule, value, callback) => {
@@ -175,7 +168,7 @@ export default {
       }
     }
     return {
-      url_all:"1",
+      url_all: '1',
       src1: 'https://tva2.sinaimg.cn/large/9bd9b167gy1g2qkt9k952j21hc0u01kx.jpg',
       inputRegisterRules: { // 校验
 
@@ -242,16 +235,23 @@ export default {
       }
     }
   },
+  mounted() {
+    const oIframe = document.getElementById('show-iframe')
+    const deviceWidth = document.documentElement.clientWidth
+    const deviceHeight = document.documentElement.clientHeight
+    oIframe.style.width = deviceWidth + 'px'
+    oIframe.style.height = deviceHeight + 'px'
+  },
 
   methods: {
-     goBack(){
-            this.goBackState = false;
-            this.iframeState = false;
-        },
-        showIframe(){
-            this.goBackState = true;
-            this.iframeState = true;
-        },
+    goBack() {
+      this.goBackState = false
+      this.iframeState = false
+    },
+    showIframe() {
+      this.goBackState = true
+      this.iframeState = true
+    },
     codeEmailIn(str) {
       const codeStr = str
       console.log('codeEmailIn', codeStr)
@@ -362,20 +362,22 @@ export default {
       this.reCodeLoading = true
       getCodeId().then(response => {
         console.log('response:', response)
+
         this.captcha_id = response.captcha_id
+
         var protocolStr = document.location.protocol
 
         if (protocolStr === 'http:') {
-          this.src1 = 'http://' + process.env.VUE_APP_BASE_HTTP_API + "/captcha/" + response.captcha_id + '.png'
+          this.src1 = 'http://' + process.env.VUE_APP_BASE_HTTP_API + '/captcha/' + response.captcha_id + '.png'
           // console.log('protocol = ' + protocolStr)
         } else if (protocolStr === 'https:') {
-          this.src1 = 'https://' + process.env.VUE_APP_BASE_HTTPS_API+ "/captcha/" + response.captcha_id + '.png'
+          this.src1 = 'https://' + process.env.VUE_APP_BASE_HTTPS_API + '/captcha/' + response.captcha_id + '.png'
           // console.log('protocol = ' + protocolStr)
         } else {
-          this.src1 = 'http://' + process.env.VUE_APP_BASE_HTTP_API+ "/captcha/" + response.captcha_id + '.png'
+          this.src1 = 'http://' + process.env.VUE_APP_BASE_HTTP_API + '/captcha/' + response.captcha_id + '.png'
           // console.log('other protocol')
         }
-      console.log("this.src1 :",this.src1 )
+        console.log('this.src1 :', this.src1)
         this.reCodeLoading = false
         // this.formData = response
       }, reason => {
@@ -406,19 +408,17 @@ export default {
       })
     },
     wechatHandleClick(thirdpart) {
-  
-                let baseUrl = "https://open.weixin.qq.com/connect/qrconnect"
-                let appid = "wxbdc5610cc59c1631"
-                let redictUrl = "https%3A%2F%2Fpassport.yhd.com%2Fwechat%2Fcallback.do"
-                let state = "3d6be0a4035d839573b04816624a415e"
+      const baseUrl = 'https://open.weixin.qq.com/connect/qrconnect'
+      const appid = 'wxbdc5610cc59c1631'
+      const redictUrl = 'https%3A%2F%2Fpassport.yhd.com%2Fwechat%2Fcallback.do'
+      const state = '3d6be0a4035d839573b04816624a415e'
 
-                let url = baseUrl + "?appid=" + appid + "&redirect_uri=" + redictUrl
-                    + "&response_type=code" + "&scope=snsapi_login" + "&state=" + state
+      const url = baseUrl + '?appid=' + appid + '&redirect_uri=' + redictUrl +
+                    '&response_type=code' + '&scope=snsapi_login' + '&state=' + state
 
-                window.location = url
-            
+      window.location = url
 
-      //alert('ok')
+      // alert('ok')
       // this.$store.commit('SET_AUTH_TYPE', thirdpart)
       // const appid = 'xxxxx'
       // const redirect_uri = encodeURIComponent('xxx/redirect?redirect=' + window.location.origin + '/auth-redirect')
@@ -427,18 +427,16 @@ export default {
     },
     // QQ 第三方登录
     tencentHandleClick(thirdpart) {
-      let baseUrl = "https://graph.qq.com/oauth2.0/authorize"
-      let appid = 101981088
-      let redictUrl = "http://config-platform.top/qqLogin"
-      let state = "3d6be0a4035d839573b04816624a415e"
-      //let scope = "get_user_info,add_share,add_one_blog,list_album,upload_pic,add_album,list_photo,check_page_fans,get_info,add_t,del_t,add_pic_t,get_repost_list,get_other_info,get_fanslist,get_idollist,add_idol,del_idol,get_tenpay_addr"
+      const baseUrl = 'https://graph.qq.com/oauth2.0/authorize'
+      const appid = 101981088
+      const redictUrl = 'http://config-platform.top/qqLogin'
+      const state = '3d6be0a4035d839573b04816624a415e'
+      // let scope = "get_user_info,add_share,add_one_blog,list_album,upload_pic,add_album,list_photo,check_page_fans,get_info,add_t,del_t,add_pic_t,get_repost_list,get_other_info,get_fanslist,get_idollist,add_idol,del_idol,get_tenpay_addr"
 
-      let url = baseUrl + "?response_type=code&client_id=" + appid
-          + "&redirect_uri=" + redictUrl + "&state=" + state 
-          
+      const url = baseUrl + '?response_type=code&client_id=' + appid +
+          '&redirect_uri=' + redictUrl + '&state=' + state
 
       window.location = url
-
 
       /*
       // 直接弹出授权页面，授权过后跳转到回调页面进行登录处理
@@ -458,26 +456,26 @@ export default {
       // openWindow(url, thirdpart, 540, 540);
     },
     getGithubAuthorizeCode() {
-                let baseUrl = "https://github.com/login/oauth/authorize"
-                let clientId = "b0f4b22bfa884640f030"
-                let redictUrl = "http://config-platform.top/githubLogin"
-                //redictUrl ="http://localhost:9745/#/githubLogin"
-                let state = "3d6be0a4035d839573b04816624a415e"
-             
-                let scope = "read:user"
+      const baseUrl = 'https://github.com/login/oauth/authorize'
+      const clientId = 'b0f4b22bfa884640f030'
+      const redictUrl = 'http://config-platform.top/githubLogin'
+      // redictUrl ="http://localhost:9745/#/githubLogin"
+      const state = '3d6be0a4035d839573b04816624a415e'
 
-                let url = baseUrl + "?client_id=" + clientId + "&redirect_uri=" + redictUrl
-                    + "&scope=" + scope + "&state=" + state
+      const scope = 'read:user'
 
-                //window.location = url
-                //this.url_all = url
-                console.log("url_all",url)
-                //windows.parent.location.href=url
-                //var mypage = window.open(url,'mypage','address=0,resizable=0,toolbar=0,location=0,status=0,menubar=0,fullscreen=0');
-                
-               let a = window.open(url,"_top")
-              console.log("a:",a)
-            },
+      const url = baseUrl + '?client_id=' + clientId + '&redirect_uri=' + redictUrl +
+                    '&scope=' + scope + '&state=' + state
+
+      // window.location = url
+      // this.url_all = url
+      console.log('url_all', url)
+      // windows.parent.location.href=url
+      // var mypage = window.open(url,'mypage','address=0,resizable=0,toolbar=0,location=0,status=0,menubar=0,fullscreen=0');
+
+      const a = window.open(url, '_top')
+      console.log('a:', a)
+    },
     register() { // 注册
       this.$refs.inputRegister.validate(valid => {
         console.log(valid)
@@ -669,7 +667,8 @@ export default {
   }
 
   .wx-svg-container,
-  .qq-svg-container {
+  .qq-svg-container,
+  .weibo-svg-container {
     display: inline-block;
     width: 40px;
     height: 40px;
@@ -684,7 +683,10 @@ export default {
   .wx-svg-container {
     background-color: #24da70;
   }
-
+.weibo-svg-container{
+   background-color: #f72e2e;
+   margin-left: 50px;
+}
   .qq-svg-container {
     background-color: #6BA2D6;
     margin-left: 50px;

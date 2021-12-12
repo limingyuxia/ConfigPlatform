@@ -1,7 +1,7 @@
 <template>
-  <div class="app-container" v-loading="user.loadingAll">
-<el-button type="" @click="ceshi"></el-button>
-    <div v-if="user" >
+  <div v-loading="user.loadingAll" class="app-container">
+    <el-button type="" @click="ceshi" />
+    <div v-if="user">
       <el-row :gutter="20">
 
         <el-col :span="6" :xs="24">
@@ -15,13 +15,15 @@
               <el-tab-pane label="activity" name="activity">
                 <activity />
               </el-tab-pane>
-              
-              <el-tab-pane label="Timeline" name="timeline">
-                <timeline />
-              </el-tab-pane>
               -->
-              <el-tab-pane label="账号信息" name="account">
-                <account @changeUser = "changeUser" :user="user" />
+
+              <el-tab-pane label="个人资料" name="account">
+                <account :user="user" @changeUser="changeUser" />
+              </el-tab-pane>
+
+              <el-tab-pane label="账号设置" name="AccountSettings">
+                <AccountSettings :user="user" @changeUser="changeUser" />
+
               </el-tab-pane>
             </el-tabs>
           </el-card>
@@ -35,18 +37,20 @@
 <script>
 import { mapGetters } from 'vuex'
 import UserCard from './components/UserCard'
-import Activity from './components/Activity'
-import Timeline from './components/Timeline'
+// import Activity from './components/Activity'
+// import Timeline from './components/Timeline'
 import Account from './components/Account'
+import AccountSettings from './components/AccountSettings'
 
 export default {
   name: 'Profile',
-  components: { UserCard, Activity, Timeline, Account },
+  // components: { UserCard, Activity, Timeline, Account, AccountSettings },
+  components: { UserCard, Account, AccountSettings },
   data() {
     return {
-     
+
       user: {
-        loadingAll:false,
+        loadingAll: false
       },
       activeTab: 'account'
     }
@@ -59,50 +63,44 @@ export default {
       'email'
     ])
   },
+  watch: {
+    'user': function(newVal) {
+      console.log('user:', newVal)
+    },
+    'avatar': function(newVal) {
+      this.getUser()
+      // console.log("avatar_ch:",newVal)
+      // this.user.avatar = newVal
+    }
+
+  },
   created() {
     this.getUser()
   },
-  watch: {
-    'user': function(newVal){
-            console.log("user:",newVal)
-   
-          },
-          'avatar': function(newVal){
-         
-             this.getUser()
-            //console.log("avatar_ch:",newVal)
-              //this.user.avatar = newVal
-          },
-
-      },
 
   methods: {
-    ceshi(){
+    ceshi() {
       this.user.avatar = this.user.avatar + 1
-      console.log("userInfo:",this.user)
+      console.log('userInfo:', this.user)
     },
 
-    changeUser(user){//触发加载
-      console.log("changeUser",user)
+    changeUser(user) { // 触发加载
+      console.log('changeUser', user)
 
-
-      for(var key in user){
-
-　　　　console.log("key",key)
-        console.log("user",user[key])
+      for (var key in user) {
+        console.log('key', key)
+        console.log('user', user[key])
         this.user[key] = user[key]
-        
-　　}
-
+      }
     },
     getUser() {
-      console.log("created",this.email)
-      
+      console.log('created', this.email)
+
       this.user.role = []
       this.user.email = this.email
       this.user.avatar = this.avatar
       this.user.name = this.name
-      console.log("user_info",this.user)
+      console.log('user_info', this.user)
       /*
       this.user = {
         name: this.name,

@@ -8,6 +8,39 @@ export function login(params) {
     // headers: params.header
   })
 }
+export function updata(params) {
+  return request({
+    url: '/user/update',
+    method: 'post',
+    data: params
+
+  })
+}
+export function getAuthInfo(params) {
+  return request({
+    url: '/user/auth2Info',
+    method: 'get'
+
+  })
+}
+
+export function resetToken() {
+  return request({
+    url: '/auth/refreshToken',
+    method: 'get'
+
+    // headers: params.header
+  })
+}
+export function thirdLogin(params, url) {
+  return request({
+    url: url,
+    method: 'get'
+    // params: { params }
+    // data: params
+    // headers: params.header
+  })
+}
 
 export function reCode() {
   return request({
@@ -22,14 +55,6 @@ export function confirmCode(params) {
     url: '/captcha/confirm',
     method: 'POST',
     data: params
-  })
-}
-
-export function getCodeId() {
-  return request({
-    url: '/captcha/get',
-    method: 'GET'
-
   })
 }
 
@@ -49,12 +74,13 @@ export function registerUser(params) {
   })
 }
 
-//上传头像
+// 上传头像
 export function uploadAvatar(params) {
   return request({
     url: '/user/avatar/update',
     method: 'POST',
     data: params
+    // headers:{"enctype":"multipart/form-data" }
   })
 }
 
@@ -69,8 +95,8 @@ export function emailConfirm(params) {
 export function getInfo(token) {
   return request({
     url: '/user/info',
-    method: 'get',
-    params: { token }
+    method: 'get'
+    // headers: { token }
   })
 }
 
