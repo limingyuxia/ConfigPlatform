@@ -1,4 +1,23 @@
 definitions:
+  model.AddConfigGroupReq:
+    properties:
+      comment:
+        description: 分组备注
+        type: string
+      env:
+        description: 环境
+        type: string
+      group_name:
+        description: 分组名
+        type: string
+      project_id:
+        description: 项目id
+        type: integer
+    required:
+    - env
+    - group_name
+    - project_id
+    type: object
   model.AddProject:
     properties:
       admin:
@@ -71,6 +90,18 @@ definitions:
         description: 图片验证码验证成功返回的token
         type: string
     type: object
+  model.ConfigGroup:
+    properties:
+      comment:
+        description: 分组备注
+        type: string
+      group_name:
+        description: 分组名称
+        type: string
+      id:
+        description: 分组id
+        type: integer
+    type: object
   model.ConfirmCaptcha:
     properties:
       captcha_id:
@@ -94,6 +125,25 @@ definitions:
     required:
     - captcha_token
     - email_code
+    type: object
+  model.EditConfigGroupReq:
+    properties:
+      comment:
+        description: 分组备注
+        type: string
+      group_name:
+        description: 分组名
+        type: string
+      id:
+        description: 分组id
+        type: integer
+      project_id:
+        description: 项目id
+        type: integer
+    required:
+    - group_name
+    - id
+    - project_id
     type: object
   model.EditProject:
     properties:
@@ -126,6 +176,13 @@ definitions:
       captcha_id:
         description: 验证码id
         type: string
+    type: object
+  model.GetConfigGroupResp:
+    properties:
+      config_group:
+        items:
+          $ref: '#/definitions/model.ConfigGroup'
+        type: array
     type: object
   model.GetProjectListResp:
     properties:
@@ -414,6 +471,114 @@ paths:
       summary: 发送邮箱验证码
       tags:
       - 鉴权
+  /group/add:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: 分组数据
+        in: body
+        name: AddConfigGroup
+        required: true
+        schema:
+          $ref: '#/definitions/model.AddConfigGroupReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/services.WebResponse'
+      summary: 添加配置分组
+      tags:
+      - 配置分组
+  /group/delete:
+    delete:
+      consumes:
+      - application/json
+      parameters:
+      - description: 分组id
+        in: query
+        name: id
+        required: true
+        type: integer
+      - description: 项目id
+        in: query
+        name: project_id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/services.WebResponse'
+      summary: 删除配置分组
+      tags:
+      - 配置分组
+  /group/edit:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: 配置分组修改项
+        in: body
+        name: EditConfigGroup
+        required: true
+        schema:
+          $ref: '#/definitions/model.EditConfigGroupReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/services.WebResponse'
+      summary: 编辑配置分组
+      tags:
+      - 配置分组
+  /group/list:
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - description: 环境 Dev:开发环境 Test:测试环境 Pre:预发布环境 Prod:正式环境
+        in: query
+        name: env
+        required: true
+        type: string
+      - description: 项目id
+        in: query
+        name: project_id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.GetConfigGroupResp'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/services.WebResponse'
+      summary: 获取配置分组列表
+      tags:
+      - 配置分组
   /login:
     post:
       consumes:

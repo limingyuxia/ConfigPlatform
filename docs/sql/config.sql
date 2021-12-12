@@ -42,7 +42,7 @@ CREATE TABLE `user` (
   `update_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
   PRIMARY KEY (`id`),
   UNIQUE KEY(`username`)
-) ENGINE=InnoDB AUTO_INCREMENT=200 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=200 DEFAULT CHARSET=utf8 COMMENT = '用户信息';
 
 insert into user(`username`, `password`, `nickname`, `gender`, `region`, `phone`, `email`, `photo`)
   values("superuser", "supertoken", "super", 1, "中国", "12306", "super@icloud.com", "https://baidu.com", "");
@@ -60,7 +60,7 @@ CREATE TABLE `seaweedfs` (
   `update_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
   PRIMARY KEY (`id`),
   UNIQUE KEY(`user_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=200 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=200 DEFAULT CHARSET=utf8 COMMENT = '用户头像';
 
 -- ----------------------------
 -- Table structure for auth2
@@ -84,4 +84,44 @@ CREATE TABLE `auth2` (
   `create_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
   `update_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=200 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=200 DEFAULT CHARSET=utf8 COMMENT = '用户第三方登录';
+
+-- ----------------------------
+-- Table structure for config_group
+-- ----------------------------
+DROP TABLE IF EXISTS `config_group`;
+CREATE TABLE `config_group` (
+  `id` int(11) NOT NULL AUTO_INCREMENT COMMENT '自增id',
+  `project_id` int(11) NOT NULL COMMENT '分组所属的项目id',
+  `env` varchar(8) NOT NULL COMMENT '环境 Dev Test Pre Prod',
+  `group_name` varchar(64) NOT NULL COMMENT '分组名称',
+  `comment` varchar(64) COMMENT '备注',
+  `create_user` varchar(64) NOT NULL COMMENT '创建用户',
+  `update_user` varchar(64) NOT NULL COMMENT '最近一次修改用户',
+  `create_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  `update_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+  PRIMARY KEY (`id`),
+  UNIQUE KEY(`project_id`, `env`, `group_name`)
+) ENGINE=InnoDB AUTO_INCREMENT=200 DEFAULT CHARSET=utf8 COMMENT = '配置分组';
+
+-- ----------------------------
+-- Table structure for config_item
+-- ----------------------------
+DROP TABLE IF EXISTS `config_item`;
+CREATE TABLE `config_item` (
+  `id` int(11) NOT NULL AUTO_INCREMENT COMMENT '自增id',
+  `group_id` int(11) NOT NULL COMMENT '配置项所属的配置分组id',
+  `item_name` varchar(64) NOT NULL COMMENT '分组名称',
+  `status` varchar(32) NOT NULL COMMENT '状态 update release changed',
+  `key` varchar(32) NOT NULL COMMENT '配置项的 key',
+  `key_type` varchar(32) NOT NULL COMMENT '配置项类型 string json xml yaml ini',
+  `value` varchar(10240) NOT NULL COMMENT '配置项的 value',
+  `description` varchar(1024) NOT NULL COMMENT '配置项的 描述',
+  `source` varchar(32) NOT NULL COMMENT '配置项的 来源',
+  `version` varchar(64) NOT NULL COMMENT '版本',
+  `cur_version` varchar(64) NOT NULL COMMENT '当前使用的版本',
+  `create_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  `update_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+  PRIMARY KEY (`id`),
+  UNIQUE KEY(`group_id`, `item_name`)
+) ENGINE=InnoDB AUTO_INCREMENT=200 DEFAULT CHARSET=utf8 COMMENT = '配置项';

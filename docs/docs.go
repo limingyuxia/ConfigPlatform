@@ -200,6 +200,172 @@ var doc = `{
                 }
             }
         },
+        "/group/add": {
+            "post": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "配置分组"
+                ],
+                "summary": "添加配置分组",
+                "parameters": [
+                    {
+                        "description": "分组数据",
+                        "name": "AddConfigGroup",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/model.AddConfigGroupReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/services.WebResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/group/delete": {
+            "delete": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "配置分组"
+                ],
+                "summary": "删除配置分组",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "分组id",
+                        "name": "id",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "项目id",
+                        "name": "project_id",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/services.WebResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/group/edit": {
+            "post": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "配置分组"
+                ],
+                "summary": "编辑配置分组",
+                "parameters": [
+                    {
+                        "description": "配置分组修改项",
+                        "name": "EditConfigGroup",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/model.EditConfigGroupReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/services.WebResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/group/list": {
+            "get": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "配置分组"
+                ],
+                "summary": "获取配置分组列表",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "环境 Dev:开发环境 Test:测试环境 Pre:预发布环境 Prod:正式环境",
+                        "name": "env",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "项目id",
+                        "name": "project_id",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/model.GetConfigGroupResp"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/services.WebResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/login": {
             "post": {
                 "consumes": [
@@ -666,6 +832,32 @@ var doc = `{
         }
     },
     "definitions": {
+        "model.AddConfigGroupReq": {
+            "type": "object",
+            "required": [
+                "env",
+                "group_name",
+                "project_id"
+            ],
+            "properties": {
+                "comment": {
+                    "description": "分组备注",
+                    "type": "string"
+                },
+                "env": {
+                    "description": "环境",
+                    "type": "string"
+                },
+                "group_name": {
+                    "description": "分组名",
+                    "type": "string"
+                },
+                "project_id": {
+                    "description": "项目id",
+                    "type": "integer"
+                }
+            }
+        },
         "model.AddProject": {
             "type": "object",
             "required": [
@@ -767,6 +959,23 @@ var doc = `{
                 }
             }
         },
+        "model.ConfigGroup": {
+            "type": "object",
+            "properties": {
+                "comment": {
+                    "description": "分组备注",
+                    "type": "string"
+                },
+                "group_name": {
+                    "description": "分组名称",
+                    "type": "string"
+                },
+                "id": {
+                    "description": "分组id",
+                    "type": "integer"
+                }
+            }
+        },
         "model.ConfirmCaptcha": {
             "type": "object",
             "required": [
@@ -798,6 +1007,32 @@ var doc = `{
                 "email_code": {
                     "description": "邮箱验证码",
                     "type": "string"
+                }
+            }
+        },
+        "model.EditConfigGroupReq": {
+            "type": "object",
+            "required": [
+                "group_name",
+                "id",
+                "project_id"
+            ],
+            "properties": {
+                "comment": {
+                    "description": "分组备注",
+                    "type": "string"
+                },
+                "group_name": {
+                    "description": "分组名",
+                    "type": "string"
+                },
+                "id": {
+                    "description": "分组id",
+                    "type": "integer"
+                },
+                "project_id": {
+                    "description": "项目id",
+                    "type": "integer"
                 }
             }
         },
@@ -844,6 +1079,17 @@ var doc = `{
                 "captcha_id": {
                     "description": "验证码id",
                     "type": "string"
+                }
+            }
+        },
+        "model.GetConfigGroupResp": {
+            "type": "object",
+            "properties": {
+                "config_group": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/model.ConfigGroup"
+                    }
                 }
             }
         },

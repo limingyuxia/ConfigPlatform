@@ -71,6 +71,10 @@ func InitRouter() {
 
 	users := r.Group("/user")
 
+	groups := r.Group("/group")
+
+	items := r.Group("/item")
+
 	addProjectRoute(project, authMiddleware)
 
 	addCaptchasRoute(captchas)
@@ -78,6 +82,10 @@ func InitRouter() {
 	addEmailsRoute(emails)
 
 	addUsersRoute(users, authMiddleware)
+
+	addGroupRoute(groups, authMiddleware)
+
+	addItemRoute(items, authMiddleware)
 
 	// 处理图片验证码
 	r.Use(captcha.RefeshCaptcha())
@@ -97,11 +105,11 @@ func InitRouter() {
 func addProjectRoute(g *gin.RouterGroup, authMiddleware *jwt.GinJWTMiddleware) {
 	g.Use(authMiddleware.MiddlewareFunc())
 	{
-		g.GET("list", services.GetProjectList)
-		g.GET("detail", services.GetProjectDetail)
-		g.POST("add", services.AddProject)
-		g.POST("edit", services.EditProject)
-		g.DELETE("delete", services.DeleteProject)
+		g.GET("/list", services.GetProjectList)
+		g.GET("/detail", services.GetProjectDetail)
+		g.POST("/add", services.AddProject)
+		g.POST("/edit", services.EditProject)
+		g.DELETE("/delete", services.DeleteProject)
 	}
 }
 
@@ -129,5 +137,26 @@ func addUsersRoute(g *gin.RouterGroup, authMiddleware *jwt.GinJWTMiddleware) {
 		g.GET("/auth2Info", services.GetUserAuth2Info)
 
 		g.POST("/update", services.UpdateUserInfo)
+	}
+}
+
+func addGroupRoute(g *gin.RouterGroup, authMiddleware *jwt.GinJWTMiddleware) {
+	g.Use(authMiddleware.MiddlewareFunc())
+	{
+		g.GET("/list", services.GetConfigGroupList)
+		g.POST("/add", services.AddConfigGroup)
+		g.POST("/edit", services.EditConfigGroup)
+		g.DELETE("/delete", services.DeleteConfigGroup)
+	}
+}
+
+func addItemRoute(g *gin.RouterGroup, authMiddleware *jwt.GinJWTMiddleware) {
+	g.Use(authMiddleware.MiddlewareFunc())
+	{
+		g.GET("/list")
+		g.POST("/add")
+		g.POST("/edit")
+		g.DELETE("/delete")
+		g.POST("/publish")
 	}
 }

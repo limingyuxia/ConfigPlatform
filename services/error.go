@@ -32,6 +32,10 @@ const (
 	USER_AVATAR_ERROR   RETCODE = 4024
 	GET_AUTH_INFO_ERROR RETCODE = 4025
 	UPDATE_USER_ERROR   RETCODE = 4026
+	GROUP_LIST_ERROR    RETCODE = 4027
+	GROUP_ADD_ERROR     RETCODE = 4028
+	GROUP_EDIT_ERROR    RETCODE = 4029
+	GROUP_DELETE_ERROR  RETCODE = 4030
 )
 
 // 错误码和错误信息的关系
@@ -65,5 +69,9 @@ var (
 		4024: "获取用户头像失败",
 		4025: "获取用户AUTH应用信息失败",
 		4026: "更新用户信息失败",
+		4027: "获取分组列表失败",
+		4028: "新增分组列表失败",
+		4029: "编辑分组列表失败",
+		4030: "删除分组列表失败",
 	}
 )

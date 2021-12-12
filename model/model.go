@@ -157,3 +157,49 @@ type UpdateUserInfo struct {
 	Phone    string `json:"phone"`    // 电话号码
 	Email    string `json:"email"`    // 邮箱
 }
+
+type GetConfigGroupReq struct {
+	Env       string `json:"env" form:"env" binding:"required"`               // 环境 Dev:开发环境 Test:测试环境 Pre:预发布环境 Prod:正式环境
+	ProjectId int    `json:"project_id" form:"project_id" binding:"required"` // 项目id
+}
+
+type ConfigGroup struct {
+	Id        int    `json:"id"`         // 分组id
+	GroupName string `json:"group_name"` // 分组名称
+	Comment   string `json:"comment"`    // 分组备注
+}
+
+type GetConfigGroupResp struct {
+	ConfigGroupList []ConfigGroup `json:"config_group"`
+}
+
+type AddConfigGroupReq struct {
+	ProjectId int    `json:"project_id" binding:"required"` // 项目id
+	Env       string `json:"env" binding:"required"`        // 环境
+	GroupName string `json:"group_name" binding:"required"` // 分组名
+	Comment   string `json:"comment"`                       // 分组备注
+}
+
+type AddConfigGroupResp struct {
+	Message string `json:"message"`
+}
+
+type EditConfigGroupReq struct {
+	ProjectId int    `json:"project_id" binding:"required"` // 项目id
+	Id        int    `json:"id" binding:"required"`         // 分组id
+	GroupName string `json:"group_name" binding:"required"` // 分组名
+	Comment   string `json:"comment"`                       // 分组备注
+}
+
+type EditConfigGroupResp struct {
+	Message string `json:"message"`
+}
+
+type DeleteConfigGroupReq struct {
+	ProjectId int `json:"project_id" form:"project_id" binding:"required"` // 项目id
+	Id        int `json:"id" form:"id" binding:"required"`                 // 分组id
+}
+
+type DeleteConfigGroupResp struct {
+	Message string `json:"message"`
+}
