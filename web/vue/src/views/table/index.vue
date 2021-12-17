@@ -28,6 +28,9 @@
     </el-card>
 
     <el-dialog v-loading="dialogFormLoading" :visible.sync="dialogFormVisible" v-bind="$attrs" title="项目详情">
+      <!--
+      <MyUpForm />
+       -->
       <el-form
         ref="elForm"
         :disabled="dialogformDisabled"
@@ -79,7 +82,7 @@
           />
         </el-form-item>
         <el-row>
-          <el-col :span="24">
+          <el-col :span="13">
             <el-form-item label-width="130px" label="项目所属的部门">
 
               <el-form-item
@@ -214,9 +217,10 @@ import { getList, getDetailList, addProject, deleteProject, editProject } from '
 import { Message } from 'element-ui'
 import { mapGetters } from 'vuex'
 import myTable from '@/components/myTable'
+import MyUpForm from '@/components/MyUpForm'
 
 export default {
-  components: { myTable },
+  components: { myTable,MyUpForm },
   computed: {
 
     ...mapGetters([
