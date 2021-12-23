@@ -1,7 +1,7 @@
 <template>
   <div>
       <el-form
-      
+
         ref="elForm"
         :disabled="formDisabled"
         :model="formData"
@@ -11,7 +11,7 @@
         label-position="left"
       >
 
-      <el-row class="tmp2" :gutter="20" :key="index"   v-for="item,index in ConfHeader">
+      <el-row  :gutter="20" :key="index"   v-for="item,index in ConfHeader">
 
           <el-col :key="colindex" :span="colitem.span || 60" v-for="colitem,colindex in item" >
 
@@ -111,18 +111,18 @@ export default {
       type: [Array,Object],
       default:()=> [
         [
-          {"label":"项目id","type":"input","span":50,"placeholder":"描述","disabled":true,"model":"id"},
-           {"label":"项目id","type":"input","span":12,"placeholder":"描述","disabled":false,"model":"id1"},
-
-
-        ],
-               [
-          {"label":"项目id","type":"input","span":50,"placeholder":"描述","disabled":true,"model":"id"},
+          {"label":"项目id0","type":"input","span":12,"placeholder":"描述","disabled":true,"model":"id"},
+           {"label":"项目id1","type":"input","span":12,"placeholder":"描述","disabled":false,"model":"id1"},
 
 
         ],
         [
-          {"label":"部门","type":"tag","span":60,"placeholder":"描述","disabled":false,"model":"tag"},
+          {"label":"项目id_1","type":"input","span":20,"placeholder":"描述","disabled":true,"model":"id"},
+
+
+        ],
+        [
+          {"label":"部门-0","type":"tag","span":24,"placeholder":"描述","disabled":false,"model":"tag"},
 
         ]
 
@@ -206,13 +206,9 @@ export default {
 }
 </script>
 
-<style scoped>
 
-</style>
 <style>
-  .el-tag + .el-tag {
-    margin-left: 10px;
-  }
+
   .button-new-tag {
     margin-left: 10px;
     height: 32px;
@@ -228,17 +224,3 @@ export default {
    
   }
 </style>
-<style> 
-.tmp1{
-  background-color: aquamarine;
-}
-.tmp2{
-  background-color: rgb(23, 77, 59);
-}
-        .el-form-item{ 
-
-            float: left; 
-
-        } 
-
-    </style> 

@@ -28,9 +28,7 @@
     </el-card>
 
     <el-dialog v-loading="dialogFormLoading" :visible.sync="dialogFormVisible" v-bind="$attrs" title="项目详情">
-      <!--
       <MyUpForm />
-       -->
       <el-form
         ref="elForm"
         :disabled="dialogformDisabled"
@@ -56,6 +54,7 @@
               />
             </el-form-item>
           </el-col>
+          
           <el-col :span="13">
             <el-form-item label="项目创建者" prop="project_user">
               <el-input
@@ -69,9 +68,13 @@
             </el-form-item>
           </el-col>
         </el-row>
-        <el-form-item label="项目名称" prop="name">
-          <el-input v-model="formData.name" placeholder="请输入项目名称" clearable :style="{width: '100%'}" />
-        </el-form-item>
+
+        <el-row>
+          <el-form-item label="项目名称" prop="name">
+            <el-input v-model="formData.name" placeholder="请输入项目名称" clearable :style="{width: '100%'}" />
+          </el-form-item>
+        </el-row>
+
         <el-form-item label="项目描述" prop="description">
           <el-input
             v-model="formData.description"
@@ -81,8 +84,9 @@
             :style="{width: '100%'}"
           />
         </el-form-item>
+
         <el-row>
-          <el-col :span="13">
+          <el-col :span="24">
             <el-form-item label-width="130px" label="项目所属的部门">
 
               <el-form-item
@@ -682,6 +686,9 @@ export default {
 .divTagAll{
   border:1px solid
 }
+ .el-input {
+    /*width: 330px;*/
+  }
 .el-tag{
     white-space: normal;
     height:auto;

@@ -357,9 +357,21 @@ export default {
     reCodefuc() {
       console.log('reCodefuc:')
       if (this.reCodeLoading === true) {
-        return 0
+        
       }
       this.reCodeLoading = true
+        this.$store.dispatch('verify/getPictureCode').then((redirect) => {
+        console.log('data:', redirect)
+
+        this.src1 = redirect.captcha_url
+        this.captcha_id = redirect.captcha_id
+        this.reCodeLoading = false
+      }).catch((e) => {
+        this.reCodeLoading = false
+        console.log('error,', e)
+      })
+      return
+
       getCodeId().then(response => {
         console.log('response:', response)
 
