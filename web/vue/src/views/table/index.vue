@@ -682,7 +682,7 @@ export default {
   }
 }
 </script>
-<style>
+<style lang="scss" scoped>
 .divTagAll{
   border:1px solid
 }
@@ -690,7 +690,7 @@ export default {
     /*width: 330px;*/
   }
 .el-tag{
-    white-space: normal;
+  
     height:auto;
     display:block;
     margin-bottom: 5px;

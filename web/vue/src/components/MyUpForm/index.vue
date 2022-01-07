@@ -11,12 +11,14 @@
         label-position="left"
       >
 
-      <el-row  :gutter="20" :key="index"   v-for="item,index in ConfHeader">
+      <el-row  :gutter="2" :key="index"   v-for="item,index in ConfHeader">
 
           <el-col :key="colindex" :span="colitem.span || 60" v-for="colitem,colindex in item" >
 
             <el-form-item class="tmp1"  :label="colitem.label" v-if="colitem.type == 'tag'" :prop="colitem.model">
+              <el-row :gutter="2">
               <template  v-for="tagItem,tagIndex in formData[colitem.model].data">
+                  
                   <el-col  :key="tagIndex" :span=60 >
                 <el-tag
 
@@ -31,6 +33,7 @@
                 
                 <el-input
                   :key="tagIndex"
+                  
                   class="input-new-tag"
                   v-if="tagItem.type == 'input'"
                   v-model="tagItem.inputTmp"
@@ -41,25 +44,24 @@
                   @blur="handleInputConfirm(tagItem,tagIndex,colitem.model)"
                 >
                 </el-input>
-
-
                 </el-col>
               </template>
-
+                <el-col>
                 <el-input
                   class="input-new-tag"
                   v-if="formDisabled == false && formData[colitem.model].inputVisible == true"
                   v-model="formData[colitem.model].inputValue"
-                  
                   :ref="'saveTagInput'+colitem.model"
                   size="small"
                   @keyup.enter.native="handleInputConfirmNew(colitem.model)"
                   @blur="handleInputConfirmNew(colitem.model)"
                 >
                 </el-input>
-
-                <el-button v-if="formDisabled == false && formData[colitem.model].inputVisible == false" class="button-new-tag" size="small" @click="showInputNew(colitem.model)">+ New Tag</el-button>
-
+                </el-col>
+                <el-col>
+                  <el-button v-if="formDisabled == false && formData[colitem.model].inputVisible == false" class="button-new-tag" size="small" @click="showInputNew(colitem.model)">+ New Tag</el-button>
+                </el-col>
+              </el-row>
             </el-form-item>
 
               <el-form-item class="tmp1" :label="colitem.label" v-if="colitem.type == 'input'" :prop="colitem.model">
@@ -122,7 +124,7 @@ export default {
 
         ],
         [
-          {"label":"部门-0","type":"tag","span":24,"placeholder":"描述","disabled":false,"model":"tag"},
+          {"label":"部门-0","type":"tag","span":12,"placeholder":"描述","disabled":false,"model":"tag"},
 
         ]
 
@@ -207,20 +209,12 @@ export default {
 </script>
 
 
-<style>
+<style lang="scss" scoped>
 
   .button-new-tag {
     margin-left: 10px;
     height: 32px;
-    line-height: 30px;
-    padding-top: 0;
-    padding-bottom: 0;
-    margin-top: 5px;
+
   }
-  .input-new-tag {
-    width: 90px;
-    margin-left: 0px;
-    margin-top: 4px;
-   
-  }
+
 </style>
