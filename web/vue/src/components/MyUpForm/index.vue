@@ -2,7 +2,7 @@
 
   <el-form
 
-    ref="elForm"
+    :ref="formRef"
     :disabled="formDisabled"
     :model="formData"
     :rules="formRules"
@@ -11,9 +11,11 @@
     label-position="left"
   >
     <el-row  :gutter="2" :key="index"   v-for="item,index in ConfHeader">
+
       <el-col :key="colindex" :span="colitem.span || 60" v-for="colitem,colindex in item" >
         <!--tag-->
-        <el-form-item class="tmp1"  :label="colitem.label" v-if="colitem.type == 'tag'" :prop="colitem.model">
+        <el-form-item :rules="colitem.rules || []" class="tmp1"  :label="colitem.label" v-if="colitem.type == 'tag'" :prop="colitem.model">
+          
           <el-row :gutter="2">
             <template  v-for="tagItem,tagIndex in formData[colitem.model].data">
               <el-col  :key="tagIndex" :span=60 >
@@ -58,16 +60,16 @@
           </el-row>
         </el-form-item>
         <!--input-->
-        <el-form-item class="tmp1" :label="colitem.label" v-if="colitem.type == 'input'" :prop="colitem.model">
+        <el-form-item :rules="colitem.rules || []" class="tmp1" :label="colitem.label" v-if="colitem.type == 'input'" :prop="colitem.model">
           <el-input
             v-model="formData[colitem.model]"
-            :placeholder="'formData.' + colitem.model"
+            :placeholder="colitem.placeholder"
             :readonly="colitem.readonly || false"
             :disabled="colitem.disabled"
           />
         </el-form-item>
         <!--upData-->
-        <el-form-item class="tmp1" :label="colitem.label" v-if="colitem.type == 'upData'" :prop="colitem.model">
+        <el-form-item :rules="colitem.rules || []" class="tmp1" :label="colitem.label" v-if="colitem.type == 'upData'" :prop="colitem.model">
           <el-popover
             placement="top-start"
             width="500"
@@ -86,13 +88,26 @@
 
               </el-upload>
                              <el-divider></el-divider>
-<div  class="el-upload__tip">只能上传jpg/png文件，且不超过500kb</div> 
+        <div  class="el-upload__tip">只能上传jpg/png文件，且不超过500kb</div> 
             <el-button slot="reference"><i class="el-icon-upload el-icon-left"></i>上传附件</el-button>
         </el-popover>
         
         </el-form-item>
-
-
+       
+        <!--select-->
+        <el-form-item :rules="colitem.rules || []" class="tmp1" :label="colitem.label" v-if="colitem.type == 'select'" :prop="colitem.model">
+          <el-select  v-model="formData[colitem.model]" 
+                      :placeholder="colitem.placeholder"
+                      :readonly="colitem.readonly || false"
+                      :disabled="colitem.disabled"
+                      >
+            <el-option v-for="tagItem,tagIndex in colitem.data" 
+                        :key="tagIndex" 
+                        :label="tagItem.label" 
+                        :value="tagItem.value">
+            </el-option>
+          </el-select>
+        </el-form-item>
 
       </el-col>
 
@@ -106,6 +121,10 @@
 export default {
   name: 'MyUpForm',
   props: {
+    formRef:{
+      type: String,
+      default: ""
+    },
     inputValue:"",
     formRules:{
       type: Object,
@@ -163,6 +182,9 @@ export default {
     'formData': function(newVal) {
       console.log('value:', newVal)
     }
+  },
+  mounted() {
+    console.log('mounted:', this.formRef)
   },
 
   methods: {
