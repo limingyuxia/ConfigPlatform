@@ -1,27 +1,23 @@
 <template>
-  <div>
-      <el-form
 
-        ref="elForm"
-        :disabled="formDisabled"
-        :model="formData"
-        :rules="formRules"
-        size="medium"
-        label-width="auto"
-        label-position="left"
-      >
+  <el-form
 
-      <el-row  :gutter="2" :key="index"   v-for="item,index in ConfHeader">
-
-          <el-col :key="colindex" :span="colitem.span || 60" v-for="colitem,colindex in item" >
-
-            <el-form-item class="tmp1"  :label="colitem.label" v-if="colitem.type == 'tag'" :prop="colitem.model">
-              <el-row :gutter="2">
-              <template  v-for="tagItem,tagIndex in formData[colitem.model].data">
-                  
-                  <el-col  :key="tagIndex" :span=60 >
+    ref="elForm"
+    :disabled="formDisabled"
+    :model="formData"
+    :rules="formRules"
+    size="medium"
+    label-width="auto"
+    label-position="left"
+  >
+    <el-row  :gutter="2" :key="index"   v-for="item,index in ConfHeader">
+      <el-col :key="colindex" :span="colitem.span || 60" v-for="colitem,colindex in item" >
+        <!--tag-->
+        <el-form-item class="tmp1"  :label="colitem.label" v-if="colitem.type == 'tag'" :prop="colitem.model">
+          <el-row :gutter="2">
+            <template  v-for="tagItem,tagIndex in formData[colitem.model].data">
+              <el-col  :key="tagIndex" :span=60 >
                 <el-tag
-
                   v-if="tagItem.type == 'tag'"
                   closable
                   :disable-transitions="true"
@@ -29,11 +25,9 @@
                   @close="handleClose(tagItem,tagIndex,colitem.model)">
                   {{tagItem.label}}
                 </el-tag>
-                
-                
+
                 <el-input
                   :key="tagIndex"
-                  
                   class="input-new-tag"
                   v-if="tagItem.type == 'input'"
                   v-model="tagItem.inputTmp"
@@ -44,41 +38,68 @@
                   @blur="handleInputConfirm(tagItem,tagIndex,colitem.model)"
                 >
                 </el-input>
-                </el-col>
-              </template>
-                <el-col>
-                <el-input
-                  class="input-new-tag"
-                  v-if="formDisabled == false && formData[colitem.model].inputVisible == true"
-                  v-model="formData[colitem.model].inputValue"
-                  :ref="'saveTagInput'+colitem.model"
-                  size="small"
-                  @keyup.enter.native="handleInputConfirmNew(colitem.model)"
-                  @blur="handleInputConfirmNew(colitem.model)"
-                >
-                </el-input>
-                </el-col>
-                <el-col>
-                  <el-button v-if="formDisabled == false && formData[colitem.model].inputVisible == false" class="button-new-tag" size="small" @click="showInputNew(colitem.model)">+ New Tag</el-button>
-                </el-col>
-              </el-row>
-            </el-form-item>
-
-              <el-form-item class="tmp1" :label="colitem.label" v-if="colitem.type == 'input'" :prop="colitem.model">
-                <el-input
-                  v-model="formData[colitem.model]"
-                  :placeholder="'formData.' + colitem.model"
-                  :readonly="colitem.readonly || false"
-                  :disabled="colitem.disabled"
-                />
-              </el-form-item>
-
+              </el-col>
+            </template>
+            <el-col>
+              <el-input
+                class="input-new-tag"
+                v-if="formDisabled == false && formData[colitem.model].inputVisible == true"
+                v-model="formData[colitem.model].inputValue"
+                :ref="'saveTagInput'+colitem.model"
+                size="small"
+                @keyup.enter.native="handleInputConfirmNew(colitem.model)"
+                @blur="handleInputConfirmNew(colitem.model)"
+              >
+              </el-input>
             </el-col>
+            <el-col>
+              <el-button v-if="formDisabled == false && formData[colitem.model].inputVisible == false" class="button-new-tag" size="small" @click="showInputNew(colitem.model)">+ New Tag</el-button>
+            </el-col>
+          </el-row>
+        </el-form-item>
+        <!--input-->
+        <el-form-item class="tmp1" :label="colitem.label" v-if="colitem.type == 'input'" :prop="colitem.model">
+          <el-input
+            v-model="formData[colitem.model]"
+            :placeholder="'formData.' + colitem.model"
+            :readonly="colitem.readonly || false"
+            :disabled="colitem.disabled"
+          />
+        </el-form-item>
+        <!--upData-->
+        <el-form-item class="tmp1" :label="colitem.label" v-if="colitem.type == 'upData'" :prop="colitem.model">
+          <el-popover
+            placement="top-start"
+            width="500"
+            title="上传附件"
+            trigger="click">
+              <el-upload
+                drag
+                action="123"
+                list-type="picture"
+                :on-preview="handlePreview"
+                :on-change="handleChange"
 
-      </el-row>
+                :auto-upload="false">
 
-      </el-form>
-  </div>
+                <i class="el-icon-plus"></i>
+
+              </el-upload>
+                             <el-divider></el-divider>
+<div  class="el-upload__tip">只能上传jpg/png文件，且不超过500kb</div> 
+            <el-button slot="reference"><i class="el-icon-upload el-icon-left"></i>上传附件</el-button>
+        </el-popover>
+        
+        </el-form-item>
+
+
+
+      </el-col>
+
+    </el-row>
+
+  </el-form>
+
 </template>
 
 <script>
@@ -124,7 +145,11 @@ export default {
 
         ],
         [
-          {"label":"部门-0","type":"tag","span":12,"placeholder":"描述","disabled":false,"model":"tag"},
+          {"label":"部门-0","type":"tag","span":24,"placeholder":"描述","disabled":false,"model":"tag"},
+
+        ],
+        [
+          {"label":"上传文件","type":"upData","span":24,"placeholder":"描述","disabled":false,"model":"tag"},
 
         ]
 
@@ -141,6 +166,15 @@ export default {
   },
 
   methods: {
+    handleChange(file, fileList){
+      var url = "https://src.pcsoft.com.cn/d/file/soft/wlgj/wlqt/2020-05-21/3f3678a651765913995ccb458c126320.jpg"
+      file.url = url
+      console.log(1,file);
+      console.log(2,fileList);
+    },
+    handlePreview(file) {
+        console.log(1,file);
+      },
     handleClose(tagItem,tagIndex,model) {
        console.log("删除",tagItem,tagIndex,model)
 
