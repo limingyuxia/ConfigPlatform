@@ -27,9 +27,9 @@
 
     </el-card>
 
-    <el-dialog v-loading="dialogFormLoading" :visible.sync="dialogFormVisible" v-bind="$attrs" title="项目详情">
-      <MyUpForm />
-      <el-form
+    <el-dialog style="min-width: 1000px;" v-loading="dialogFormLoading" :visible.sync="dialogFormVisible" v-bind="$attrs" title="项目详情">
+      <MyUpForm :formData="formData" :ConfHeader="ConfHeader"/>
+      <!-- <el-form
         ref="elForm"
         :disabled="dialogformDisabled"
         :model="formData"
@@ -174,20 +174,20 @@
         <el-row>
           <el-col :span="12">
             <el-form-item label="创建时间" prop="create_time">
-              <!--
+<1!--                               
                <el-date-picker
                 v-model="formData.create_time"
                 type="datetime"
                 placeholder="选择日期时间">
-              </el-date-picker>
--->
+              </el-date-picker> --1>
+                
               <el-date-picker
                 v-model="formData.create_time"
                 type="datetime"
                 :style="{width: '100%'}"
                 placeholder="由系统自动生成"
                 clearable
-                :disabled="true"
+                
               />
 
             </el-form-item>
@@ -205,7 +205,7 @@
             </el-form-item>
           </el-col>
         </el-row>
-      </el-form>
+      </el-form> -->
       <div slot="footer">
         <!--<el-button @click="close">取消</el-button>-->
         <el-button :disabled="dialogformDisabled" type="primary" @click="handelConfirm">保存更改</el-button>
@@ -233,6 +233,34 @@ export default {
   },
   data() {
     return {
+      //上传列表配置
+      ConfHeader:[
+        [
+          {"label":"项目id","type":"input","span":12,"placeholder":"由系统自动生成","disabled":true,"model":"id"},
+          {"label":"项目创建者","type":"input","span":12,"placeholder":"由系统自动生成","disabled":true,"model":"project_user"},
+        ],
+        [
+          {"label":"项目名称","type":"input","span":24,"placeholder":"由系统自动生成","disabled":false,"model":"name"},
+        ],
+        [
+          {"label":"项目名称","type":"input","type_old":"textarea","span":24,"placeholder":"由系统自动生成","disabled":false,"model":"description"},
+        ],
+        [
+          {"label":"项目所属的部门","type":"tag","span":24,"placeholder":"描述","disabled":false,"model":"department","addButton":"增加部门"},
+        ],
+        [
+          {"label":"管理员","type":"tag","span":12,"placeholder":"描述","disabled":false,"model":"admin","addButton":"增加管理员"},
+          {"label":"项目研发人员","type":"tag","span":12,"placeholder":"描述","disabled":false,"model":"develop_user","addButton":"增加研发人员"},
+
+        ],
+        [
+          {"label":"创建时间","type":"date_picker","type_old":"datetime","span":12,"placeholder":"由系统自动生成","disabled":false,"model":"create_time"},
+          {"label":"创建时间","type":"date_picker","type_old":"datetime","span":12,"placeholder":"由系统自动生成","disabled":false,"model":"create_time"},
+
+
+        ]
+        
+      ],
 
       formInline: [
         { 'label': '项目名称', 'value': '', 'model': 'name', 'placeholder': '请输入' },
@@ -273,16 +301,20 @@ export default {
         create_time: [],
         update_time: []
       },
-
+      nullTag:{
+            "data":[],
+            inputVisible: false,
+            inputValue: ''
+          },
       formData: {
         systype: '',
         id: undefined,
         project_user: undefined,
         name: undefined,
-        description: undefined,
-        department: undefined,
-        admin: undefined,
-        develop_user: undefined,
+        description: this.nullTag,
+        department: this.nullTag,
+        admin: this.nullTag,
+        develop_user: this.nullTag,
         create_time: '23:30:09',
         update_time: null
       },
@@ -537,10 +569,22 @@ export default {
 
       data = {
         'systype': 'add',
-        'admin': [],
-        'department': [],
+        'admin': {
+            "data":[],
+            inputVisible: false,
+            inputValue: ''
+          },
+        'department': {
+            "data":[],
+            inputVisible: false,
+            inputValue: ''
+          },
         'description': '',
-        'develop_user': [],
+        'develop_user': {
+            "data":[],
+            inputVisible: false,
+            inputValue: ''
+          },
         'id': '',
         'name': '',
         'project_user': this.name

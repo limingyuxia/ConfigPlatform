@@ -15,25 +15,27 @@
       <el-col :key="colindex" :span="colitem.span || 60" v-for="colitem,colindex in item" >
         <!--tag-->
         <el-form-item :rules="colitem.rules || []" class="tmp1"  :label="colitem.label" v-if="colitem.type == 'tag'" :prop="colitem.model">
-          
-          <el-row :gutter="2">
-            <template  v-for="tagItem,tagIndex in formData[colitem.model].data">
-              <el-col  :key="tagIndex" :span=60 >
+          <el-row style="border:1px solid" :gutter="10" >
+            
+              <el-col class="tag-class" v-show="formData[colitem.model].data.length >0" v-for="tagItem,tagIndex in formData[colitem.model].data" :key="tagIndex" :span="25">
+                
                 <el-tag
+                  style="width: 100%; "
+                  
                   v-if="tagItem.type == 'tag'"
+                  :ref="'saveTag'+tagIndex" 
                   closable
                   :disable-transitions="true"
                   @click="showInput(tagItem,tagIndex,colitem.model)"
                   @close="handleClose(tagItem,tagIndex,colitem.model)">
-                  {{tagItem.label}}
+                  {{style}}
+                  {{tagItem.label.length>10?tagItem.label.substring(0,9)+'...':tagItem.label}}
                 </el-tag>
-
                 <el-input
                   :key="tagIndex"
-                  class="input-new-tag"
+                  
                   v-if="tagItem.type == 'input'"
-                  v-model="tagItem.inputTmp"
-          
+                  v-model="tagItem.inputTmp"  
                   :ref="'saveTagInput'+tagIndex" 
                   size="small"
                   @keyup.enter.native="handleInputConfirm(tagItem,tagIndex,colitem.model)"
@@ -41,8 +43,9 @@
                 >
                 </el-input>
               </el-col>
-            </template>
-            <el-col>
+
+            
+            <el-col class="tag-class" :span="25">
               <el-input
                 class="input-new-tag"
                 v-if="formDisabled == false && formData[colitem.model].inputVisible == true"
@@ -53,15 +56,14 @@
                 @blur="handleInputConfirmNew(colitem.model)"
               >
               </el-input>
-            </el-col>
-            <el-col>
-              <el-button v-if="formDisabled == false && formData[colitem.model].inputVisible == false" class="button-new-tag" size="small" @click="showInputNew(colitem.model)">+ New Tag</el-button>
+              <el-button v-if="formDisabled == false && formData[colitem.model].inputVisible == false" class="button-new-tag" size="small" @click="showInputNew(colitem.model)">{{colitem.addButton || "+ New Tag" }} </el-button>
             </el-col>
           </el-row>
         </el-form-item>
         <!--input-->
         <el-form-item :rules="colitem.rules || []" class="tmp1" :label="colitem.label" v-if="colitem.type == 'input'" :prop="colitem.model">
           <el-input
+            :type="colitem.type_old || ''"
             v-model="formData[colitem.model]"
             :placeholder="colitem.placeholder"
             :readonly="colitem.readonly || false"
@@ -109,10 +111,20 @@
           </el-select>
         </el-form-item>
 
+        <!--date_picker-->
+        <el-form-item :rules="colitem.rules || []" class="tmp1" :label="colitem.label" v-if="colitem.type == 'date_picker'" :prop="colitem.model">
+          <el-col>
+          <el-date-picker
+                  v-model="formData[colitem.model]"
+                  :type="colitem.type_old || ''"
+                  :placeholder="colitem.placeholder"
+                  :style="{width: '85%'}"
+                  :disabled="colitem.disabled"
+          />
+           </el-col>
+        </el-form-item>
       </el-col>
-
     </el-row>
-
   </el-form>
 
 </template>
@@ -135,7 +147,7 @@ export default {
       type: Boolean,
       default: false
     },
-        formData: {
+    formData: {
       type: Object,
       default: () => {
         return {
@@ -206,7 +218,7 @@ export default {
       },
 
     showInputNew(model){
-      console.log("添加",model)
+      console.log("添加",this.formData,model,this.formData[model])
       this.formData[model].inputVisible = true
       //自动对焦
       this.$nextTick(_ => {
@@ -223,9 +235,10 @@ export default {
           "label":inputValue,"type":"tag","inputTmp":""
         }
         console.log("保存",tmp_inputValue)
-          this.formData[model].data.push(tmp_inputValue);
-        }
-        this.formData[model].inputValue = ""
+        this.formData[model].data.push(tmp_inputValue);
+      }
+
+      this.formData[model].inputValue = ""
       this.formData[model].inputVisible = false
       
     },
@@ -244,8 +257,7 @@ export default {
 
     showInput(tagItem,tagIndex,model){//开始编辑
         console.log("showInput",tagItem,tagIndex,model)
-        
-        
+   
         this.formData[model].data[tagIndex].inputTmp = this.formData[model].data[tagIndex].label
         //this.formData[model][tagIndex].disableTransitions = false
         this.formData[model].data[tagIndex].type = "input"
@@ -268,9 +280,25 @@ export default {
 <style lang="scss" scoped>
 
   .button-new-tag {
-    margin-left: 10px;
+    margin-left: 0px;
     height: 32px;
 
   }
+  .input-new-tag {
+    width:auto;
+    // height: 10px;
+    margin-left: 0px;
+    margin-top: 0px;
+
+  }
+  .tag-class{
+    
+
+      // min-width: 100px;
+      margin-top: 5px;
+      
+      
+  }
+
 
 </style>
